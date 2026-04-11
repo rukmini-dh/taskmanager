@@ -31,7 +31,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
     public TaskDTO getTaskById(Integer id) {
-        Task task = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
+        Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + id));
 
         return convertToDTO(task);
     }
@@ -55,10 +55,13 @@ public class TaskServiceImpl implements TaskService {
     }
      // Update task
     public TaskDTO updateTask(Integer id, TaskDTO taskDTO) {
-        Task task = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
+        Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + id));
          
         if (task.getTitle() != null) task.setTitle(taskDTO.getTitle());
         task.setCompleted(taskDTO.isCompleted());
+        task.setPriority(taskDTO.getPriority());
+        task.setDescription(taskDTO.getDescription());
+        task.setDueDate(taskDTO.getDueDate());
         return convertToDTO(taskRepository.save(task));
     }
               

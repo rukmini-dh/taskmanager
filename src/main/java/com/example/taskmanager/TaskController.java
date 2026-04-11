@@ -21,7 +21,7 @@ public class TaskController {
         return taskServiceImpl.getTasksByPriority(priority);
     }
 
-    @GetMapping("/due-before/{date}")
+    @GetMapping("/due-before/{dueDate}")
     public List<TaskDTO> getTasksDueBefore(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate) {
         return taskServiceImpl.getTasksDueBefore(dueDate);
     }
