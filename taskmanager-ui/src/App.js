@@ -3,7 +3,7 @@ import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
 import "./App.css";
 import { getTasks,addTask,updateTask,deleteTask} from "./services/taskService";
-import * as taskService from "./services/taskService";
+
 
 
 function App() {
@@ -16,8 +16,7 @@ function App() {
     priority: "LOW",
     dueDate: ""
   });
-  console.log("getTasks:", getTasks);
-  console.log(taskService);
+ 
   const [editingId, setEditingId] = useState(null);
 
   // 🔹 Fetch Tasks
@@ -96,16 +95,18 @@ function App() {
   };
 
   return (
-    <div>
+    <div className="container">
       <h1>Task Manager</h1>
-
-      <TaskForm
-        taskForm={taskForm}
-        setTaskForm={setTaskForm}
-        handleSubmit={handleSubmit}
-        editingId={editingId}
-      />
-
+  
+      <div className="card">
+        <TaskForm
+          taskForm={taskForm}
+          setTaskForm={setTaskForm}
+          handleSubmit={handleSubmit}
+          editingId={editingId}
+        />
+      </div>
+  
       <TaskList
         tasks={tasks}
         handleDelete={handleDelete}
