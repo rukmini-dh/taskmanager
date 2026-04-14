@@ -1,0 +1,90 @@
+.task-card {
+    background: white;
+    padding: 15px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: 0.2s;
+  }
+  
+  .task-card:hover {
+    transform: scale(1.01);
+  }
+  
+  .title {
+    margin: 0;
+    font-size: 18px;
+  }
+  
+  .desc {
+    color: #555;
+    margin: 5px 0;
+  }
+  
+  .meta {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+  }
+  
+  .status {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+  
+  .status.done {
+    background: #d1fae5;
+    color: #065f46;
+  }
+  
+  .status.pending {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+  
+  .priority {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+  
+  .priority.HIGH {
+    background: #fecaca;
+  }
+  
+  .priority.MEDIUM {
+    background: #fde68a;
+  }
+  
+  .priority.LOW {
+    background: #bfdbfe;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  
+  button {
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+  }
+  
+  .edit {
+    background: orange;
+    color: white;
+  }
+  
+  .toggle {
+    background: green;
+    color: white;
+  }
+  
+  .delete {
+    background: red;
+    color: white;
+  }
