@@ -1,17 +1,26 @@
 import React from "react";
 
-function TaskForm({ taskForm, setTaskForm, handleSubmit, editingId }) {
+function TaskForm({ taskForm, setTaskForm, handleSubmit, editingId,error,setError }) {
+ 
   return (
     <div>
       <h2>{editingId ? "Edit Task" : "Add Task"}</h2>
 
       <input
-        placeholder="Title"
+        type="text"
+        placeholder="Enter task title"
         value={taskForm.title}
-        onChange={(e) =>
-          setTaskForm({ ...taskForm, title: e.target.value })
-        }
+        onChange={(e) => {
+          setTaskForm({ ...taskForm, title: e.target.value });
+
+          // ✅ clear error while typing
+          if (error)setError("");
+        }}
+        
+        className={`input ${error ? "input-error" : ""}`}
       />
+      {/* 🔹 Inline error message */}
+      {error && <p className="error-text">{error}</p>}
 
       <input
         placeholder="Description"

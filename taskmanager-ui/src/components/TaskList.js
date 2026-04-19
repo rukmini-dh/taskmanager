@@ -1,8 +1,22 @@
-import React from "react";
+import React , {useState}from "react";
+
 
 function TaskList({ tasks, handleDelete, startEdit, toggleStatus }) {
+ 
+ 
+
   return (
+    
     <div>
+      <div className="filters">
+      {/* <input
+  type="text"
+  placeholder="Search tasks..."
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+/> */}
+  
+</div>
       <h3>Task List</h3>
 
       <ul>

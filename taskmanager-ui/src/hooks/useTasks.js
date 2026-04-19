@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { getTasks, addTask, updateTask, deleteTask } from "../services/taskService";
 
+
 export const useTasks = () => {
   const [tasks, setTasks] = useState([]);
-
+  
   // 🔹 Fetch tasks
   const fetchTasks = async () => {
     try {
@@ -20,7 +21,7 @@ export const useTasks = () => {
   }, []);
 
   // 🔹 Add task
-  const createTask = async (task) => {
+   const createTask = async (task) => {
     try {
       const newTask = await addTask(task);
       setTasks((prev) => [...prev, newTask]);
@@ -30,6 +31,7 @@ export const useTasks = () => {
   };
 
   // 🔹 Update task
+  
   const editTask = async (id, updatedTask) => {
     try {
       const updated = await updateTask(id, updatedTask);
@@ -51,12 +53,27 @@ export const useTasks = () => {
       console.error("Error deleting task:", err);
     }
   };
+ 
+  /* const handleSubmit = async () => {
+    if (!taskForm.title) return;
+  
+    if (editingId) {
+      await editTask(editingId, taskForm);
+    } else {
+      await createTask({
+        ...taskForm,
+        completed: false
+      });
+    }
+  
+    resetForm();
+  }; */
 
   return {
     tasks,
     createTask,
     editTask,
     removeTask,
-    fetchTasks
+   
   };
 };

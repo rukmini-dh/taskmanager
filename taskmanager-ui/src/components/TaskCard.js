@@ -1,37 +1,50 @@
 import React from "react";
 import "./taskCard.css";
+import { FaTrash, FaEdit } from "react-icons/fa";
 
 const TaskCard = ({ task, onEdit, onDelete, onToggle }) => {
+  console.log("in taskcad");
   return (
-    <div className="task-card">
+    <div className="Card">
 
-      <h3 className="title">{task.title}</h3>
+      {/* First Row */}
+      <div className="firstrow">
+        <div className={`title ${task.completed ? "completed" : ""}`}>
+          {task.title}
+        </div>
 
-      <p className="desc">{task.description}</p>
-
-      <div className="meta">
-        <span className={`status ${task.completed ? "done" : "pending"}`}>
-          {task.completed ? "Done" : "Pending"}
-        </span>
-
-        <span className={`priority ${task.priority}`}>
-          {task.priority}
-        </span>
+        <input
+          type="checkbox"
+          className="status"
+          checked={task.completed}
+          onChange={() => onToggle(task)}
+        />
       </div>
 
-      <div className="actions">
-        <button className="edit" onClick={() => onEdit(task)}>Edit</button>
-
-        <button className="toggle" onClick={() => onToggle(task)}>
-          
-          {task.completed ? "Mark Pending" : "Mark Done"}
-        </button>
-
-        <button className="delete" onClick={() => onDelete(task.id)}>
-          Delete
-        </button>
+      {/* Second Row */}
+      <div className="secondrow">
+        <div className="description">{task.description}</div>
       </div>
 
+      {/* Third Row */}
+      <div className="thirdrow">
+
+        {/* Left side */}
+        <div className="meta">
+          <div className={`badge ${task.priority.toLowerCase()}`}>
+            {task.priority}
+          </div>
+
+          <div className="duedate">{task.dueDate}</div>
+        </div>
+
+        {/* Right side */}
+        <div className="actions">
+          <FaEdit className="editButton" onClick={() => onEdit(task)} />
+          <FaTrash className="deleteButton" onClick={() => onDelete(task.id)} />
+        </div>
+
+      </div>
     </div>
   );
 };
