@@ -1,17 +1,72 @@
-import React from "react";
+import React, {useState}from "react";
 import "./taskCard.css";
-import { FaTrash, FaEdit } from "react-icons/fa";
-
-const TaskCard = ({ task, onEdit, onDelete, onToggle }) => {
-  console.log("in taskcad");
+import { FaTrash, FaEdit,FaSave,FaTimes } from "react-icons/fa";
+import {useEffect,useRef} from "react";
+const TaskCard = ({ task, onEdit, onDelete, onToggle,onSave }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [title,setTitle]=useState("");
+  const [editedTask, setEditedTask,resetTask] = useState(task);
+  const inputRef = useRef(null);
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (cardRef.current && !cardRef.current.contains(e.target)) {
+        handleCancel();
+      }
+    };
+  
+    if (isEditing) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+  
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isEditing]);
+  const cardRef = useRef(null);
+  const handleCancel = () => {
+    setEditedTask(task);
+    setIsEditing(false);
+  };
+  const handleSave = () => {
+    onSave(task.id, editedTask);
+    setIsEditing(false);};
   return (
-    <div className="Card">
+    <div ref={cardRef}  className="Card">
 
       {/* First Row */}
       <div className="firstrow">
-        <div className={`title ${task.completed ? "completed" : ""}`}>
-          {task.title}
-        </div>
+       
+      {!isEditing ? (
+  <div className="title">{task.title}</div>
+) : (
+  <div className="edit-title">
+    <input ref={inputRef}
+      type="text"
+      className="title"
+      placeholder="Enter title"
+      value={editedTask.title}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          handleSave();
+        }
+      }}
+      onChange={(e) =>
+        setEditedTask({
+          ...editedTask,
+          title: e.target.value
+        })
+      }
+    />
+
+  </div>
+)}
+        
+             
 
         <input
           type="checkbox"
@@ -20,6 +75,7 @@ const TaskCard = ({ task, onEdit, onDelete, onToggle }) => {
           onChange={() => onToggle(task)}
         />
       </div>
+     
 
       {/* Second Row */}
       <div className="secondrow">
@@ -40,8 +96,18 @@ const TaskCard = ({ task, onEdit, onDelete, onToggle }) => {
 
         {/* Right side */}
         <div className="actions">
-          <FaEdit className="editButton" onClick={() => onEdit(task)} />
+          <FaEdit className="editButton" onClick={() => setIsEditing(true)} />
           <FaTrash className="deleteButton" onClick={() => onDelete(task.id)} />
+          <FaSave  className="saveButton"   onClick={() => { onSave(task.id, editedTask);
+    setIsEditing(false);
+  }}
+/>
+
+          <FaTimes   className="cancelButton"   onClick={() => { setEditedTask(task);
+    setIsEditing(false);
+  }}
+/>
+         
         </div>
 
       </div>

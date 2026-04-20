@@ -27,7 +27,21 @@
   font-weight: 600;
   color: #1e293b;
 }
-
+.edit-title
+{
+  
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    outline: none;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+ 
+}
+.edit-title:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
 /* Completed task */
 .title.completed {
   text-decoration: line-through;
@@ -45,6 +59,11 @@
   font-size: 13px;
   color: #64748b;
   line-height: 1.4;
+}
+.edit-description {
+  width: 100%;
+  padding: 6px;
+  border-radius: 4px;
 }
 .thirdrow {
   display: flex;
@@ -89,10 +108,17 @@
   cursor: pointer;
   font-size: 14px;
 }
-
-.editButton:hover {
-  text-decoration: underline;
+.cancelButton {
+  color: #2563eb;
+  cursor: pointer;
+  font-size: 14px;
 }
+.saveButton {
+  color: #2563eb;
+  cursor: pointer;
+  font-size: 14px;
+}
+
 .deleteButton {
   color: #dc2626;
   cursor: pointer;

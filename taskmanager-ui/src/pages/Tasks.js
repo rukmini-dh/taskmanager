@@ -55,7 +55,11 @@ function Tasks() {
     resetForm();
   };
  
-
+   const onSave= (id,updatedTask)=>
+   {
+    editTask(id,updatedTask);
+    
+   };
   const startEdit = (task) => {
     setTaskForm(task);
     setEditingId(task.id);
@@ -68,6 +72,7 @@ function Tasks() {
   };
  
   // 🔹 Toggle Status
+  
   
 
   // 🔹 Reset form
@@ -94,6 +99,7 @@ function Tasks() {
       (task.description || "").toLowerCase().includes(search)
     );
   });
+ 
   
   return (
     <div className="container">
@@ -129,7 +135,9 @@ function Tasks() {
     onEdit={startEdit}
     onDelete={removeTask}
     onToggle={toggleStatus}
-    
+    onSave={onSave}
+   
+       
   />
 ))}
     </div>
