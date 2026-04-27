@@ -1,13 +1,14 @@
-import React,{useState} from "react"; 
+import React,{useState,useEffect} from "react"; 
 import {useTasks} from "../hooks/useTasks";
 import TaskCard from "../components/TaskCard";
 import TaskForm from "../components/TaskForm";
 
 function Tasks() {
+  //initialising variables
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
-  const{tasks,editTask,removeTask,createTask}=useTasks();
+  const { tasks, editTask, removeTask, createTask, loadingMap } = useTasks();
   const [taskForm, setTaskForm] = useState({
     title: "",
     description: "",
@@ -15,32 +16,19 @@ function Tasks() {
     priority: "LOW",
     dueDate: ""
   });
+
+  useEffect(() => {
+    console.log("loadingMap changed:", loadingMap);
+  }, [loadingMap]);
  
   const [editingId, setEditingId] = useState(null);
 
-  // 🔹 Fetch Tasks
-  /* const fetchTasks = async () => {
-    try {
-      const data = await getTasks();
-      setTasks(data);
-    } catch (err) {
-      console.error(err);
-    }
-  }; */
  
-
- /*  useEffect(() => {
-    fetchTasks();
-  }, []); */
   // 🔹 Add or Update Task
-  const handleSubmit = async () => {
-    console.log("submitted");
-    console.log(taskForm.title.trim());
+    const handleSubmit = async () => {
     if (!taskForm.title.trim()) 
     {setError("Please enter a task title");
-      console.log("Validation failed");
       return;}
-      
       setError("");
     if (editingId) {
       await editTask(editingId, taskForm);
@@ -55,9 +43,9 @@ function Tasks() {
     resetForm();
   };
  
-   const onSave= (id,updatedTask)=>
+   const onSave=  async(id,updatedTask)=>
    {
-    editTask(id,updatedTask);
+     await editTask(id,updatedTask);
     
    };
   const startEdit = (task) => {
@@ -136,7 +124,8 @@ function Tasks() {
     onDelete={removeTask}
     onToggle={toggleStatus}
     onSave={onSave}
-   
+    loadingState={loadingMap[task.id]} 
+    
        
   />
 ))}
