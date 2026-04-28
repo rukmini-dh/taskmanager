@@ -10,7 +10,25 @@
   /* 🔥 smooth hover */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
+.undo-bar {
+  position: fixed;
+  bottom: 20px;
+  right:  20px;
+  background: #334155;
+    color: white;
+  padding: 10px 15px;
+  border-radius: 6px;
+  z-index: 1000;
+}
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 180px;
+  background: #334155;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 6px;
+}
 /* Hover effect */
 .Card:hover {
   transform: translateY(-3px);

@@ -26,7 +26,7 @@ export const useTasks = () => {
 
   // 🔹 Add task (optimistic)
   const createTask = async (task) => {
-    const tempId = Date.now();
+    const tempId = "temp-" + Date.now();
     const tempTask = { ...task, id: tempId };
 
     // 1. Show loading

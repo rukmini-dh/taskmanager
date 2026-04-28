@@ -8,7 +8,9 @@ function Tasks() {
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
+  const [toast, setToast] = useState("");
   const { tasks, editTask, removeTask, createTask, loadingMap } = useTasks();
+  const [lastDeleted, setLastDeleted] = useState(null);
   const [taskForm, setTaskForm] = useState({
     title: "",
     description: "",
@@ -22,17 +24,35 @@ function Tasks() {
   }, [loadingMap]);
  
   const [editingId, setEditingId] = useState(null);
+  const handleUndo = async () => {
+    console.log("in Undo");
+    if (!lastDeleted) return;
+  
+    await createTask(lastDeleted);  
+     // re-add task
+     console.log("re added");
+    setLastDeleted(null);
+  };
+  const handleDelete = (task) => {
+    setToast("task deletd");
+    setLastDeleted(task);        // store deleted task
+    removeTask(task.id);         // optimistic delete
+  };
 
- 
-  // 🔹 Add or Update Task
+   // 🔹 Add or Update Task
     const handleSubmit = async () => {
+      console.log("submitted");
+      setLastDeleted(null);
     if (!taskForm.title.trim()) 
     {setError("Please enter a task title");
       return;}
       setError("");
+      console.log(editingId);
     if (editingId) {
       await editTask(editingId, taskForm);
+
     } else {
+      console.log("in adding");
       await createTask({
         ...taskForm,
         completed: false
@@ -46,6 +66,7 @@ function Tasks() {
    const onSave=  async(id,updatedTask)=>
    {
      await editTask(id,updatedTask);
+     setToast("Task saved!");
     
    };
   const startEdit = (task) => {
@@ -58,7 +79,12 @@ function Tasks() {
       completed: !task.completed
     });
   };
- 
+  useEffect(() => {
+    if (!toast) return;
+  
+    const timer = setTimeout(() => setToast(""), 2000);
+    return () => clearTimeout(timer);
+  }, [toast]);
   // 🔹 Toggle Status
   
   
@@ -103,12 +129,22 @@ function Tasks() {
           setError={setError}
         />
       </div>
+    
       <div className="filters">
           <button onClick={() => setFilter("ALL")}>All</button>
           <button onClick={() => setFilter("DONE")}>Done</button>
           <button onClick={() => setFilter("PENDING")}>Pending</button>
           <button onClick={() => setFilter("HIGH")}>High</button>
-      </div>
+      
+          {toast && <div className="toast">{toast}</div>}
+     
+      {lastDeleted && (
+  <div className="undo-bar">
+   
+    <button onClick={handleUndo}>Undo</button>
+  </div>
+)}
+</div>
        <input
   type="text"
   placeholder="Search tasks..."
@@ -121,7 +157,7 @@ function Tasks() {
     key={task.id}
     task={task}
     onEdit={startEdit}
-    onDelete={removeTask}
+    onDelete= {()=> handleDelete(task)}
     onToggle={toggleStatus}
     onSave={onSave}
     loadingState={loadingMap[task.id]} 

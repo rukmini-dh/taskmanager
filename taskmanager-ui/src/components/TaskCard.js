@@ -7,6 +7,8 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
   const isLoading = !!loadingState; // boolean derived from status
   const [title,setTitle]=useState("");
   const [editedTask, setEditedTask] = useState(task);
+  const isSaving = loadingState === "saving";
+    const isDeleting = loadingState === "deleting";
   const inputRef = useRef(null);
   useEffect(() => {
     if (isEditing) {
@@ -49,8 +51,8 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
     isSavingRef.current = true;
     onSave(task.id, editedTask);
     setIsEditing(false);};
-    const isSaving = loadingState === "saving";
-    const isDeleting = loadingState === "deleting";
+   
+    
   
     
   
@@ -135,7 +137,7 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
       ) 
       }
           <FaEdit className="editButton" onClick={() => setIsEditing(true)} />
-          <button onClick={() => onDelete(task.id)} disabled={isLoading}  > {isDeleting ? "Deleting..." : "Delete"}</button>
+          <button onClick={() => onDelete(task)} disabled={isLoading}  > {isDeleting ? "Deleting..." : "Delete"}</button>
       
          
         </div>
