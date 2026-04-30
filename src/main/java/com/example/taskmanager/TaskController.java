@@ -17,7 +17,7 @@ public class TaskController {
         this.taskServiceImpl = taskServiceImpl;
     }
     @GetMapping("/priority/{priority}")
-    public List<TaskDTO> getTasksByPriority(@PathVariable Priority priority) {
+    public List<TaskDTO> getTasksByPriority(@PathVariable String priority) {
         return taskServiceImpl.getTasksByPriority(priority);
     }
 
@@ -34,7 +34,7 @@ public class TaskController {
 
     // Get task by ID
     @GetMapping("/{id}")
-    public TaskDTO getTaskById(@PathVariable Integer id) {
+    public TaskDTO getTaskById(@PathVariable Long id) {
         return taskServiceImpl.getTaskById(id);
     }
 
@@ -46,13 +46,13 @@ public class TaskController {
 
     // Update an existing task
     @PutMapping("/{id}")
-    public TaskDTO updateTask(@PathVariable Integer id, @Valid @RequestBody  TaskDTO taskDTO) {
+    public TaskDTO updateTask(@PathVariable Long id, @Valid @RequestBody  TaskDTO taskDTO) {
         return taskServiceImpl.updateTask(id, taskDTO);
     }
 
     // Delete a task
     @DeleteMapping("/{id}")
-    public void deleteTask(@PathVariable Integer id) {
+    public void deleteTask(@PathVariable Long id) {
         taskServiceImpl.deleteTask(id);
     }
 

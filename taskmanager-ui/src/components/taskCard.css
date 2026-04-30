@@ -1,5 +1,5 @@
 .Card {
-  background: red;
+  background: grey;
   padding: 16px;
   border-radius: 10px;
   margin-bottom: 15px;
@@ -75,7 +75,7 @@
 
 .description {
   font-size: 13px;
-  color: #64748b;
+  color: #1e293b;
   line-height: 1.4;
 }
 .edit-description {
@@ -121,8 +121,9 @@
 .actions {
   display: flex;
   gap: 10px;
-}.editButton {
-  color: #2563eb;
+}
+.editButton {
+  color: black;
   cursor: pointer;
   font-size: 14px;
 }

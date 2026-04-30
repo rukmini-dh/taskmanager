@@ -8,9 +8,10 @@ import java.util.Optional;
 
 public interface TaskRepository extends JpaRepository<Task, Integer> {
     List<Task> findByCompleted(boolean completed);
-    List<Task> findByPriority(Priority priority);
+    List<Task> findByPriority(String priority);
     List<Task> findByDueDateBefore(LocalDate dueDate);
-    Optional<Task> findById(Integer id);
+    Optional<Task> findById(Long id);
+    Void deleteById(Long id);
     
 }
     

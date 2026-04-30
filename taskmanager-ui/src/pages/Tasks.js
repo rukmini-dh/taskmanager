@@ -34,7 +34,7 @@ function Tasks() {
     setLastDeleted(null);
   };
   const handleDelete = (task) => {
-    setToast("task deletd");
+    setToast("Task "+task.title+" deleted");
     setLastDeleted(task);        // store deleted task
     removeTask(task.id);         // optimistic delete
   };

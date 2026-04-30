@@ -1,28 +1,26 @@
 package com.example.taskmanager;
 
+import jakarta.persistence.*;
 import java.time.LocalDate;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotBlank;
+
 @Entity
 public class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;      // primary 
-    
-    @NotBlank(message="Title cannot be empty")//validation for title
-    private String title;    // task title
-    private boolean completed;  // task status
-    public String description;
-    public LocalDate dueDate;
-    @Enumerated(EnumType.STRING)
-    private Priority priority;//High,Medium,Low
+    private Long id;
 
+    private String title;
+
+    private String description;
+
+    private boolean completed;
+
+    private String priority;
+
+    private LocalDate dueDate;
+
+    // Getters and Setters
     
 
 
@@ -30,7 +28,7 @@ public class Task {
     public Task() {}
 
     // Constructor with fields
-    public Task(String title, boolean completed,LocalDate dueDate, Priority priority,String description  ) {
+    public Task(String title, boolean completed,LocalDate dueDate, String priority,String description  ) {
         this.title = title;
         this.completed = completed;
         this.dueDate = dueDate;
@@ -40,11 +38,11 @@ public class Task {
     }
 
     // Getters and Setters
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -77,17 +75,17 @@ public class Task {
     public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
     }
-    public Priority getPriority() {
+    public String getPriority() {
         return priority;
     }
 
-    public void setPriority(Priority priority) {
+    public void setPriority(String priority) {
         this.priority = priority;
     }
    
     
 
-    // Optional: toString for debugging
+   /*  // Optional: toString for debugging
     @Override
     public String toString() {
         return "Task{" +
@@ -96,5 +94,5 @@ public class Task {
                 ", completed=" + completed +
                 '}';
     }
-    
+     */
 }

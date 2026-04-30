@@ -136,7 +136,8 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
         
       ) 
       }
-          <FaEdit className="editButton" onClick={() => setIsEditing(true)} />
+          <button className="editButton" onClick={() => setIsEditing(true)}> Edit</button> 
+          
           <button onClick={() => onDelete(task)} disabled={isLoading}  > {isDeleting ? "Deleting..." : "Delete"}</button>
       
          

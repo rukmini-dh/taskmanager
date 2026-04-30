@@ -5,11 +5,11 @@ import java.util.List;
 
 public interface TaskService {
         List<TaskDTO> getAllTasks();
-        TaskDTO getTaskById(Integer id);
+        TaskDTO getTaskById(Long id);
         TaskDTO createTask(TaskDTO taskDTO);
-        TaskDTO updateTask(Integer id, TaskDTO taskDTO);
-        void deleteTaskById(Integer id);
-        List<TaskDTO> getTasksByPriority(Priority priority);
+        TaskDTO updateTask(Long id, TaskDTO taskDTO);
+        void deleteTaskById(Long id);
+        List<TaskDTO> getTasksByPriority(String priority);
         List<TaskDTO> getTasksDueBefore(LocalDate date);
  }
 

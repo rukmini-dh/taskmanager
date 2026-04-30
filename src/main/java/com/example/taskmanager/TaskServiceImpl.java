@@ -21,7 +21,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     // Delete task
-    public void deleteTask(Integer id) {
+    public void deleteTask(Long id) {
               taskRepository.deleteById(id);
     }
     public List<TaskDTO> getTasksDueBefore(LocalDate dueDate){
@@ -30,7 +30,7 @@ public class TaskServiceImpl implements TaskService {
             .map(this::convertToDTO).toList();
         }
 
-    public TaskDTO getTaskById(Integer id) {
+    public TaskDTO getTaskById(Long id) {
         Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + id));
 
         return convertToDTO(task);
@@ -43,18 +43,14 @@ public class TaskServiceImpl implements TaskService {
     }
 
     // get task by priority
-    public List<TaskDTO> getTasksByPriority(Priority priority) {
+    public List<TaskDTO> getTasksByPriority(String priority) {
         return taskRepository.findByPriority(priority).stream()
         .map(this::convertToDTO)
         .toList();
     }
-    // Delete task
-    public void deleteTaskById(Integer id) {
-
-              taskRepository.deleteById(id);
-    }
+   
      // Update task
-    public TaskDTO updateTask(Integer id, TaskDTO taskDTO) {
+    public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
         Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + id));
          
         if (task.getTitle() != null) task.setTitle(taskDTO.getTitle());
@@ -85,6 +81,12 @@ public class TaskServiceImpl implements TaskService {
         dto.setPriority(task.getPriority());
         dto.setDueDate(task.getDueDate());
         return dto;
+    }
+
+    @Override
+    public void deleteTaskById(Long id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteTaskById'");
     }
     
 }

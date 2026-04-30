@@ -9,7 +9,7 @@ public class TaskDTO {
 
     @NotBlank(message = "Title cannot be empty")
     private String title;
-    private Integer id;
+    private Long id;
    
     private String description;
     private Boolean completed;
@@ -17,16 +17,16 @@ public class TaskDTO {
     // New fields for tomorrow
     private LocalDate dueDate;
     @Enumerated(EnumType.STRING)
-    private Priority priority;
+    private String priority;
 
     // Getters and Setters
 
     // Getters and Setters
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
     public String getTitle() { return title; }
@@ -35,8 +35,8 @@ public class TaskDTO {
     public void setDescription(String description){ this.description= description;}
     public  void setDueDate(LocalDate dueDate){ this.dueDate=dueDate;} 
     public LocalDate getDueDate(){return dueDate;} 
-    public Priority getPriority(){ return priority; }
-    public void setPriority(Priority priority){ this.priority=priority;}
+    public String getPriority(){ return priority; }
+    public void setPriority(String priority){ this.priority=priority;}
     public boolean isCompleted() { return completed; }
     public void setCompleted(boolean completed) { this.completed = completed; }
 }
