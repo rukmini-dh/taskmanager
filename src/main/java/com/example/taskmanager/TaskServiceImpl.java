@@ -14,7 +14,7 @@ public class TaskServiceImpl implements TaskService {
     private TaskRepository taskRepository;
     @Override
     public List<TaskDTO> getAllTasks() {
-        return taskRepository.findAll()
+        return taskRepository.findByDeletedFalse()
                 .stream()
                 .map(this::convertToDTO)
                 .toList();
@@ -43,7 +43,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     // get task by priority
-    public List<TaskDTO> getTasksByPriority(String priority) {
+    public List<TaskDTO> getTasksByPriority(Priority priority) {
         return taskRepository.findByPriority(priority).stream()
         .map(this::convertToDTO)
         .toList();
@@ -52,12 +52,13 @@ public class TaskServiceImpl implements TaskService {
      // Update task
     public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
         Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + id));
-         
         if (task.getTitle() != null) task.setTitle(taskDTO.getTitle());
         task.setCompleted(taskDTO.isCompleted());
         task.setPriority(taskDTO.getPriority());
         task.setDescription(taskDTO.getDescription());
         task.setDueDate(taskDTO.getDueDate());
+        
+        task.setDeleted(taskDTO.isDeleted());
         return convertToDTO(taskRepository.save(task));
     }
               
@@ -69,6 +70,7 @@ public class TaskServiceImpl implements TaskService {
         task.setPriority(taskDTO.getPriority());
         task.setDescription(taskDTO.getDescription());
         task.setDueDate(taskDTO.getDueDate());
+        task.setDeleted(taskDTO.isDeleted());
         return convertToDTO(taskRepository.save(task));
     }              
     // 🔹 Helper method
@@ -80,6 +82,7 @@ public class TaskServiceImpl implements TaskService {
         dto.setCompleted(task.isCompleted());
         dto.setPriority(task.getPriority());
         dto.setDueDate(task.getDueDate());
+        dto.setDeleted(task.isDeleted());
         return dto;
     }
 

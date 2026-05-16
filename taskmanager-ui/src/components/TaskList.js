@@ -9,12 +9,7 @@ function TaskList({ tasks, handleDelete, startEdit, toggleStatus }) {
     
     <div>
       <div className="filters">
-      {/* <input
-  type="text"
-  placeholder="Search tasks..."
-  value={searchTerm}
-  onChange={(e) => setSearchTerm(e.target.value)}
-/> */}
+     
   
 </div>
       <h3>Task List</h3>

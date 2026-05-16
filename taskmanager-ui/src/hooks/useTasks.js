@@ -1,87 +1,50 @@
 import { useState, useEffect } from "react";
 import {
   getTasks,
-  addTask,
-  updateTask,
-  deleteTask
+  addTask as apiAddTask,
+  updateTask as apiUpdateTask
 } from "../services/taskService";
 
 export const useTasks = () => {
   const [tasks, setTasks] = useState([]);
   const [loadingMap, setLoadingMap] = useState({});
 
-  // 🔹 Fetch tasks (runs once)
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const data = await getTasks();
-        setTasks(data);
-      } catch (err) {
-        console.error("Error fetching tasks:", err);
-      }
-    };
+  // 🔹 Fetch all tasks (single source of truth)
+  const fetchTasks = async () => {
+    try {
+      const data = await getTasks();
+      setTasks(data);
+    } catch (err) {
+      console.error("Failed to fetch tasks", err);
+    }
+  };
 
+  // 🔹 Initial load
+  useEffect(() => {
     fetchTasks();
   }, []);
 
-  // 🔹 Add task (optimistic)
-  const createTask = async (task) => {
-    const tempId = "temp-" + Date.now();
-    const tempTask = { ...task, id: tempId };
-
-    // 1. Show loading
-    setLoadingMap(prev => ({
-      ...prev,
-      [tempId]: "creating"
-    }));
-
-    // 2. Optimistically add
-    setTasks(prev => [...prev, tempTask]);
-
+  // 🔹 Add Task
+  const addTask = async (task) => {
     try {
-      const saved = await addTask(task);
-
-      // 3. Replace temp with real
-      setTasks(prev =>
-        prev.map(t => (t.id === tempId ? saved : t))
-      );
+      await apiAddTask(task);
+      fetchTasks(); // ✅ always sync from backend
     } catch (err) {
-      // 4. Rollback
-      setTasks(prev => prev.filter(t => t.id !== tempId));
-    } finally {
-      // 5. Remove loading
-      setLoadingMap(prev => {
-        const copy = { ...prev };
-        delete copy[tempId];
-        return copy;
-      });
+      console.error("Add failed", err);
     }
   };
 
-  // 🔹 Edit task (optimistic)
+  // 🔹 Edit Task (title, completed, etc.)
   const editTask = async (id, updatedTask) => {
-    console.log("API CALLED for id:", id);
-
-    const previousTasks = [...tasks];
-
-    // 1. Show loading
-    setLoadingMap(prev => ({
-      ...prev,
-      [id]: "saving"
-    }));
-
-    // 2. Optimistic update
-    setTasks(prev =>
-      prev.map(t => (t.id === id ? { ...t, ...updatedTask } : t))
-    );
-
     try {
-      await updateTask(id, updatedTask);
+      setLoadingMap(prev => ({ ...prev, [id]: "saving" }));
+
+      await apiUpdateTask(id, updatedTask);
+
+      fetchTasks(); // ✅ refresh from backend
     } catch (err) {
-      // 3. Rollback
-      setTasks(previousTasks);
+      console.error("Edit failed", err);
     } finally {
-      // 4. Remove loading
       setLoadingMap(prev => {
         const copy = { ...prev };
         delete copy[id];
@@ -90,40 +53,49 @@ export const useTasks = () => {
     }
   };
 
-  // 🔹 Delete task (optimistic)
-  const removeTask = async (id) => {
-    const previousTasks = [...tasks];
-
-    // 1. Show loading
-    setLoadingMap(prev => ({
-      ...prev,
-      [id]: "deleting"
-    }));
-
-    // 2. Optimistic remove
-    setTasks(prev => prev.filter(t => t.id !== id));
-
+  // 🔹 Delete (soft delete using deleted flag)
+  const deleteTask = async (task) => {
     try {
-      await deleteTask(id);
+      setLoadingMap(prev => ({ ...prev, [task.id]: "deleting" }));
+
+      await apiUpdateTask(task.id, {
+        ...task,
+        deleted: true
+      });
+
+      fetchTasks(); // ✅ no manual removal
     } catch (err) {
-      // 3. Rollback
-      setTasks(previousTasks);
+      console.error("Delete failed", err);
     } finally {
-      // 4. Remove loading
       setLoadingMap(prev => {
         const copy = { ...prev };
-        delete copy[id];
+        delete copy[task.id];
         return copy;
       });
+    }
+  };
+
+  // 🔹 Undo Delete
+  const undoDelete = async (task) => {
+    try {
+      await apiUpdateTask(task.id, {
+        ...task,
+        deleted: false
+      });
+
+      fetchTasks(); // ✅ restore from backend
+    } catch (err) {
+      console.error("Undo failed", err);
     }
   };
 
   return {
     tasks,
-    createTask,
+    addTask,
     editTask,
-    removeTask,
-    loadingMap
+    deleteTask,
+    undoDelete,
+    loadingMap,
+    fetchTasks
   };
 };
-export default useTasks;

@@ -13,11 +13,11 @@ public class TaskDTO {
    
     private String description;
     private Boolean completed;
-
+    private Boolean deleted ;
     // New fields for tomorrow
     private LocalDate dueDate;
     @Enumerated(EnumType.STRING)
-    private String priority;
+    private Priority priority;
 
     // Getters and Setters
 
@@ -35,8 +35,10 @@ public class TaskDTO {
     public void setDescription(String description){ this.description= description;}
     public  void setDueDate(LocalDate dueDate){ this.dueDate=dueDate;} 
     public LocalDate getDueDate(){return dueDate;} 
-    public String getPriority(){ return priority; }
-    public void setPriority(String priority){ this.priority=priority;}
+    public Priority getPriority(){ return priority; }
+    public void setPriority(Priority priority){ this.priority=priority;}
     public boolean isCompleted() { return completed; }
     public void setCompleted(boolean completed) { this.completed = completed; }
+    public boolean isDeleted() { return deleted; }
+    public void setDeleted(boolean deleted) { this.deleted = deleted; }
 }

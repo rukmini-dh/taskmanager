@@ -2,6 +2,7 @@ import React,{useState,useEffect} from "react";
 import {useTasks} from "../hooks/useTasks";
 import TaskCard from "../components/TaskCard";
 import TaskForm from "../components/TaskForm";
+import { updateTask } from "../services/taskService";
 
 function Tasks() {
   //initialising variables
@@ -9,14 +10,15 @@ function Tasks() {
   const [filter, setFilter] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
   const [toast, setToast] = useState("");
-  const { tasks, editTask, removeTask, createTask, loadingMap } = useTasks();
+  const { tasks, editTask, deleteTask, addTask, loadingMap,undoDelete } = useTasks();
   const [lastDeleted, setLastDeleted] = useState(null);
   const [taskForm, setTaskForm] = useState({
     title: "",
     description: "",
     completed: false,
     priority: "LOW",
-    dueDate: ""
+    dueDate: "",
+    deleted:false
   });
 
   useEffect(() => {
@@ -24,20 +26,31 @@ function Tasks() {
   }, [loadingMap]);
  
   const [editingId, setEditingId] = useState(null);
-  const handleUndo = async () => {
-    console.log("in Undo");
-    if (!lastDeleted) return;
   
-    await createTask(lastDeleted);  
-     // re-add task
-     console.log("re added");
-    setLastDeleted(null);
-  };
+
+    const handleUndo = async () => {
+      if (!lastDeleted) return;
+    
+      await undoDelete(lastDeleted);
+      setLastDeleted(null);
+    };
+    
+ 
   const handleDelete = (task) => {
-    setToast("Task "+task.title+" deleted");
+    setToast("Task "+task.id +" deleted");
     setLastDeleted(task);        // store deleted task
-    removeTask(task.id);         // optimistic delete
+    console.log("in delete");
+    const updatedTask = {
+      ...task,
+      deleted: true
+    };
+  
+    deleteTask( updatedTask);
+    setTimeout(() => {
+      setLastDeleted(null);
+   }, 5000);
   };
+  
 
    // 🔹 Add or Update Task
     const handleSubmit = async () => {
@@ -52,8 +65,8 @@ function Tasks() {
       await editTask(editingId, taskForm);
 
     } else {
-      console.log("in adding");
-      await createTask({
+      console.log("in adding",taskForm);
+      await addTask({
         ...taskForm,
         completed: false
       });
@@ -146,7 +159,7 @@ function Tasks() {
 )}
 </div>
        <input
-  type="text"
+  type="text"mvn 
   placeholder="Search tasks..."
   value={searchTerm}
   onChange={(e) => setSearchTerm(e.target.value)}

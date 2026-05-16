@@ -8,7 +8,7 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
   const [title,setTitle]=useState("");
   const [editedTask, setEditedTask] = useState(task);
   const isSaving = loadingState === "saving";
-    const isDeleting = loadingState === "deleting";
+  const isDeleting = loadingState === "deleting";
   const inputRef = useRef(null);
   useEffect(() => {
     if (isEditing) {

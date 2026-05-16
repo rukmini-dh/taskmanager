@@ -27,9 +27,10 @@ export const addTask = async (task) => {
 
   return response.json();
 };
-
+//fetch(`${BASE_URL}/${id}`
 // 🔹 UPDATE task
 export const updateTask = async (id, task) => {
+  console.log(" in updatetask******* ",task.id) ;
   const response = await fetch(`${BASE_URL}/${id}`, {
     method: "PUT",
     headers: {
@@ -39,9 +40,11 @@ export const updateTask = async (id, task) => {
   });
 
   if (!response.ok) {
+    console.log("did not update") ;
     throw new Error("Failed to update task");
   }
-
+  //onsole.log(response.json());
+  console.log("JSON.stringify(task)",JSON.stringify(task));
   return response.json();
 };
 

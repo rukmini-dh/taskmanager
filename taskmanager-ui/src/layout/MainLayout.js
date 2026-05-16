@@ -27,16 +27,30 @@ const MainLayout = ({ children }) => {
           </li>
 
   <li>
-  <NavLink
+ { <NavLink
   to="/tasks"
   title={!isSidebarOpen ? "Tasks" : ""}
   className={({ isActive }) => isActive ? "active-link" : ""}
 >
   <FaTasks className="icon" />
   {isSidebarOpen && <span>Tasks</span>}
-</NavLink>
+</NavLink>}
   </li>
-
+  <li>
+  <NavLink to="/register" title={!isSidebarOpen ? " Register" : ""}
+  className={({ isActive }) => isActive ? "active-link" : ""}>
+      
+      {isSidebarOpen && <span>👤 Register</span>}
+    </NavLink>
+  </li>
+  <li>
+  <NavLink to="/login" title={!isSidebarOpen ? " Sign in" : ""}
+  className={({ isActive }) => isActive ? "active-link" : ""}>
+     
+      {isSidebarOpen && <span>👤 Sign in</span>}
+    </NavLink>
+  </li>
+  
   <li>
   <NavLink to="/settings" title={!isSidebarOpen ? "Settings" : ""}
   className={({ isActive }) => isActive ? "active-link" : ""}>

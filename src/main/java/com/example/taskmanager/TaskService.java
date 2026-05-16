@@ -9,7 +9,7 @@ public interface TaskService {
         TaskDTO createTask(TaskDTO taskDTO);
         TaskDTO updateTask(Long id, TaskDTO taskDTO);
         void deleteTaskById(Long id);
-        List<TaskDTO> getTasksByPriority(String priority);
+        List<TaskDTO> getTasksByPriority(Priority priority);
         List<TaskDTO> getTasksDueBefore(LocalDate date);
  }
 

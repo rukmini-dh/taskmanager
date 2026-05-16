@@ -14,9 +14,11 @@ public class Task {
 
     private String description;
 
-    private boolean completed;
+    private boolean completed=false;
+    boolean     deleted=false;
 
-    private String priority;
+    @Enumerated(EnumType.STRING)
+    private Priority priority;
 
     private LocalDate dueDate;
 
@@ -28,12 +30,13 @@ public class Task {
     public Task() {}
 
     // Constructor with fields
-    public Task(String title, boolean completed,LocalDate dueDate, String priority,String description  ) {
+    public Task(String title, boolean completed,LocalDate dueDate, Priority priority,String description ,boolean deleted ) {
         this.title = title;
         this.completed = completed;
         this.dueDate = dueDate;
         this.description=description;
         this.priority=priority;
+        this.deleted=deleted; 
         
     }
 
@@ -57,9 +60,14 @@ public class Task {
     public boolean isCompleted() {
         return completed;
     }
-
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
+    public boolean isDeleted() {
+        return deleted;
+    }
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+        public void setCompleted(boolean completed) {
+            this.completed = completed;
     }
     public String getDescription() {
         return description;
@@ -75,11 +83,11 @@ public class Task {
     public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
     }
-    public String getPriority() {
+    public Priority getPriority() {
         return priority;
     }
 
-    public void setPriority(String priority) {
+    public void setPriority(Priority priority) {
         this.priority = priority;
     }
    

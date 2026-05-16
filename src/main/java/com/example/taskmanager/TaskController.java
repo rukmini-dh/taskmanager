@@ -16,8 +16,9 @@ public class TaskController {
     public TaskController(TaskServiceImpl taskServiceImpl) {
         this.taskServiceImpl = taskServiceImpl;
     }
+    
     @GetMapping("/priority/{priority}")
-    public List<TaskDTO> getTasksByPriority(@PathVariable String priority) {
+    public List<TaskDTO> getTasksByPriority(@PathVariable Priority priority) {
         return taskServiceImpl.getTasksByPriority(priority);
     }
 
@@ -43,6 +44,7 @@ public class TaskController {
     public TaskDTO createTask(@Valid @RequestBody TaskDTO taskDTO) {
         return taskServiceImpl.createTask(taskDTO);
     }
+    
 
     // Update an existing task
     @PutMapping("/{id}")
