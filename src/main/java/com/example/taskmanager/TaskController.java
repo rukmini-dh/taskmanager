@@ -1,6 +1,7 @@
 package com.example.taskmanager;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
@@ -12,6 +13,7 @@ import java.util.List;
 public class TaskController {
 
     private final TaskServiceImpl taskServiceImpl;
+    
 
     public TaskController(TaskServiceImpl taskServiceImpl) {
         this.taskServiceImpl = taskServiceImpl;
@@ -28,22 +30,34 @@ public class TaskController {
     }
 
     // Get all tasks
-    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/all")
+    public List<TaskDTO> getAllTasks() {
+    return taskServiceImpl.getAllTasks();
+}
+    /* @GetMapping
     public List<TaskDTO> getAllTasks() {
         return taskServiceImpl.getAllTasks();
-    }
+    } */
 
     // Get task by ID
     @GetMapping("/{id}")
     public TaskDTO getTaskById(@PathVariable Long id) {
         return taskServiceImpl.getTaskById(id);
     }
+    // Get tasks by user
+    @GetMapping("/user/{userName}")
+    public List<TaskDTO> getTasksByUser( @PathVariable String userName){
+        return taskServiceImpl.getTasksByUserName(userName);
+    }
 
     // Create a new task
     @PostMapping
-    public TaskDTO createTask(@Valid @RequestBody TaskDTO taskDTO) {
-        return taskServiceImpl.createTask(taskDTO);
-    }
+   
+public TaskDTO createTask(@RequestBody TaskDTO dto)
+                          {
+    return taskServiceImpl.createTask(dto);
+}
     
 
     // Update an existing task

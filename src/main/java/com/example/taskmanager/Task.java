@@ -3,12 +3,17 @@ package com.example.taskmanager;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
+import com.example.taskmanager.user.User;
+
 @Entity
 public class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "userName",nullable = false)
+    private User user;
 
     private String title;
 
@@ -24,7 +29,13 @@ public class Task {
 
     // Getters and Setters
     
-
+    public User getUser() {
+        return user;
+    }
+    
+    public void setUser(User user) {
+        this.user = user;
+    }
 
     // Default constructor (required by JPA)
     public Task() {}

@@ -1,22 +1,32 @@
 import React, { useState } from "react";
 import "./layout.css";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { FaHome, FaTasks, FaCog } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
+import { logoutUser } from "../services/authService";
+import { useNavigate } from "react-router-dom";
 
 
 const MainLayout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const userName = localStorage.getItem("userName");
+  const navigate = useNavigate();
+  const handleLogout = async () => {
 
+    await logoutUser();
+ 
+    localStorage.clear();
+    navigate("/");
+    };
   return (
     
     <div className="dashboard">
 
       {/* Sidebar */}
       <div className={`sidebar ${isSidebarOpen ? "" : "closed"}`}>
-      <h2 className={`title ${isSidebarOpen ? "" : "hide"}`}>
+     {/*  <h2 className={`title ${isSidebarOpen ? "" : "hide"}`}>
   Task Manager
-</h2>
+</h2> */}
         <ul>
           <li>
           <NavLink to="/Dashboard" title={!isSidebarOpen ? "Dashboard" : ""} 
@@ -69,9 +79,9 @@ const MainLayout = ({ children }) => {
 
         {/* Top bar */}
         <div className="topbar">
-          <input placeholder="Search tasks..." />
-          <div className="profile">👤 User</div>
-
+          <div className="profile">Task Manager </div> 
+            <div >  Welcome <span >{userName}</span></div>
+          <button onClick={handleLogout}>   Logout</button>  
           {/* Toggle Button */}
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
           {isSidebarOpen ? "Hide Menu" : "Show Menu"}

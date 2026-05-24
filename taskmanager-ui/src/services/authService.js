@@ -2,8 +2,10 @@ const BASE_URL = "http://localhost:8080/auth";
 
 // 🔹 GET all tasks
 export const getUsers = async () => {
-  const response = await fetch(BASE_URL);
-
+  const response = await fetch(BASE_URL,
+  {
+    method: "GET", credentials: "include"
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch Users");
   }
@@ -15,41 +17,62 @@ export const getUsers = async () => {
 export const addUser = async (user) => {
     console.log("****adding");
   const response = await fetch("http://localhost:8080/auth/register", {
-    method: "POST",
+    method: "POST", credentials:"include",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify(user)
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to add user");
-  }
+  const data = await response.json();
 
-  return response.json();
+if (!response.ok) {
+  console.log("DATA",data);
+   throw new Error(data.message);
+}
+
+return data;
+
+  
 };
 export const verifyUser = async (user) => {
-  console.log("****verifying");
+  console.log("****verifying",user);
 const response = await fetch("http://localhost:8080/auth/signin", {
-  method: "POST",
+  method: "POST",credentials:"include",
   headers: {
     "Content-Type": "application/json"
   },
   body: JSON.stringify(user)
 });
-console.log("*****",user);
+
 if (!response.ok) {
   throw new Error("User not found! ");
 }
 
 return response.json();
 };
+export const logoutUser = async () => {
+
+  const response = await fetch(
+    "http://localhost:8080/auth/logout",
+    {
+      method: "POST",
+      credentials: "include"
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Logout failed");
+  }
+
+  return response.text();
+};
 //fetch(`${BASE_URL}/${id}`
 // 🔹 UPDATE task
 export const updateUser = async (id, user) => {
   console.log(" in updateuserk******* ",user.id) ;
   const response = await fetch(`${BASE_URL}/${id}`, {
-    method: "PUT",
+    method: "PUT",credentials:"include",
     headers: {
       "Content-Type": "application/json"
     },
@@ -68,7 +91,7 @@ export const updateUser = async (id, user) => {
 // 🔹 DELETE task
 export const deleteUser = async (id) => {
   const response = await fetch(`${BASE_URL}/${id}`, {
-    method: "DELETE"
+    method: "DELETE",credentials:"include"
   });
 
   if (!response.ok) {

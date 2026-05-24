@@ -10,18 +10,23 @@ function Tasks() {
   const [filter, setFilter] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
   const [toast, setToast] = useState("");
-  const { tasks, editTask, deleteTask, addTask, loadingMap,undoDelete } = useTasks();
+  const { tasks, editTask,loading, deleteTask, addTask, loadingMap,undoDelete } = useTasks();
   const [lastDeleted, setLastDeleted] = useState(null);
+  const role = localStorage.getItem("role");
+  const userName = localStorage.getItem("userName");
   const [taskForm, setTaskForm] = useState({
     title: "",
     description: "",
     completed: false,
     priority: "LOW",
     dueDate: "",
-    deleted:false
+    deleted:false,
+    userName:localStorage.getItem("userName")   
+  
   });
-
-  useEffect(() => {
+ 
+// console.log("in tasskform",taskForm);
+   useEffect(() => {
     console.log("loadingMap changed:", loadingMap);
   }, [loadingMap]);
  
@@ -126,7 +131,8 @@ function Tasks() {
       (task.description || "").toLowerCase().includes(search)
     );
   });
- 
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
   
   return (
     <div className="container">
@@ -159,7 +165,7 @@ function Tasks() {
 )}
 </div>
        <input
-  type="text"mvn 
+  type="text" 
   placeholder="Search tasks..."
   value={searchTerm}
   onChange={(e) => setSearchTerm(e.target.value)}

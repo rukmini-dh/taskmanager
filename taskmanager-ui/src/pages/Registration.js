@@ -3,8 +3,7 @@ import {useAuth} from "../hooks/useAuth";
 import UserForm from "../components/UserForm";
 function Registration() {
   //initialising variables
-  const [error, setError] = useState("");
-  const { users, editUser, deleteUser, addUser} = useAuth();
+  const { users, editUser, deleteUser, addUser,error} = useAuth();
   const [userForm, setUserForm] = useState({
     firstName: "",
     lastName:"",
@@ -14,13 +13,7 @@ function Registration() {
 
   // 🔹 Add  User
     const handleSubmit = async () => {
-      console.log("submitted");
-      
-    if (!userForm.firstName.trim()) 
-    {setError("Please enter your first name");
-      return;}
-      setError("");
-      console.log("registring",userForm);
+        console.log("registring",userForm);
         await addUser({
         ...userForm     
       });
@@ -47,9 +40,10 @@ function Registration() {
           setUserForm={setUserForm}
           handleSubmit={handleSubmit}
           error={error}
-          setError={setError}
+        
         />
       </div>
+      {error && <p>{error}</p>}
    </div>
   );
 }

@@ -1,6 +1,10 @@
 package com.example.taskmanager.user;
+import  com.example.taskmanager.Task;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDate;
+import java.util.List;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
@@ -22,6 +26,9 @@ public class User {
     public LocalDate createdAt;
     private String password ;
     private boolean enabled;
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<Task> tasks;
     
     //default constructor
     public User() {}

@@ -4,8 +4,10 @@ import {
     addUser  as apiAddUser,
     updateUser as apiUpdateUser,verifyUser as apiVerifyUser
   } from "../services/authService";
+   
   export const useAuth = () => {
     const [users, setUsers] = useState([]);
+    const [error, setError] = useState("");
 
     // 🔹 Fetch all users (single source of truth)
       const fetchUsers = async () => {
@@ -28,10 +30,13 @@ import {
       await apiAddUser(user);
       //fetchUsers(); // ✅ always sync from backend
     } catch (err) {
-      console.error("Add failed", err);
-    }
+      console.log("in use auth");
+         setError(err.message);
+     }
+    
   };
   const verifyUser = async (user) => {
+    console.log("login details in useAuth",user);
     try {
       await apiVerifyUser(user);
       //fetchUsers(); // ✅ always sync from backend
@@ -57,7 +62,8 @@ import {
     addUser,
     verifyUser,
     editUser,
-    fetchUsers
+    fetchUsers,
+    error
   };
 };
 

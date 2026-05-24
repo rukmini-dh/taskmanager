@@ -8,6 +8,9 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
   const [title,setTitle]=useState("");
   const [editedTask, setEditedTask] = useState(task);
   const isSaving = loadingState === "saving";
+  const role = localStorage.getItem("role");
+  const userName = localStorage.getItem("username");
+  console.log("************",role);
   const isDeleting = loadingState === "deleting";
   const inputRef = useRef(null);
   useEffect(() => {
@@ -69,7 +72,7 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
     
   </div>
 ) : (
-  <div className="edit-title">
+  <div disabled={role=="GUEST"|| role=="SUPERVISOR"}className="edit-title">
     <input
       ref={inputRef}
       type="text"
@@ -136,9 +139,9 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
         
       ) 
       }
-          <button className="editButton" onClick={() => setIsEditing(true)}> Edit</button> 
+          <button  disabled={role=="GUEST"|| role=="SUPERVISOR"}onClick={() => setIsEditing(true)}> Edit</button> 
           
-          <button onClick={() => onDelete(task)} disabled={isLoading}  > {isDeleting ? "Deleting..." : "Delete"}</button>
+          <button disabled={(role=="GUEST"|| role=="SUPERVISOR") || (isLoading)}onClick={() => onDelete(task)}   > {isDeleting ? "Deleting..." : "Delete"}</button>
       
          
         </div>

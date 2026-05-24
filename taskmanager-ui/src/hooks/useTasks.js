@@ -2,46 +2,68 @@ import { useState, useEffect } from "react";
 import {
   getTasks,
   addTask as apiAddTask,
-  updateTask as apiUpdateTask
+  updateTask as apiUpdateTask,
+  getTasksByUser
 } from "../services/taskService";
 
 export const useTasks = () => {
-  const [tasks, setTasks] = useState([]);
-  const [loadingMap, setLoadingMap] = useState({});
 
-  // 🔹 Fetch all tasks (single source of truth)
-  const fetchTasks = async () => {
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [loadingMap, setLoadingMap] = useState({});
+ 
+  const role = localStorage.getItem("role");
+  const userName = localStorage.getItem("userName");
+  console.log(" before function in user'task",userName);
+  const loadTasks = async () => {
     try {
-      const data = await getTasks();
+      setLoading(true);
+      setError(null);
+      console.log("in useTasks",role);
+      let data;
+
+      if (role === "ADMIN") {
+        console.log("ADMIN");
+        data = await getTasks();
+      } else {
+        console.log("guest");
+        data = await getTasksByUser(userName);
+        console.log("*** in usetask as guesgt",data);
+      }
+
       setTasks(data);
+
     } catch (err) {
-      console.error("Failed to fetch tasks", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // 🔹 Initial load
   useEffect(() => {
-    fetchTasks();
+    loadTasks();
   }, []);
 
   // 🔹 Add Task
   const addTask = async (task) => {
+    console.log("in usetasks",task);
     try {
       await apiAddTask(task);
-      fetchTasks(); // ✅ always sync from backend
+      loadTasks();
     } catch (err) {
       console.error("Add failed", err);
     }
   };
 
-  // 🔹 Edit Task (title, completed, etc.)
+  // 🔹 Edit Task
   const editTask = async (id, updatedTask) => {
     try {
       setLoadingMap(prev => ({ ...prev, [id]: "saving" }));
 
       await apiUpdateTask(id, updatedTask);
+      loadTasks();
 
-      fetchTasks(); // ✅ refresh from backend
     } catch (err) {
       console.error("Edit failed", err);
     } finally {
@@ -53,7 +75,7 @@ export const useTasks = () => {
     }
   };
 
-  // 🔹 Delete (soft delete using deleted flag)
+  // 🔹 Delete Task (soft delete)
   const deleteTask = async (task) => {
     try {
       setLoadingMap(prev => ({ ...prev, [task.id]: "deleting" }));
@@ -63,7 +85,8 @@ export const useTasks = () => {
         deleted: true
       });
 
-      fetchTasks(); // ✅ no manual removal
+      loadTasks();
+
     } catch (err) {
       console.error("Delete failed", err);
     } finally {
@@ -75,7 +98,7 @@ export const useTasks = () => {
     }
   };
 
-  // 🔹 Undo Delete
+  // 🔹 Undo delete
   const undoDelete = async (task) => {
     try {
       await apiUpdateTask(task.id, {
@@ -83,7 +106,8 @@ export const useTasks = () => {
         deleted: false
       });
 
-      fetchTasks(); // ✅ restore from backend
+      loadTasks();
+
     } catch (err) {
       console.error("Undo failed", err);
     }
@@ -96,6 +120,8 @@ export const useTasks = () => {
     deleteTask,
     undoDelete,
     loadingMap,
-    fetchTasks
+    loading,
+    error,
+    reload: loadTasks
   };
 };

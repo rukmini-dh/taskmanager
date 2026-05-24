@@ -32,10 +32,18 @@ function Login() {
        const result= await verifyUser(loginForm);
        setMessage(result.message);
        resetForm();
-      console.log(result.message);
-     
+      console.log(result);
+      localStorage.clear();   
       if(result.success){
+
+        localStorage.setItem("role", result.role);
+       localStorage.setItem("userName", result.userName);
+       // console.log(" user name in local :",localStorage.getItem("userName"));
+       // console.log(" user name from result :",result.userName);
         navigate("/tasks");
+     }
+     else{
+        setMessage(result.message);
      }
     
   };
@@ -48,6 +56,14 @@ function Login() {
     });
     
   };
+  const handleLogout = async () => {
+
+    await logoutUser();
+ 
+    localStorage.clear();
+ 
+    navigate("/");
+ };
     
   return (
     <div className="container">

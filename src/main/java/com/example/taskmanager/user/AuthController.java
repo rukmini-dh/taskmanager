@@ -1,7 +1,23 @@
 package com.example.taskmanager.user;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
+import com.example.taskmanager.user.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.util.List;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.core.Authentication;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 @RestController
 @RequestMapping("/auth")
@@ -43,10 +59,11 @@ public class AuthController {
     } */
     
      @PostMapping("/signin")
-     public AuthResponseDTO login(@RequestBody LoginDTO dto)
+     public AuthResponseDTO login(@RequestBody LoginDTO dto,HttpServletRequest request) 
      {
         
-            return userService.login(dto);
+           return userService.login(dto, request);
+
       }
 
      
@@ -71,5 +88,23 @@ public class AuthController {
     public List<UserDTO> getUsersByStatus(@PathVariable boolean enabled) {
         return userService.getByEnabled(enabled);
     }
+    @PostMapping("/logout")
+public ResponseEntity<String> logout(
+        HttpServletRequest request,
+        HttpServletResponse response) {
+
+    Authentication auth =
+            SecurityContextHolder
+                    .getContext()
+                    .getAuthentication();
+
+    if (auth != null) {
+
+        new SecurityContextLogoutHandler()
+                .logout(request, response, auth);
+    }
+
+    return ResponseEntity.ok("Logged out successfully");
+}
     
 }

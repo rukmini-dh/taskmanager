@@ -2,14 +2,28 @@ package com.example.taskmanager.user;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 public class UserServiceImpl  implements UserService{
      private final UserRepository userRepository;
+     private final PasswordEncoder passwordEncoder;
+     private final AuthenticationManager authenticationManager;
 
-    public  UserServiceImpl(UserRepository userRepository) {
+    public  UserServiceImpl(UserRepository userRepository,PasswordEncoder passwordEncoder,AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
+        this.passwordEncoder=passwordEncoder;
+         this.authenticationManager=authenticationManager;   
     }
     @Override
     public List<UserDTO> getAllUsers() {
@@ -37,12 +51,11 @@ public class UserServiceImpl  implements UserService{
     }
     public UserDTO getUserByUserName(String userName) {
         User  user = userRepository.findByUserName(userName).orElseThrow(() -> new UserNotFoundException("User not found with username: " + userName));
-
+        
         return convertToDTO(user);
     }
     public UserDTO getUserByRegistrationNumber(String regno ) {
         User  user = userRepository.findByRegistrationNumber(regno).orElseThrow(() -> new UserNotFoundException("User not found with regNo. " + regno));
-
         return convertToDTO(user);
     }
     // Find users  by enabled/disabled
@@ -90,6 +103,14 @@ public class UserServiceImpl  implements UserService{
     public UserDTO registerUser(RegistrationDTO regDTO) {
 
        User user = new User();
+       if(userRepository.findByUserName(
+        regDTO.getUserName()
+    ).isPresent()) {
+
+    throw new DuplicateUserException(
+        "Username already exists"
+    );
+}
         
     
         user.setFirstName(regDTO.getFirstName());
@@ -101,10 +122,20 @@ public class UserServiceImpl  implements UserService{
             "REG-" + System.currentTimeMillis()
         );
     
-        user.setPassword(regDTO.getPassword());
+       // user.setPassword(regDTO.getPassword());
+       user.setPassword(
+        passwordEncoder.encode(
+            regDTO.getPassword()
+        )
+    );
        
-        System.out.println(user.getPassword());
-        user.setRole(Role.GUEST);
+        
+        if(userRepository.count() == 0){
+            user.setRole(Role.ADMIN);
+        }
+        else{
+            user.setRole(Role.GUEST);
+        }
     
         user.setCreatedAt(LocalDate.now());
     
@@ -129,41 +160,71 @@ public class UserServiceImpl  implements UserService{
         return dto;
     }
 
-    public AuthResponseDTO login(LoginDTO dto) {
+    public AuthResponseDTO login(LoginDTO dto,HttpServletRequest request) {
 
-        Optional<User> optionalUser =
+        Optional<User> optionalUser =       
     userRepository.findByUserName(dto.getUserName());
 
 if(optionalUser.isEmpty()){
 
     return new AuthResponseDTO(
         false,
-        "User not found"
+        "User not found",null,null
     );
 }
 
 User user = optionalUser.get();
-    
+   
         if (!user.isEnabled()) {
     
             return new AuthResponseDTO(
                 false,
-                "Account disabled"
+                "Account disabled",user.getRole(),user.getUserName()
             );
         }
     
-        if (!user.getPassword().equals(dto.getPassword())) {
-    
+       /*  if(!passwordEncoder.matches(dto.getPassword(),user.getPassword()))
+            {
             return new AuthResponseDTO(
-                false,
-                "Invalid credentials"
+            false,
+            "Invalid credentials",user.getRole(),user.getUserName());
+       
+           } */
+            Authentication authentication =
+            authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                    dto.getUserName(),
+                    dto.getPassword()
+                )
             );
-        }
-    
+        
+        SecurityContextHolder
+            .getContext()
+            .setAuthentication(authentication);
+            HttpSession session = request.getSession(true);
+
+session.setAttribute(
+    HttpSessionSecurityContextRepository
+        .SPRING_SECURITY_CONTEXT_KEY,
+    SecurityContextHolder.getContext());
+        
         return new AuthResponseDTO(
             true,
-            "Login successful"
+            "Login successful",
+            user.getRole(),
+            user.getUserName()
         );
+
+
+
+           /*  return new AuthResponseDTO(
+                true,
+                "Login successful",user.getRole(),user.getUserName()
+            );
+        */
+            
+        
+      
     }
     
 }

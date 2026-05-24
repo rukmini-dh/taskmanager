@@ -1,6 +1,7 @@
 import React from "react";
 
 function TaskForm({ taskForm, setTaskForm, handleSubmit, editingId,error,setError }) {
+  const role = localStorage.getItem("role");
  
   return (
     <div>

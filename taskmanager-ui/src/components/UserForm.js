@@ -14,7 +14,7 @@ function UserForm({ userForm, setUserForm, handleSubmit, error,setError }) {
           setUserForm({ ...userForm, firstName: e.target.value });
 
           // ✅ clear error while typing
-          if (error)setError("");
+       
         }}
         
         className={`input ${error ? "input-error" : ""}`}

@@ -3,7 +3,8 @@ import React , {useState}from "react";
 
 function TaskList({ tasks, handleDelete, startEdit, toggleStatus }) {
  
- 
+  
+
 
   return (
     
@@ -30,7 +31,7 @@ function TaskList({ tasks, handleDelete, startEdit, toggleStatus }) {
             Edit
           </button>
         
-          <button className="delete" onClick={() => handleDelete(task.id)}>
+         <button className="delete" onClick={() => handleDelete(task.id)}>
             Delete
           </button>
         

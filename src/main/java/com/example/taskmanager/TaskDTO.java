@@ -10,7 +10,7 @@ public class TaskDTO {
     @NotBlank(message = "Title cannot be empty")
     private String title;
     private Long id;
-   
+    private String userName;
     private String description;
     private Boolean completed;
     private Boolean deleted ;
@@ -20,6 +20,8 @@ public class TaskDTO {
     private Priority priority;
 
     // Getters and Setters
+    public void setUserName(String userName){this.userName=userName;}
+    public String getUserName(){return userName;}
 
     // Getters and Setters
     public Long getId() {
