@@ -6,20 +6,46 @@ import Tasks from "./pages/Tasks";
 import Settings from "./pages/Settings";
 import Registration from "./pages/Registration";
 import Login from "./pages/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
+  
+  console.log("LOADING NEW APP.JS VERSION 2");
   return (
     <MainLayout>
     
    
    
       <Routes>
-        <Route path="/Dashboard" element={<Dashboard />} />
+      <Route
+  path="/dashboard"
+  element={
+    <ProtectedRoute>
+      <Dashboard />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/settings"
+  element={
+    <ProtectedRoute>
+      <Settings />
+    </ProtectedRoute>
+  }
+/>
         <Route path="/register" element={<Registration />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/tasks" element={<Tasks />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route
+  path="/tasks"
+  element={
+    <ProtectedRoute>
+      <Tasks />
+    </ProtectedRoute>
+  }
+/>
+        
         
       </Routes>
      

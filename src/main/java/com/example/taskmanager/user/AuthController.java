@@ -1,8 +1,11 @@
 package com.example.taskmanager.user;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
+
+import com.example.taskmanager.security.SecurityUtil;
 import com.example.taskmanager.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,16 +27,38 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 public class AuthController {
 
     private final UserService userService;
+    private final UserRepository userRepository;
 
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService,UserRepository userRepository){
         this.userService = userService;
+        this.userRepository=userRepository;
     }
     
     @GetMapping("/{regNo}")
     public UserDTO getUserByRegistrationNumber(@PathVariable String regNo) {
         return userService.getUserByRegistrationNumber(regNo);
     }
+@GetMapping("/me")
+public AuthResponseDTO getCurrentUser() {
 
+    String userName =
+        SecurityUtil.getCurrentUsername();
+
+    User user = userRepository
+        .findByUserName(userName)
+        .orElseThrow(() ->
+            new UsernameNotFoundException(
+                "User not found"
+            )
+        );
+
+    return new AuthResponseDTO(
+        true,
+        "Current user fetched",
+        user.getRole(),
+        user.getUserName()
+    );
+}
    
     // Get all users
     @GetMapping

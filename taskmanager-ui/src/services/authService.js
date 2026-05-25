@@ -67,6 +67,22 @@ export const logoutUser = async () => {
 
   return response.text();
 };
+export const getCurrentUser = async () => {
+
+  const response = await fetch(
+    "http://localhost:8080/auth/me",
+    {
+      method: "GET",
+      credentials: "include"
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Not authenticated");
+  }
+
+  return response.json();
+};
 //fetch(`${BASE_URL}/${id}`
 // 🔹 UPDATE task
 export const updateUser = async (id, user) => {

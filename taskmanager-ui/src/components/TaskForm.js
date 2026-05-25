@@ -5,7 +5,7 @@ function TaskForm({ taskForm, setTaskForm, handleSubmit, editingId,error,setErro
  
   return (
     <div>
-      <h2>{editingId ? "Edit Task" : "Add Task"}</h2>
+     {/*  <h2>{editingId ? "Edit Task" : "Add Task"}</h2> */}
 
       <input
         type="text"

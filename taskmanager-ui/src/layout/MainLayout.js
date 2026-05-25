@@ -1,23 +1,50 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import "./layout.css";
 import { Link, Navigate } from "react-router-dom";
 import { FaHome, FaTasks, FaCog } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
-import { logoutUser } from "../services/authService";
+import { logoutUser,getCurrentUser } from "../services/authService";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+
 
 
 const MainLayout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const userName = localStorage.getItem("userName");
+  const [currentUser, setCurrentUser] =    useState(null);
   const navigate = useNavigate();
+  console.log("in mainlayout");
+  
   const handleLogout = async () => {
 
     await logoutUser();
- 
+    setCurrentUser(null);
     localStorage.clear();
     navigate("/");
     };
+    const location = useLocation();
+
+const loadUser = async () => {
+
+    try {
+
+      const data =
+          await getCurrentUser();
+
+      setCurrentUser(data);
+
+    } catch(error) {
+
+      console.log("No active session");
+
+    }
+};
+
+useEffect(() => {
+
+  loadUser();
+
+}, [location.pathname]);
   return (
     
     <div className="dashboard">
@@ -80,7 +107,9 @@ const MainLayout = ({ children }) => {
         {/* Top bar */}
         <div className="topbar">
           <div className="profile">Task Manager </div> 
-            <div >  Welcome <span >{userName}</span></div>
+            <div >  Welcome <span ><span>
+  {currentUser?.userName}
+</span></span></div>
           <button onClick={handleLogout}>   Logout</button>  
           {/* Toggle Button */}
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>

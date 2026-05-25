@@ -136,8 +136,7 @@ function Tasks() {
   
   return (
     <div className="container">
-      <h1>Task Manager</h1>
-  
+       
       <div className="card">
         <TaskForm
           taskForm={taskForm}
