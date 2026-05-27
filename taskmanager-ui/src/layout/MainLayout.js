@@ -1,120 +1,126 @@
-import React, { useState,useEffect } from "react";
+import React, { useState } from "react";
 import "./layout.css";
-import { Link, Navigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FaHome, FaTasks, FaCog } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
-import { logoutUser,getCurrentUser } from "../services/authService";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
-
+import { useAuthContext} from "../context/AuthContext";
+import  {useAuth} from "../hooks/useAuth";
 
 
 const MainLayout = ({ children }) => {
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [currentUser, setCurrentUser] =    useState(null);
+
   const navigate = useNavigate();
-  console.log("in mainlayout");
+
+  // ✅ AuthContext (single source of truth)
+  const {
+    currentUser,
+    logout
+  } = useAuthContext();
   
+
+  console.log("in mainlayout");
+
   const handleLogout = async () => {
+    await logout();        // backend + context clear
+    navigate("/login");    // redirect
+  };
 
-    await logoutUser();
-    setCurrentUser(null);
-    localStorage.clear();
-    navigate("/");
-    };
-    const location = useLocation();
-
-const loadUser = async () => {
-
-    try {
-
-      const data =
-          await getCurrentUser();
-
-      setCurrentUser(data);
-
-    } catch(error) {
-
-      console.log("No active session");
-
-    }
-};
-
-useEffect(() => {
-
-  loadUser();
-
-}, [location.pathname]);
   return (
-    
     <div className="dashboard">
 
       {/* Sidebar */}
       <div className={`sidebar ${isSidebarOpen ? "" : "closed"}`}>
-     {/*  <h2 className={`title ${isSidebarOpen ? "" : "hide"}`}>
-  Task Manager
-</h2> */}
+
         <ul>
+
           <li>
-          <NavLink to="/Dashboard" title={!isSidebarOpen ? "Dashboard" : ""} 
-           className={({ isActive }) => isActive ? "active-link" : ""}>
-                <FaHome className="icon" />
-      {isSidebarOpen && <span>Dashboard</span>}
+            <NavLink
+              to="/Dashboard"
+              className={({ isActive }) =>
+                isActive ? "active-link" : ""
+              }
+            >
+              <FaHome className="icon" />
+              {isSidebarOpen && <span>Dashboard</span>}
             </NavLink>
           </li>
 
-  <li>
- { <NavLink
-  to="/tasks"
-  title={!isSidebarOpen ? "Tasks" : ""}
-  className={({ isActive }) => isActive ? "active-link" : ""}
->
-  <FaTasks className="icon" />
-  {isSidebarOpen && <span>Tasks</span>}
-</NavLink>}
-  </li>
-  <li>
-  <NavLink to="/register" title={!isSidebarOpen ? " Register" : ""}
-  className={({ isActive }) => isActive ? "active-link" : ""}>
-      
-      {isSidebarOpen && <span>👤 Register</span>}
-    </NavLink>
-  </li>
-  <li>
-  <NavLink to="/login" title={!isSidebarOpen ? " Sign in" : ""}
-  className={({ isActive }) => isActive ? "active-link" : ""}>
-     
-      {isSidebarOpen && <span>👤 Sign in</span>}
-    </NavLink>
-  </li>
-  
-  <li>
-  <NavLink to="/settings" title={!isSidebarOpen ? "Settings" : ""}
-  className={({ isActive }) => isActive ? "active-link" : ""}>
-      <FaCog className="icon" />
-      {isSidebarOpen && <span>Settings</span>}
-    </NavLink>
-  </li>
-  
-</ul>
+          <li>
+            <NavLink
+              to="/tasks"
+              className={({ isActive }) =>
+                isActive ? "active-link" : ""
+              }
+            >
+              <FaTasks className="icon" />
+              {isSidebarOpen && <span>Tasks</span>}
+            </NavLink>
+          </li>
+
+          <li>
+            <NavLink to="/register"
+              className={({ isActive }) =>
+                isActive ? "active-link" : ""
+              }
+            >
+              {isSidebarOpen && <span>👤 Register</span>}
+            </NavLink>
+          </li>
+
+          <li>
+            <NavLink to="/login"
+              className={({ isActive }) =>
+                isActive ? "active-link" : ""
+              }
+            >
+              {isSidebarOpen && <span>👤 Sign in</span>}
+            </NavLink>
+          </li>
+
+          <li>
+            <NavLink
+              to="/settings"
+              className={({ isActive }) =>
+                isActive ? "active-link" : ""
+              }
+            >
+              <FaCog className="icon" />
+              {isSidebarOpen && <span>Settings</span>}
+            </NavLink>
+          </li>
+
+        </ul>
       </div>
 
       {/* Main section */}
-      
-
       <div className={`main ${isSidebarOpen ? "" : "full"}`}>
 
         {/* Top bar */}
         <div className="topbar">
-          <div className="profile">Task Manager </div> 
-            <div >  Welcome <span ><span>
-  {currentUser?.userName}
-</span></span></div>
-          <button onClick={handleLogout}>   Logout</button>  
-          {/* Toggle Button */}
-          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-          {isSidebarOpen ? "Hide Menu" : "Show Menu"}
+
+          <div className="profile">
+            Task Manager
+          </div>
+
+          {/* ✅ Dynamic user from AuthContext */}
+          <div>
+            Welcome{" "}
+            <span>
+              {currentUser?.userName || "Guest"}
+            </span>
+          </div>
+
+          {/* Logout */}
+          <button onClick={handleLogout}>
+            Logout
           </button>
+
+          {/* Sidebar toggle */}
+          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+            {isSidebarOpen ? "Hide Menu" : "Show Menu"}
+          </button>
+
         </div>
 
         {/* Page content */}

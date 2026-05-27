@@ -1,12 +1,21 @@
 import { useState, useEffect } from "react";
 import {
-  getTasks,
+  getTasks,fetchTasks,
   addTask as apiAddTask,
   updateTask as apiUpdateTask,
   getTasksByUser
 } from "../services/taskService";
+import {
+  useAuthContext
+}
+from "../context/AuthContext";
 
 export const useTasks = () => {
+  const { currentUser } =useAuthContext();
+
+useEffect(() => {if(currentUser){loadTasks();}
+
+}, [currentUser]);
 
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -22,16 +31,12 @@ export const useTasks = () => {
       setError(null);
       console.log("in useTasks",role);
       let data;
-
-      if (role === "ADMIN") {
-        console.log("ADMIN");
-        data = await getTasks();
-      } else {
-        console.log("guest");
-        data = await getTasksByUser(userName);
-        console.log("*** in usetask as guesgt",data);
-      }
-
+      data=await fetchTasks(
+        currentUser.role,
+        currentUser.userName
+        );
+      
+ console.log("after fetching in usetasks",data);
       setTasks(data);
 
     } catch (err) {
@@ -41,9 +46,7 @@ export const useTasks = () => {
     }
   };
 
-  useEffect(() => {
-    loadTasks();
-  }, []);
+ 
 
   // 🔹 Add Task
   const addTask = async (task) => {

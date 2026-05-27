@@ -2,16 +2,18 @@ import React, {useState}from "react";
 import "./taskCard.css";
 import { FaTrash, FaEdit,FaSave,FaTimes } from "react-icons/fa";
 import {useEffect,useRef} from "react";
+import { getCurrentUser } from "../services/authService";
 const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
   const [isEditing, setIsEditing] = useState(false);
   const isLoading = !!loadingState; // boolean derived from status
   const [title,setTitle]=useState("");
   const [editedTask, setEditedTask] = useState(task);
   const isSaving = loadingState === "saving";
-  const role = localStorage.getItem("role");
+  //const role = localStorage.getItem("role");
   const userName = localStorage.getItem("username");
-  console.log("************",role);
+  //console.log("************",role);
   const isDeleting = loadingState === "deleting";
+  const [currentUser, setCurrentUser] =    useState(null);
   const inputRef = useRef(null);
   useEffect(() => {
     if (isEditing) {
@@ -55,7 +57,7 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
     onSave(task.id, editedTask);
     setIsEditing(false);};
    
-    
+    console.log("*******",currentUser?.role);
   
     
   
@@ -72,7 +74,7 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
     
   </div>
 ) : (
-  <div disabled={role=="GUEST"|| role=="SUPERVISOR"}className="edit-title">
+  <div disabled={currentUser?.role==="GUEST"|| currentUser?.role==="SUPERVISOR"}className="edit-title">
     <input
       ref={inputRef}
       type="text"
@@ -139,9 +141,9 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
         
       ) 
       }
-          <button  disabled={role=="GUEST"|| role=="SUPERVISOR"}onClick={() => setIsEditing(true)}> Edit</button> 
+          <button  disabled={currentUser?.role==="GUEST"|| currentUser?.role==="SUPERVISOR"}onClick={() => setIsEditing(true)}> Edit</button> 
           
-          <button disabled={(role=="GUEST"|| role=="SUPERVISOR") || (isLoading)}onClick={() => onDelete(task)}   > {isDeleting ? "Deleting..." : "Delete"}</button>
+          <button disabled={(currentUser?.role==="GUEST"|| currentUser?.role==="SUPERVISOR") || (isLoading)}onClick={() => onDelete(task)}   > {isDeleting ? "Deleting..." : "Delete"}</button>
       
          
         </div>

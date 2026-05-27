@@ -13,7 +13,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.core.Authentication;
@@ -39,26 +39,13 @@ public class AuthController {
         return userService.getUserByRegistrationNumber(regNo);
     }
 @GetMapping("/me")
-public AuthResponseDTO getCurrentUser() {
 
-    String userName =
-        SecurityUtil.getCurrentUsername();
+public AuthResponseDTO getCurrentUser() 
+     {
+        
+           return userService.getCurrentUser();
 
-    User user = userRepository
-        .findByUserName(userName)
-        .orElseThrow(() ->
-            new UsernameNotFoundException(
-                "User not found"
-            )
-        );
-
-    return new AuthResponseDTO(
-        true,
-        "Current user fetched",
-        user.getRole(),
-        user.getUserName()
-    );
-}
+      }
    
     // Get all users
     @GetMapping

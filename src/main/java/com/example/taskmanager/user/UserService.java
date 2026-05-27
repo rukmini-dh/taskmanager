@@ -15,5 +15,6 @@ public interface UserService {
         UserDTO registerUser(RegistrationDTO regDTO);
         void deleteUser(Long id);
         AuthResponseDTO login(LoginDTO dto,HttpServletRequest request);
+        AuthResponseDTO getCurrentUser();
  }
  

@@ -10,23 +10,29 @@ export const getTasks = async () => {
 
   return response.json();
 };
-export const fetchTasks = async () => {
-
-  const role = localStorage.getItem("role");
-  const userName = localStorage.getItem("userName");
+export const fetchTasks = async (
+  role,
+  userName
+  ) => {
+  console.log(" in taskservive",role);
+  console.log(" in taskervive",userName);
 
   let url = "";
-
+  
   if(role === "ADMIN"){
-     url = "http://localhost:8080/tasks";
+  
+   url = "http://localhost:8080/tasks/all";
+  
+  } else {
+  
+   url =
+     `http://localhost:8080/tasks/user/${userName}`;
+  
   }
-  else{
-     url = `http://localhost:8080/tasks/user/${userName}`;
-  }
-
+  console.log("url",url);
   const response = await fetch(url,{method:"GET",credentials:"include"});
 
-  return response.json();
+  return await response.json();
 };
 export const getTasksByUser = async (userName) => {
 

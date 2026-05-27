@@ -1,12 +1,26 @@
+import { useAuthContext } from "../context/AuthContext";
+import {useAuth} from "../hooks/useAuth" ;
 import { Navigate } from "react-router-dom";
 
 function ProtectedRoute({ children }) {
 
-  const role = localStorage.getItem("role");
+  const { currentUser, loading } = useAuthContext();
+  // wait until auth check finishes
+if(loading){
 
-  if (!role) {
-    return <Navigate to="/login" replace />;
-  }
+  return <div>Loading...</div>;
+
+}
+// not logged in
+if(!currentUser){
+
+  return <Navigate to="/login" />;
+
+}
+
+// logged in
+
+  
 
   return children;
 }

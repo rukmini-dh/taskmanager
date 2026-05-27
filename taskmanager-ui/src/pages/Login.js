@@ -3,6 +3,7 @@ import {useAuth} from "../hooks/useAuth";
 import LoginForm from "../components/LoginForm";
 import Tasks from "./Tasks";
 import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../context/AuthContext";
 import { getUsers, verifyUser } from "../services/authService";
 function Login() {
   //initialising variables
@@ -10,6 +11,7 @@ function Login() {
   const [message, setMessage] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
   const { users, editUser, deleteUser, addUser} = useAuth();
+  const {reloadUser} = useAuthContext();
   const navigate = useNavigate();
   const [loginForm, setLoginForm] = useState({
     password:"",
@@ -40,6 +42,7 @@ function Login() {
        localStorage.setItem("userName", result.userName);
        // console.log(" user name in local :",localStorage.getItem("userName"));
        // console.log(" user name from result :",result.userName);
+       await reloadUser();
         navigate("/tasks");
      }
      else{
@@ -56,14 +59,7 @@ function Login() {
     });
     
   };
-  const handleLogout = async () => {
 
-    await logoutUser();
- 
-    localStorage.clear();
- 
-    navigate("/");
- };
     
   return (
     <div className="container">

@@ -3,9 +3,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
+
+import com.example.taskmanager.security.SecurityUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -13,6 +16,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @Service
 public class UserServiceImpl  implements UserService{
@@ -160,6 +164,26 @@ public class UserServiceImpl  implements UserService{
         return dto;
     }
 
+    public AuthResponseDTO getCurrentUser() {
+
+    String userName =
+        SecurityUtil.getCurrentUsername();
+
+    User user = userRepository
+        .findByUserName(userName)
+        .orElseThrow(() ->
+            new UsernameNotFoundException(
+                "User not found"
+            )
+        );
+
+    return new AuthResponseDTO(
+        true,
+        "Current user fetched",
+        user.getRole(),
+        user.getUserName()
+    );
+}
     public AuthResponseDTO login(LoginDTO dto,HttpServletRequest request) {
 
         Optional<User> optionalUser =       
@@ -183,13 +207,7 @@ User user = optionalUser.get();
             );
         }
     
-       /*  if(!passwordEncoder.matches(dto.getPassword(),user.getPassword()))
-            {
-            return new AuthResponseDTO(
-            false,
-            "Invalid credentials",user.getRole(),user.getUserName());
-       
-           } */
+      try{
             Authentication authentication =
             authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -197,6 +215,7 @@ User user = optionalUser.get();
                     dto.getPassword()
                 )
             );
+            
         
         SecurityContextHolder
             .getContext()
@@ -214,20 +233,16 @@ session.setAttribute(
             user.getRole(),
             user.getUserName()
         );
+    } catch (BadCredentialsException e) { return new AuthResponseDTO( false, "Invalid credentials", null, null ); } 
+    catch (UsernameNotFoundException e) { return new AuthResponseDTO( false, "User not found", null, null ); }
 
-
-
-           /*  return new AuthResponseDTO(
-                true,
-                "Login successful",user.getRole(),user.getUserName()
-            );
-        */
+    }
             
         
       
     }
     
-}
+
 
     
 

@@ -6,6 +6,7 @@ import Tasks from "./pages/Tasks";
 import Settings from "./pages/Settings";
 import Registration from "./pages/Registration";
 import Login from "./pages/Login";
+import { Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -37,6 +38,10 @@ function App() {
 />
         <Route path="/register" element={<Registration />} />
         <Route path="/login" element={<Login />} />
+        <Route
+  path="/"
+  element={<Navigate to="/login" />}
+/>
         <Route
   path="/tasks"
   element={
