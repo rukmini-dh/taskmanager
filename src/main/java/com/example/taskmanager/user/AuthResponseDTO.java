@@ -17,12 +17,13 @@ package com.example.taskmanager.user;
         this.message=message;
         this.userName=userName;
     }
-    public AuthResponseDTO(boolean success,String message ,Role role,String userName)
+    public AuthResponseDTO(boolean success,String message ,Role role,String userName,String token)
     {
         this.message= message;
         this.success=success;
         this.role=role;
         this.userName=userName;
+        this.token= token;
        
     }
     public void setUserName(String userName){this.userName=userName;}

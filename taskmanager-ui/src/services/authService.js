@@ -60,7 +60,7 @@ export const logoutUser = async () => {
       credentials: "include"
     }
   );
-
+  
   if (!response.ok) {
     throw new Error("Logout failed");
   }
@@ -68,19 +68,21 @@ export const logoutUser = async () => {
   return response.text();
 };
 export const getCurrentUser = async () => {
+  const token = localStorage.getItem("token");
+  console.log("TOKEN FROM STORAGE", token);
 
   const response = await fetch(
     "http://localhost:8080/auth/me",
     {
       method: "GET",
-      credentials: "include"
+      headers: { Authorization: `Bearer ${token}`
     }
-  );
+});
 
   if (!response.ok) {
     throw new Error("Not authenticated");
   }
-
+   console.log("in current user", response)
   return response.json();
 };
 //fetch(`${BASE_URL}/${id}`

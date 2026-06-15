@@ -5,6 +5,7 @@ import java.util.List;
 
 public interface TaskService {
         List<TaskDTO> getAllTasks();
+        List<SubTaskDTO> getAllSubTasks();
         TaskDTO getTaskById(Long id);
         List<TaskDTO> getTasksByUserName(String userName);
         TaskDTO createTask(TaskDTO taskDTO);
@@ -15,6 +16,4 @@ public interface TaskService {
  }
 
  
-   
-
-   
+ 

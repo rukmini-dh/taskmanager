@@ -28,6 +28,11 @@ public class TaskController {
     public List<TaskDTO> getTasksDueBefore(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate) {
         return taskServiceImpl.getTasksDueBefore(dueDate);
     }
+    //get all substasks
+    @GetMapping("/subtasks/{id}")
+    public List<SubTaskDTO> getByTask_Id(@PathVariable Long id) {
+    return taskServiceImpl.getByTask_Id(id);
+    }
 
     // Get all tasks
     @PreAuthorize("hasRole('ADMIN')")
@@ -58,7 +63,19 @@ public TaskDTO createTask(@RequestBody TaskDTO dto)
                           {
     return taskServiceImpl.createTask(dto);
 }
-    
+// Create a new subtask
+@PostMapping("/subtask/{id}")
+
+public SubTaskDTO createSubTask(@RequestBody SubTaskDTO dto, @PathVariable long id)
+                      {System.out.println("Controller reached");
+return taskServiceImpl.createSubTask(dto,id);
+}
+
+// update an exising subtask
+@PutMapping("/editsubtask/{id}")
+public SubTaskDTO updateSubTask(@RequestBody SubTaskDTO dto,@PathVariable long id){
+    return taskServiceImpl.updateSubTask(dto,id); 
+}
 
     // Update an existing task
     @PutMapping("/{id}")

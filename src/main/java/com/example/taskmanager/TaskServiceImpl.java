@@ -1,6 +1,7 @@
 package com.example.taskmanager;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -12,13 +13,14 @@ import com.example.taskmanager.user.UserRepository;
 @Service
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
-
+    private final SubTaskRepository subtaskRepository;
     private final UserRepository userRepository;
 
-    public TaskServiceImpl(TaskRepository taskRepository,UserRepository userRepository) {
+    public TaskServiceImpl(TaskRepository taskRepository,UserRepository userRepository,SubTaskRepository subtaskRepository) {
 
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
+    this.subtaskRepository=subtaskRepository;
 }
 
 
@@ -31,7 +33,13 @@ public class TaskServiceImpl implements TaskService {
                 .map(this::convertToDTO)
                 .toList();
     }
-
+    @Override
+    public List<SubTaskDTO> getAllSubTasks() {
+        return subtaskRepository.findAll()
+                .stream()
+                .map(this::convertToSubTaskDTO)
+                .toList();
+    }
     // Delete task
     public void deleteTask(Long id) {
               taskRepository.deleteById(id);
@@ -46,6 +54,11 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + id));
 
         return convertToDTO(task);
+    }
+    public List<SubTaskDTO> getByTask_Id(Long id) {
+        
+        return (subtaskRepository.findByTask_Id(id)).stream()
+            .map(this::convertToSubTaskDTO).toList();
     }
     // find tasks by users
     public List<TaskDTO> getTasksByUserName(String username) {
@@ -89,8 +102,35 @@ public class TaskServiceImpl implements TaskService {
         task.setDeleted(taskDTO.isDeleted());
         return convertToDTO(taskRepository.save(task));
     }
-              
-    // Create new task
+    // Update subtask
+    public SubTaskDTO updateSubTask(SubTaskDTO subtaskDTO,Long id) {
+        SubTask subtask = subtaskRepository.findById(id).orElseThrow(() -> new  SubTaskNotFoundException("SubTask not found with id: " + id));
+        if (subtask.getTitle() != null) subtask.setTitle(subtaskDTO.getTitle());
+        subtask.setCompleted(subtaskDTO.isCompleted());
+        subtask.setSource(subtaskDTO.getSource());
+        subtask.setReviewed(subtaskDTO.isReviewed());
+        
+        return convertToSubTaskDTO(subtaskRepository.save(subtask));
+    }
+    // create a new subtask
+    public SubTaskDTO createSubTask(SubTaskDTO dto,long id)   {
+        SubTask subtask =new SubTask();
+        subtask.setTitle(dto.getTitle());
+        subtask.setSource(dto.getSource());
+        subtask.setCompleted(false);    
+        subtask.setReviewed(false);
+        //subtask.setCreatedAt(LocalDateTime.now());
+        Task task = taskRepository
+                .findById(id)
+                .orElseThrow(() -> new  TaskNotFoundException("Task not found with id: " + id));
+
+            subtask.setTask(task);
+            subtaskRepository.save(subtask);
+            System.out.printf("Subtask",subtask);
+        return convertToSubTaskDTO(subtask);
+
+    }      
+     // Create new task
     public TaskDTO createTask(TaskDTO dto) {
 
         String username = SecurityUtil.getCurrentUsername();
@@ -129,7 +169,15 @@ public class TaskServiceImpl implements TaskService {
         );
         return dto;
     }
-
+    private SubTaskDTO convertToSubTaskDTO(SubTask subtask) {
+        SubTaskDTO dto = new SubTaskDTO();
+         dto.setSource(subtask.getSource());
+        dto.setTitle(subtask.getTitle());
+        dto.setCompleted(subtask.isCompleted());
+        dto.setReviewed(subtask.isReviewed());
+        dto.setId(subtask.getId());
+        return dto;
+    }
     @Override
     public void deleteTaskById(Long id) {
         // TODO Auto-generated method stub

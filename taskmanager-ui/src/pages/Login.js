@@ -30,6 +30,7 @@ function Login() {
         {setError("Please enter your password");
           return;}
           setError("");
+          
       console.log("verifying",loginForm);
        const result= await verifyUser(loginForm);
        setMessage(result.message);
@@ -40,6 +41,8 @@ function Login() {
 
         localStorage.setItem("role", result.role);
        localStorage.setItem("userName", result.userName);
+       localStorage.setItem("token", result.token );
+        
        // console.log(" user name in local :",localStorage.getItem("userName"));
        // console.log(" user name from result :",result.userName);
        await reloadUser();

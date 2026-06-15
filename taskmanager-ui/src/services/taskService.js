@@ -1,14 +1,38 @@
 const BASE_URL = "http://localhost:8080/tasks";
+const getAuthHeaders = () => {
 
+
+  const token =
+      localStorage.getItem("token");
+  
+  return {
+      Authorization:
+          `Bearer ${token}`,
+  
+      "Content-Type":
+          "application/json"
+  };
+  
+  
+  };
+  
 // 🔹 GET all tasks
 export const getTasks = async () => {
-  const response = await fetch(`${BASE_URL}/all`,{method:"GET",credentials:"include"});
+  const response = await fetch(`${BASE_URL}/all`,{method:"GET",headers:getAuthHeaders()});
   console.log("in taxservice  as ADMIN",response );
   if (!response.ok) {
     throw new Error("Failed to fetch tasks");
   }
 
   return response.json();
+};
+export const fetchSubTasks=async(id)=> {
+  let url = "";
+  url = `http://localhost:8080/tasks/subtasks/${id}`;
+  const response = await fetch(url,{method:"GET",headers:  {
+    "Content-Type": "application/json"}});
+    return await response.json();
+
 };
 export const fetchTasks = async (
   role,
@@ -30,8 +54,8 @@ export const fetchTasks = async (
   
   }
   console.log("url",url);
-  const response = await fetch(url,{method:"GET",credentials:"include"});
-
+  const response = await fetch(url,{method:"GET",headers:getAuthHeaders()});
+  console.log("header",getAuthHeaders());
   return await response.json();
 };
 export const getTasksByUser = async (userName) => {
@@ -42,7 +66,7 @@ export const getTasksByUser = async (userName) => {
     `${BASE_URL}/user/${userName}`,
     {
       method: "GET",
-      credentials: "include"
+      headers:getAuthHeaders()
     }
   );
   console.log("in taxservice  as GUEST",response );
@@ -56,10 +80,8 @@ export const getTasksByUser = async (userName) => {
 export const addTask = async (task) => {
   console.log("in add task",task);
   const response = await fetch(BASE_URL, {
-    method: "POST",credentials: "include",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    method: "POST",
+    headers: getAuthHeaders(),
     body: JSON.stringify(task)
   });
 
@@ -70,14 +92,44 @@ export const addTask = async (task) => {
   return response.json();
 };
 //fetch(`${BASE_URL}/${id}`
-// 🔹 UPDATE task
+// 🔹 ADD subtask
+export const addSubTask = async(id, subtask) => {
+
+  console.log("sending subtask", subtask);
+
+  const response = await fetch(
+    `${BASE_URL}/subtask/${id}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(subtask)
+    }
+  );
+
+  return await response.json();
+};
+export const editSubTask = async (id,subtask) => {
+
+  const response = await fetch(
+    `${BASE_URL}/editsubtask/${id}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(subtask)
+    }
+  );
+
+  return await response.json();
+}
 export const updateTask = async (id, task) => {
   console.log(" in updatetask******* ",task.id) ;
   const response = await fetch(`${BASE_URL}/${id}`, {
-    method: "PUT",credentials:"include",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    method: "PUT",
+    headers: getAuthHeaders(),
     body: JSON.stringify(task)
   });
 
@@ -93,7 +145,7 @@ export const updateTask = async (id, task) => {
 // 🔹 DELETE task
 export const deleteTask = async (id) => {
   const response = await fetch(`${BASE_URL}/${id}`, {
-    method: "DELETE",credentials:"include",
+    method: "DELETE",headers:getAuthHeaders()
   });
 
   if (!response.ok) {

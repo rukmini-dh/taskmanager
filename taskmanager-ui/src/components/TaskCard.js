@@ -1,25 +1,47 @@
 import React, {useState}from "react";
 import "./taskCard.css";
+import SubTaskCard from "../components/SubTaskCard";
+import { useTasks } from "../hooks/useTasks";
 import { FaTrash, FaEdit,FaSave,FaTimes } from "react-icons/fa";
 import {useEffect,useRef} from "react";
 import { getCurrentUser } from "../services/authService";
+import {generatePlan} from "../services/alService";
+import { fetchSubTasks } from "../services/taskService";
 const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const isLoading = !!loadingState; // boolean derived from status
   const [title,setTitle]=useState("");
   const [editedTask, setEditedTask] = useState(task);
+  
   const isSaving = loadingState === "saving";
-  //const role = localStorage.getItem("role");
-  const userName = localStorage.getItem("username");
-  //console.log("************",role);
+  //const [generatedSteps, setGeneratedSteps] = useState([]);
+  const [savedSubTasks, setSavedSubTasks] = useState([]);   
   const isDeleting = loadingState === "deleting";
   const [currentUser, setCurrentUser] =    useState(null);
+  const {addSubTask} = useTasks();
+ 
+  const {editSubTask} = useTasks();
   const inputRef = useRef(null);
+  const [isReviewing, setIsReviewing] = useState(false);
   useEffect(() => {
     if (isEditing) {
       inputRef.current.focus();
     }
   }, [isEditing]);
+  useEffect(()=>{
+    setSavedSubTasks([]);
+     loadSubTasks();
+    },[task.id]);
+  const loadSubTasks = async () => {
+    setSavedSubTasks([]);
+    console.log("savedSubtask in Load Task",savedSubTasks)
+    const data = await fetchSubTasks(task.id);
+    
+    setSavedSubTasks(data);
+    console.log("savedSubtask in Load Task after loading",savedSubTasks)
+
+};
   const isSavingRef = useRef(false);
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -47,6 +69,16 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
     setEditedTask(task);
     setIsEditing(false);
   };
+  
+  const handleSubTaskSave=async(reviewedSubTask,id)=>{
+        console.log("save subtask",id);
+        await editSubTask(id,reviewedSubTask);
+        await loadSubTasks();
+          
+         setIsReviewing(false);
+
+  };
+  
   const handleSave = (e) => {
 
     console.log("save triggered");
@@ -56,13 +88,31 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
     isSavingRef.current = true;
     onSave(task.id, editedTask);
     setIsEditing(false);};
-   
-    console.log("*******",currentUser?.role);
+
+    const handleAI = async () => {
+
+      setIsGenerating(true);
+      console.log("Handle AI called!");
+      const plan
+      = await generatePlan(task);
+
+      for (const step of plan.steps) {
+          await addSubTask(task.id, step);
+      }
+          await loadSubTasks();
+      //setGeneratedSteps(plan.steps);
+      
+  
+     // setIsGenerating(false);
+  };
+    
   
     
   
   return (
     
+   
+  
     <div ref={cardRef}  className="Card">
 
       {/* First Row */}
@@ -137,10 +187,22 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
         </button>
           <button onClick={handleCancel} disabled={loadingState}>Cancel</button>
           
+          
         </>
         
       ) 
+      
       }
+      {savedSubTasks.length === 0 && (
+      <button
+      className="Generate Plan"
+      onClick={() => handleAI()}
+      disabled={isSaving}
+      
+  >
+      Generate Plan
+  </button>)}
+      
           <button  disabled={currentUser?.role==="GUEST"|| currentUser?.role==="SUPERVISOR"}onClick={() => setIsEditing(true)}> Edit</button> 
           
           <button disabled={(currentUser?.role==="GUEST"|| currentUser?.role==="SUPERVISOR") || (isLoading)}onClick={() => onDelete(task)}   > {isDeleting ? "Deleting..." : "Delete"}</button>
@@ -149,9 +211,50 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
         </div>
         {isSaving && <span className="spinner">Saving...</span>}
         {isDeleting && <span className="spinner">Deleting...</span>}
+        
 
       </div>
+      <div className="subtask-container">
+        
+   
+ {/* {isGenerating && (
+        <>
+           {generatedSteps.length > 0 && (
+    <h4>AI Suggested Subtasks</h4>
+)
+
+} */}
+
+{/* {generatedSteps.map(step => (
+    <SubTaskCard
+        key={step.title}
+        subtask={step}
+        save_SubTask={handleSubTaskSave}
+        id={task.id}
+       
+    />
+  ))}</>)
+  } */}
+   {savedSubTasks.length > 0 && (
+  <h4>AI Suggested Subtasks</h4>)}
+
+{savedSubTasks.map(step => (
+
+    <SubTaskCard
+        key={step.id}
+        subtask_id={step.id}
+        subtask={step}
+        save_SubTask={handleSubTaskSave}
+        id={task.id}
+    />
+
+))}
+  
+</div>
+
+      
      </div>
+     
     
     )}
 export default TaskCard;

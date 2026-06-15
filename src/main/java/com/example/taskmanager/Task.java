@@ -2,8 +2,10 @@ package com.example.taskmanager;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 import com.example.taskmanager.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Task {
@@ -15,6 +17,10 @@ public class Task {
     @JoinColumn(name = "userName",nullable = false)
     private User user;
 
+    @OneToMany(mappedBy = "task")
+    @JsonIgnore
+    private List<SubTask> subtasks;
+    
     private String title;
 
     private String description;

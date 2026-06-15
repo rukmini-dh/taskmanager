@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import {
-  getTasks,fetchTasks,
+  getTasks,fetchTasks,fetchSubTasks,
   addTask as apiAddTask,
-  updateTask as apiUpdateTask,
+  updateTask as apiUpdateTask,addSubTask as apiaddSubTask,editSubTask as apieditSubTask,
   getTasksByUser
 } from "../services/taskService";
 import {
@@ -13,11 +13,15 @@ from "../context/AuthContext";
 export const useTasks = () => {
   const { currentUser } =useAuthContext();
 
-useEffect(() => {if(currentUser){loadTasks();}
+useEffect(() => {
+  setTasks([]);
+  if(currentUser){loadTasks();}
 
 }, [currentUser]);
 
+
   const [tasks, setTasks] = useState([]);
+  const [subtasks, setSubTasks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [loadingMap, setLoadingMap] = useState({});
@@ -47,7 +51,8 @@ useEffect(() => {if(currentUser){loadTasks();}
   };
 
  
-
+  
+ 
   // 🔹 Add Task
   const addTask = async (task) => {
     console.log("in usetasks",task);
@@ -58,9 +63,14 @@ useEffect(() => {if(currentUser){loadTasks();}
       console.error("Add failed", err);
     }
   };
+  // Edit SubTask
+  const editSubTask=async(id,reviewedSubTask)=>{
+        await apieditSubTask(id,reviewedSubTask)
+
+  }
 
   // 🔹 Edit Task
-  const editTask = async (id, updatedTask) => {
+  const editTask = async (updatedTask) => {
     try {
       setLoadingMap(prev => ({ ...prev, [id]: "saving" }));
 
@@ -75,6 +85,18 @@ useEffect(() => {if(currentUser){loadTasks();}
         delete copy[id];
         return copy;
       });
+    }
+  };
+ //Add subtask
+  const addSubTask = async (id,newSubTask) => {
+    console.log("in use task for subtask");
+    try {
+      await apiaddSubTask(id,newSubTask);
+    
+
+    } catch (err) {
+      console.error("adding subtask  failed", err);
+    
     }
   };
 
@@ -125,6 +147,10 @@ useEffect(() => {if(currentUser){loadTasks();}
     loadingMap,
     loading,
     error,
-    reload: loadTasks
+    addSubTask,
+    fetchSubTasks,
+    reload: loadTasks,
+    editSubTask
+   
   };
 };

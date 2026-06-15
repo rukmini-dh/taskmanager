@@ -8,8 +8,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 
+import com.example.taskmanager.security.JwtUtil;
 import com.example.taskmanager.security.SecurityUtil;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
@@ -23,11 +23,13 @@ public class UserServiceImpl  implements UserService{
      private final UserRepository userRepository;
      private final PasswordEncoder passwordEncoder;
      private final AuthenticationManager authenticationManager;
+     private final  JwtUtil jwtUtil;
 
-    public  UserServiceImpl(UserRepository userRepository,PasswordEncoder passwordEncoder,AuthenticationManager authenticationManager) {
+    public  UserServiceImpl(JwtUtil jwtUtil,UserRepository userRepository,PasswordEncoder passwordEncoder,AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.passwordEncoder=passwordEncoder;
-         this.authenticationManager=authenticationManager;   
+         this.authenticationManager=authenticationManager;  
+         this.jwtUtil=jwtUtil; 
     }
     @Override
     public List<UserDTO> getAllUsers() {
@@ -181,7 +183,7 @@ public class UserServiceImpl  implements UserService{
         true,
         "Current user fetched",
         user.getRole(),
-        user.getUserName()
+        user.getUserName(),null
     );
 }
     public AuthResponseDTO login(LoginDTO dto,HttpServletRequest request) {
@@ -193,7 +195,7 @@ if(optionalUser.isEmpty()){
 
     return new AuthResponseDTO(
         false,
-        "User not found",null,null
+        "User not found",null,null,null
     );
 }
 
@@ -203,10 +205,10 @@ User user = optionalUser.get();
     
             return new AuthResponseDTO(
                 false,
-                "Account disabled",user.getRole(),user.getUserName()
-            );
+                "Account disabled",user.getRole(),user.getUserName(),null  );
         }
-    
+      
+
       try{
             Authentication authentication =
             authenticationManager.authenticate(
@@ -216,25 +218,30 @@ User user = optionalUser.get();
                 )
             );
             
-        
-        SecurityContextHolder
+            String token =jwtUtil.generateToken(
+                dto.getUserName()
+                );
+       /*  SecurityContextHolder
             .getContext()
             .setAuthentication(authentication);
-            HttpSession session = request.getSession(true);
+            HttpSession session = request.getSession(true); */
 
-session.setAttribute(
+/* session.setAttribute(
     HttpSessionSecurityContextRepository
         .SPRING_SECURITY_CONTEXT_KEY,
-    SecurityContextHolder.getContext());
+    SecurityContextHolder.getContext()); */
         
         return new AuthResponseDTO(
             true,
             "Login successful",
             user.getRole(),
-            user.getUserName()
-        );
-    } catch (BadCredentialsException e) { return new AuthResponseDTO( false, "Invalid credentials", null, null ); } 
-    catch (UsernameNotFoundException e) { return new AuthResponseDTO( false, "User not found", null, null ); }
+            user.getUserName(),
+           token
+);
+
+       
+    } catch (BadCredentialsException e) { return new AuthResponseDTO( false, "Invalid credentials", null, null,null ); } 
+    catch (UsernameNotFoundException e) { return new AuthResponseDTO( false, "User not found", null, null ,null); }
 
     }
             

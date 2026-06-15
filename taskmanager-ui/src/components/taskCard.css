@@ -127,6 +127,11 @@
   cursor: pointer;
   font-size: 14px;
 }
+.generatePlan {
+  color: black;
+  cursor: pointer;
+  font-size: 14px;
+}
 .cancelButton {
   color: #2563eb;
   cursor: pointer;
