@@ -19,8 +19,9 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
   const [savedSubTasks, setSavedSubTasks] = useState([]);   
   const isDeleting = loadingState === "deleting";
   const [currentUser, setCurrentUser] =    useState(null);
+  
   const {addSubTask} = useTasks();
- 
+  const taskLocked = savedSubTasks.length > 0;
   const {editSubTask} = useTasks();
   const inputRef = useRef(null);
   const [isReviewing, setIsReviewing] = useState(false);
@@ -35,13 +36,10 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
     },[task.id]);
   const loadSubTasks = async () => {
     setSavedSubTasks([]);
-    console.log("savedSubtask in Load Task",savedSubTasks)
     const data = await fetchSubTasks(task.id);
-    
     setSavedSubTasks(data);
-    console.log("savedSubtask in Load Task after loading",savedSubTasks)
-
-};
+    
+    };
   const isSavingRef = useRef(false);
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -112,13 +110,14 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
   return (
     
    
-  
-    <div ref={cardRef}  className="Card">
-
+    <div ref={cardRef}  className="Card"  >
       {/* First Row */}
       <div className="firstrow">
-       
-      {!isEditing ? (
+      {taskLocked ? (
+    <div className="title">
+        {task.title}
+    </div>
+    ): !isEditing ? (
   <div className="title" onClick={() => setIsEditing(true)}>
     {task.title}
     
@@ -145,16 +144,16 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
       }
     />
   </div>
-)};
+)}
   <div>     
              
 
-        <input
+       {/*  <input
           type="checkbox"
           className="status"
           checked={task.completed}
           onChange={() => onToggle(task)}
-        />
+        /> */}
       </div>
     </div> 
 
@@ -177,9 +176,9 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
 
         {/* Right side */}
         <div className="actions">
-        <button onClick={() => onToggle(task)}disabled={isLoading}>
+       {/*  <button onClick={() => onToggle(task)}disabled={isLoading}>
         {task.completed ? "Undo" : "Done"}
-      </button>
+      </button> */}
       {isEditing && (
         <>
            <button onClick={handleSave} disabled={isLoading}>
@@ -246,6 +245,7 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
         subtask={step}
         save_SubTask={handleSubTaskSave}
         id={task.id}
+        loadSubTasks={loadSubTasks}
     />
 
 ))}

@@ -108,7 +108,7 @@ public class TaskServiceImpl implements TaskService {
         if (subtask.getTitle() != null) subtask.setTitle(subtaskDTO.getTitle());
         subtask.setCompleted(subtaskDTO.isCompleted());
         subtask.setSource(subtaskDTO.getSource());
-        subtask.setReviewed(subtaskDTO.isReviewed());
+        subtask.setReviewed(true);
         
         return convertToSubTaskDTO(subtaskRepository.save(subtask));
     }
