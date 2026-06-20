@@ -85,6 +85,19 @@ export const getCurrentUser = async () => {
    console.log("in current user", response)
   return response.json();
 };
+// Change Password
+export const changePassword=async(newPassword,currentPassword,username)=>{
+  const response = await fetch(`${BASE_URL}/changePassword/${username}`, {
+    method: "PUT",credentials:"include",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      currentPassword,
+      newPassword
+  })
+  });
+}
 //fetch(`${BASE_URL}/${id}`
 // 🔹 UPDATE task
 export const updateUser = async (id, user) => {

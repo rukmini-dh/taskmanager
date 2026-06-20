@@ -29,12 +29,13 @@ public ResponseEntity<Map<String, Object>> handleSubTaskNotFound(SubTaskNotFound
    
     return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 }
-@ExceptionHandler(DuplicateUserException.class)
-public ResponseEntity<Map<String, Object>> handleDuplicateUserException(DuplicateUserException ex) {
+@ExceptionHandler(RuntimeException.class)
+public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
     Map<String, Object> error = new HashMap<>();
     error.put("status", 403);
     error.put("message", ex.getMessage());
    
     return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 }
+
 }

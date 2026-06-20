@@ -16,5 +16,6 @@ public interface UserService {
         void deleteUser(Long id);
         AuthResponseDTO login(LoginDTO dto,HttpServletRequest request);
         AuthResponseDTO getCurrentUser();
+        ChangePasswordDTO changePassword(ChangePasswordDTO dto,String username);
  }
  

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
     getUsers,
     addUser  as apiAddUser,
-    updateUser as apiUpdateUser,verifyUser as apiVerifyUser
+    updateUser as apiUpdateUser,verifyUser as apiVerifyUser,changePassword as apichangePassword
   } from "../services/authService";
    
   export const useAuth = () => {
@@ -49,9 +49,19 @@ import {
   const editUser = async (id, updatedUser) => {
     try {
            await apiUpdateUser(id, updatedUser);
-           //fetchUsers(); // ✅ refresh from backend
+           //fetchUsers(); // ✅ And reloaduser fresh from backend
     } catch (err) {
       console.error("Edit failed", err);
+    } 
+   
+  };
+  // 🔹 Change Password 
+  const changePassword = async(newPassword,currentPassword,username) => {
+    try {
+           await apichangePassword(newPassword,currentPassword,username);
+           //fetchUsers(); // ✅ And reloaduser fresh from backend
+    } catch (err) {
+      console.error("update failed", err);
     } 
    
   };
@@ -63,6 +73,7 @@ import {
     verifyUser,
     editUser,
     fetchUsers,
+    changePassword,
     error
   };
 };

@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 
+import com.example.taskmanager.IncorrectPasswordException;
 import com.example.taskmanager.security.JwtUtil;
 import com.example.taskmanager.security.SecurityUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -151,7 +152,42 @@ public class UserServiceImpl  implements UserService{
             userRepository.save(user)
         );
     }
-   
+    public ChangePasswordDTO  changePassword(ChangePasswordDTO dto,String username) {
+
+        System.out.println(dto.getCurrentPassword());
+        Optional<User> optionalUser =
+        userRepository.findByUserName(username);
+
+User user = optionalUser.orElseThrow(
+        () -> new RuntimeException("User not found")
+);
+if (!passwordEncoder.matches(
+    dto.getCurrentPassword(),
+    user.getPassword())) {
+
+throw new IncorrectPasswordException(
+    "Current password incorrect");
+}
+user.setPassword(
+        passwordEncoder.encode(dto.getNewPassword())
+);
+
+userRepository.save(user);
+       
+         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+          
+         
+         return convertToChangePasswordDTO(
+             userRepository.save(user)
+         );
+     }
+   private ChangePasswordDTO convertToChangePasswordDTO(User user)
+   {
+    ChangePasswordDTO  dto =new ChangePasswordDTO();
+    dto.setNewPassword(user.getPassword());
+    return dto;
+
+   }
     // 🔹 Helper method
     private UserDTO convertToDTO(User user) {
         UserDTO dto = new UserDTO();

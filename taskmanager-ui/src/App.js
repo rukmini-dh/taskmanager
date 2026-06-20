@@ -21,19 +21,19 @@ function App() {
       <Routes>
       <Route
   path="/dashboard"
-  element={
-    <ProtectedRoute>
-      <Dashboard />
-    </ProtectedRoute>
-  }
+  element={<Dashboard />}
+/>
+<Route
+  path="/"
+  element={<Navigate to="/dashboard" />}
 />
 
 <Route
   path="/settings"
   element={
-    <ProtectedRoute>
+   
       <Settings />
-    </ProtectedRoute>
+   
   }
 />
         <Route path="/register" element={<Registration />} />

@@ -25,6 +25,7 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
   const {editSubTask} = useTasks();
   const inputRef = useRef(null);
   const [isReviewing, setIsReviewing] = useState(false);
+  
   useEffect(() => {
     if (isEditing) {
       inputRef.current.focus();
@@ -123,11 +124,12 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
     
   </div>
 ) : (
-  <div disabled={currentUser?.role==="GUEST"|| currentUser?.role==="SUPERVISOR"}className="edit-title">
+  <div className="edit-title">
     <input
       ref={inputRef}
       type="text"
       className="title"
+      disabled={currentUser?.role==="GUEST"|| currentUser?.role==="SUPERVISOR"}
       value={editedTask.title}
       onKeyDown={(e) => {
         if (e.key === "Enter") {
@@ -146,8 +148,7 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
   </div>
 )}
   <div>     
-             
-
+     
        {/*  <input
           type="checkbox"
           className="status"
@@ -158,8 +159,11 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
     </div> 
 
       {/* Second Row */}
+
       <div className="secondrow">
-        <div className="description">{task.description}</div>
+      {task.completed && <div >COMPLETED</div>}       
+
+        {!taskLocked && <div className="description">{task.description}</div>}
       </div>
 
       {/* Third Row */}
@@ -167,11 +171,11 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
 
         {/* Left side */}
         <div className="meta">
-          <div className={`badge ${task.priority.toLowerCase()}`}>
+        {!taskLocked &&    <div className={`badge ${task.priority.toLowerCase()}`}>
             {task.priority}
-          </div>
+          </div>}
 
-          <div className="duedate">{task.dueDate}</div>
+      {!taskLocked &&    <div className="duedate">{task.dueDate}</div>}
         </div>
 
         {/* Right side */}
@@ -202,9 +206,9 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
       Generate Plan
   </button>)}
       
-          <button  disabled={currentUser?.role==="GUEST"|| currentUser?.role==="SUPERVISOR"}onClick={() => setIsEditing(true)}> Edit</button> 
+          {!taskLocked && (< button  disabled={currentUser?.role==="GUEST"|| currentUser?.role==="SUPERVISOR"}onClick={() => setIsEditing(true)}> Edit</button> )}
           
-          <button disabled={(currentUser?.role==="GUEST"|| currentUser?.role==="SUPERVISOR") || (isLoading)}onClick={() => onDelete(task)}   > {isDeleting ? "Deleting..." : "Delete"}</button>
+          {!taskLocked && (<button disabled={(currentUser?.role==="GUEST"|| currentUser?.role==="SUPERVISOR") || (isLoading)}onClick={() => onDelete(task)}   > {isDeleting ? "Deleting..." : "Delete"}</button>)}
       
          
         </div>

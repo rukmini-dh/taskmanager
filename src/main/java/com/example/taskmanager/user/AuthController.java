@@ -78,7 +78,16 @@ public AuthResponseDTO getCurrentUser()
 
       }
 
-     
+      @PutMapping("/changePassword/{userName}")
+      public ChangePasswordDTO changePassword(
+              @RequestBody ChangePasswordDTO dto,
+              @PathVariable String userName) {
+      
+          return userService.changePassword(
+              dto,
+              userName
+          );
+      }
     // Create Register new user
     @PostMapping("/register")
     public UserDTO registerUser( @RequestBody RegistrationDTO registrationDTO) {

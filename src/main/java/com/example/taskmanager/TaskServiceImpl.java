@@ -107,6 +107,15 @@ public class TaskServiceImpl implements TaskService {
         SubTask subtask = subtaskRepository.findById(id).orElseThrow(() -> new  SubTaskNotFoundException("SubTask not found with id: " + id));
         if (subtask.getTitle() != null) subtask.setTitle(subtaskDTO.getTitle());
         subtask.setCompleted(subtaskDTO.isCompleted());
+        Task task = subtask.getTask();
+
+        List<SubTask> subtasks =subtaskRepository.findByTask_Id(task.getId());
+
+        boolean allCompleted = subtasks.stream().allMatch(SubTask::isCompleted);
+
+        if(allCompleted){task.setCompleted(true);
+        taskRepository.save(task);
+}
         subtask.setSource(subtaskDTO.getSource());
         subtask.setReviewed(true);
         

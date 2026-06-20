@@ -3,6 +3,7 @@ import {useTasks} from "../hooks/useTasks";
 import TaskCard from "../components/TaskCard";
 import TaskForm from "../components/TaskForm";
 import { updateTask } from "../services/taskService";
+import { useAuthContext } from "../context/AuthContext";
 
 function Tasks() {
   //initialising variables
@@ -14,6 +15,8 @@ function Tasks() {
   const [lastDeleted, setLastDeleted] = useState(null);
   const role = localStorage.getItem("role");
   const userName = localStorage.getItem("userName");
+  const { currentUser } = useAuthContext();
+ 
   const [taskForm, setTaskForm] = useState({
     title: "",
     description: "",
@@ -24,6 +27,7 @@ function Tasks() {
     userName:localStorage.getItem("userName")   
   
   });
+  
  
 // console.log("in tasskform",taskForm);
    useEffect(() => {
@@ -133,10 +137,21 @@ function Tasks() {
   });
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
-  
+ /*  if (!currentUser) {
+    console.log("no user!")
+    return (
+        <div>
+            Please sign in to view tasks.
+        </div>
+    );
+} */
   return (
     <div className="container">
-       
+      
+    {/*   !currentUser && return (  <div>
+            Please sign in to view tasks.
+        </div>) ;
+       */}
       <div className="card">
         <TaskForm
           taskForm={taskForm}
@@ -183,6 +198,7 @@ function Tasks() {
        
   />
 ))}
+        
     </div>
   );
 }
