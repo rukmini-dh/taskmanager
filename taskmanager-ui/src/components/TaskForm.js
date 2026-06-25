@@ -50,7 +50,7 @@ function TaskForm({ taskForm, setTaskForm, handleSubmit, editingId,error,setErro
         }
       />
 
-      <label>
+     {/*  <label>
         Completed:
         <input
           type="checkbox"
@@ -62,7 +62,7 @@ function TaskForm({ taskForm, setTaskForm, handleSubmit, editingId,error,setErro
             })
           }
         />
-      </label>
+      </label> */}
 
       <br />
 

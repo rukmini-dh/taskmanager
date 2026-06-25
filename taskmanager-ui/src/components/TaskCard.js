@@ -19,13 +19,16 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
   const [savedSubTasks, setSavedSubTasks] = useState([]);   
   const isDeleting = loadingState === "deleting";
   const [currentUser, setCurrentUser] =    useState(null);
-  
+  const [showSubtasks, setShowSubtasks] = useState(false);
   const {addSubTask} = useTasks();
   const taskLocked = savedSubTasks.length > 0;
   const {editSubTask} = useTasks();
   const inputRef = useRef(null);
   const [isReviewing, setIsReviewing] = useState(false);
-  
+  const completedSubtasks =
+  savedSubTasks.filter(subtask => subtask.completed).length;
+
+const totalSubtasks = savedSubTasks.length;
   useEffect(() => {
     if (isEditing) {
       inputRef.current.focus();
@@ -196,6 +199,12 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
       ) 
       
       }
+            {totalSubtasks > 0 && (
+  <p className="subtask-summary">
+    {completedSubtasks} / {totalSubtasks} subtasks completed
+  </p>
+)}
+
       {savedSubTasks.length === 0 && (
       <button
       className="Generate Plan"
@@ -220,26 +229,17 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
       <div className="subtask-container">
         
    
- {/* {isGenerating && (
-        <>
-           {generatedSteps.length > 0 && (
-    <h4>AI Suggested Subtasks</h4>
-)
 
-} */}
+  {savedSubTasks.length > 0 && (
+  <>
+    <button
+      type="button"
+      onClick={() => setShowSubtasks(!showSubtasks)}>
+      {showSubtasks ? "Hide subtasks" : "Show subtasks"}
+    </button>
 
-{/* {generatedSteps.map(step => (
-    <SubTaskCard
-        key={step.title}
-        subtask={step}
-        save_SubTask={handleSubTaskSave}
-        id={task.id}
-       
-    />
-  ))}</>)
-  } */}
-   {savedSubTasks.length > 0 && (
-  <h4>AI Suggested Subtasks</h4>)}
+  {showSubtasks && (
+      <div className="subtask-list"> 
 
 {savedSubTasks.map(step => (
 
@@ -253,6 +253,9 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
     />
 
 ))}
+</div>
+  )}
+  </>)}
   
 </div>
 

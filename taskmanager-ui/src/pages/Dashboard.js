@@ -1,15 +1,53 @@
 import { useAuthContext } from "../context/AuthContext";
-import { useAuth } from "../hooks/useAuth";
+
 import { useTasks } from "../hooks/useTasks";
 import "../layout/Dashboard.css";
-import { getUsers } from "../services/authService";
+
 
 const Dashboard = () => {
   const { currentUser } = useAuthContext();
   const { tasks } = useTasks();
-  const { getUsers } = useAuth;
+  if (!currentUser) {
+    return (
+      <div>
+        <h2>Welcome to Task Manager</h2>
+        <p>Please sign in to manage tasks.</p>
+      </div>
+    );
+  }
+
   const totalTasks = tasks.length;
   console.log("tasks",tasks[0]);
+  const today = new Date();
+today.setHours(0,0,0,0);
+const nextWeek = new Date(today);
+nextWeek.setDate(today.getDate() + 7);
+const overdueTasks = tasks.filter(task =>{
+  if (!task.dueDate || task.completed) return false;
+  return(
+  !task.completed &&
+  new Date(task.dueDate) < today);
+}).length;
+const dueToday = tasks.filter(task => {
+ 
+  if (!task.dueDate || task.completed) return false;
+  const dueDate = new Date(task.dueDate);
+  return (
+    !task.completed &&
+    dueDate.toDateString() ===
+    today.toDateString()
+  );
+}).length;
+const dueThisWeek = tasks.filter(task => {
+  if (!task.dueDate || task.completed) return false;
+  const dueDate = new Date(task.dueDate);
+
+  return (
+    !task.completed &&
+    dueDate >= today &&
+    dueDate <= nextWeek
+  );
+}).length;
   const totalTasksByUsers =
   tasks.filter(task => task.userName ===currentUser.userName).length;
   const completedTasks = tasks.filter(task => task.completed).length;
@@ -24,15 +62,7 @@ const Dashboard = () => {
 
   // tasks by priority
 
-  if (!currentUser) {
-    return (
-      <div>
-        <h2>Welcome to Task Manager</h2>
-        <p>Please sign in to manage tasks.</p>
-      </div>
-    );
-  }
-
+ 
 
   return (
     <div>
@@ -72,18 +102,21 @@ const Dashboard = () => {
         <p style={{ display: 'inline-block', marginRight: '15px' }}>Guest</p>
         <p style={{ display: 'inline-block', marginLeft: '60px' }}>{totalTasksByUsers}</p>
       </div>
-
+     <div className="metric-card">
+      <h2>Tasks status</h2>
+      <div>
+     <p style={{ display: 'inline-block', marginRight: '15px' }}>Overdue Tasks</p>
+        <p style={{ display: 'inline-block', marginLeft: '60px' }}>{overdueTasks}</p></div>
+        <div>
+        <p style={{ display: 'inline-block', marginRight: '15px' }}>Tasks due today</p>
+        <p style={{ display: 'inline-block', marginLeft: '60px' }}>{dueToday}</p></div>
+        <div>
+        <p style={{ display: 'inline-block', marginRight: '15px' }}>Tasks due this week</p>
+        <p style={{ display: 'inline-block', marginLeft: '60px' }}>{dueThisWeek}</p></div>
+    </div>
     </div>
   );
 };
 
 
 export default Dashboard;
-/* Tasks by Priority
-Tasks Completed This Week
-AI-generated Subtasks Count */
-/* User         Tasks
-------------------
-guest          4
-admin          2
-supervisor     7 */

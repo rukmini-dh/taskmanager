@@ -22,6 +22,13 @@ private String apiKey;
            public AIPlanResponseDTO generatePlan(AIPlanRequestDTO request) {
 
             Map<String, List<String>> taskTemplates = new HashMap<>();
+            Map<String, String> aliases = new HashMap<>();
+            List<String> selectedSteps = null;
+
+aliases.put("sign in", "login");
+aliases.put("signin", "login");
+aliases.put("authentication", "login");
+aliases.put("questionnaire", "survey");
         
             taskTemplates.put("login", List.of(
                 "Create login UI",
@@ -39,13 +46,7 @@ private String apiKey;
                 "Review findings"
             ));
         
-            List<String> selectedSteps = List.of(
-                "Review requirements",
-                "Gather information",
-                "Create deliverables",
-                "Validate output",
-                "Finalize task"
-            ); // fallback
+         
         
             String title = request.getTitle().toLowerCase();
         
@@ -55,7 +56,23 @@ private String apiKey;
                     break;
                 }
             }
-        
+            if (selectedSteps == null) {
+                for (String alias : aliases.keySet()) {
+                    if (title.contains(alias)) {
+                        String templateKey = aliases.get(alias);
+                        selectedSteps = taskTemplates.get(templateKey);
+                        break;
+                    }
+                }
+            }if (selectedSteps == null) {
+                selectedSteps = List.of(
+                    "Review requirements",
+                    "Gather information",
+                    "Create deliverables",
+                    "Validate output",
+                    "Finalize task"
+                );
+            }
             List<SubTaskDTO> subtaskDTOs = selectedSteps.stream()
                 .map(step -> {
                     SubTaskDTO dto = new SubTaskDTO();
