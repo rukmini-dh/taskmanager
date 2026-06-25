@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
     getUsers,
-    addUser  as apiAddUser,
+    addUser  as apiAddUser,forgotPassword as apiforgotPassword,
     updateUser as apiUpdateUser,verifyUser as apiVerifyUser,changePassword as apichangePassword
   } from "../services/authService";
    
@@ -55,14 +55,21 @@ import {
     } 
    
   };
+  const forgotPassword= async(username)=>{
+    console.log("in forgot password",username);
+    try{
+  return await apiforgotPassword(username);
+    } catch(err) {
+      console.log("Forgot Password faled!");
+
+    }
+
+  }
   // 🔹 Change Password 
   const changePassword = async(newPassword,currentPassword,username) => {
-    try {
-           await apichangePassword(newPassword,currentPassword,username);
+     return await apichangePassword(newPassword,currentPassword,username);
            //fetchUsers(); // ✅ And reloaduser fresh from backend
-    } catch (err) {
-      console.error("update failed", err);
-    } 
+  
    
   };
 
@@ -74,7 +81,8 @@ import {
     editUser,
     fetchUsers,
     changePassword,
-    error
+    error,
+    forgotPassword
   };
 };
 

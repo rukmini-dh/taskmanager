@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 
-function LoginForm({ loginForm, setLoginForm, handleSubmit, error,setError }) {
+
+function LoginForm({ loginForm, setLoginForm, handleSubmit, error,setError ,handleForgotPassword}) {
  
   return (
     <div>
@@ -25,10 +26,7 @@ function LoginForm({ loginForm, setLoginForm, handleSubmit, error,setError }) {
           setLoginForm({ ...loginForm, password: e.target.value })
         }
       />
-
-      
-
-      <br />
+     
 
       <button onClick={handleSubmit}>Submit</button>   
           </div>

@@ -65,6 +65,10 @@ public class UserServiceImpl  implements UserService{
         User  user = userRepository.findByRegistrationNumber(regno).orElseThrow(() -> new UserNotFoundException("User not found with regNo. " + regno));
         return convertToDTO(user);
     }
+    public ChangePasswordDTO forgotPassword(String username ) {
+        User  user = userRepository.findByUserName(username).orElseThrow(() -> new UserNotFoundException("User not found with userName. " +username));
+        return convertToChangePasswordDTO(user);
+    }
     // Find users  by enabled/disabled
     public List<UserDTO> getByEnabled(boolean enabled) {
         return (userRepository.findByEnabled(enabled)).stream()

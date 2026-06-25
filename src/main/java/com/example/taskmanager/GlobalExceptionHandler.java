@@ -29,13 +29,12 @@ public ResponseEntity<Map<String, Object>> handleSubTaskNotFound(SubTaskNotFound
    
     return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 }
-@ExceptionHandler(RuntimeException.class)
-public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
-    Map<String, Object> error = new HashMap<>();
-    error.put("status", 403);
-    error.put("message", ex.getMessage());
-   
-    return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+@ExceptionHandler(IncorrectPasswordException.class)
+public ResponseEntity<String>handleIncorrectPassword(IncorrectPasswordException ex) {
+
+    return ResponseEntity
+            .badRequest()
+            .body(ex.getMessage());
 }
 
 }

@@ -17,5 +17,6 @@ public interface UserService {
         AuthResponseDTO login(LoginDTO dto,HttpServletRequest request);
         AuthResponseDTO getCurrentUser();
         ChangePasswordDTO changePassword(ChangePasswordDTO dto,String username);
+        ChangePasswordDTO forgotPassword(String username);
  }
  

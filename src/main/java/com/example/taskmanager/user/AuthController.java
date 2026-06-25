@@ -77,6 +77,10 @@ public AuthResponseDTO getCurrentUser()
            return userService.login(dto, request);
 
       }
+      @GetMapping("/forgotPassword/{userName}")
+      public ChangePasswordDTO forgotPassword(@PathVariable String userName){
+        return userService.forgotPassword(userName);
+      }
 
       @PutMapping("/changePassword/{userName}")
       public ChangePasswordDTO changePassword(

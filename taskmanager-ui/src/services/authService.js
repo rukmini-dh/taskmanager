@@ -85,6 +85,29 @@ export const getCurrentUser = async () => {
    console.log("in current user", response)
   return response.json();
 };
+// forgot password
+export const forgotPassword=async(username) =>{
+  console.log("in authservic",username)
+  const response= await fetch(`${BASE_URL}/forgotPassword/${username}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+
+  if (!response.ok) {
+    console.group("not ok in auth servuce");
+    const errorMessage = await response.text();
+     throw new Error(errorMessage);
+     console.group("not ok in auth servuce",errorMessage);
+     return await response.json();
+}else{
+  console.log("all good in uauth Service",response);
+  return response.json
+}
+
+}
+ 
 // Change Password
 export const changePassword=async(newPassword,currentPassword,username)=>{
   const response = await fetch(`${BASE_URL}/changePassword/${username}`, {
@@ -97,6 +120,12 @@ export const changePassword=async(newPassword,currentPassword,username)=>{
       newPassword
   })
   });
+  if (!response.ok) {
+    const errorMessage = await response.text();
+     throw new Error(errorMessage);
+     return await response.json();
+}
+
 }
 //fetch(`${BASE_URL}/${id}`
 // 🔹 UPDATE task

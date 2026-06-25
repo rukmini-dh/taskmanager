@@ -11,6 +11,7 @@ const Settings = () => {
  const [currentPassword,setCurrentPassword]=useState("");
  const [confirmPassword,setConfirmPassword]=useState("");
  const passwordsMatch =  newPassword === confirmPassword;
+ const [error, setError] = useState("");
    
 
   if (!currentUser) {
@@ -23,8 +24,19 @@ const Settings = () => {
   }
   const handleChangePassword= async () => {
     
-      console.log("Passwords  matched",newPassword,currentPassword,currentUser.userName);
-      await changePassword(newPassword,currentPassword,currentUser.userName)   
+    try {
+      setError("");
+      const res= await changePassword(newPassword,currentPassword,currentUser.userName); 
+      console.log("after await",res);
+      setError("");
+  
+  } catch(err) {
+  
+      setError(err.message);
+      console.log ("in handl change password",err.message);
+  
+  }
+      
 
 
        
@@ -63,19 +75,26 @@ const Settings = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}/>
       
       {newPassword && confirmPassword && !passwordsMatch && (<p>Password not matching!</p>)}
+ 
       <button
     disabled={!passwordsMatch ||
               !newPassword ||
               !confirmPassword}
-    onClick={handleChangePassword}
->
+    onClick={handleChangePassword}>
     Confirm
 </button>
+
       
         
         </div>   
         
      ) }
+   
+   {error && (
+   <p className="error">
+        {error}
+    </p>
+)}
     </div>
      );
     

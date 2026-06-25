@@ -4,7 +4,7 @@ import LoginForm from "../components/LoginForm";
 import Tasks from "./Tasks";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
-import { getUsers, verifyUser } from "../services/authService";
+import { getUsers, verifyUser,forgotPassword } from "../services/authService";
 function Login() {
   //initialising variables
   const [error, setError] = useState("");
@@ -17,6 +17,30 @@ function Login() {
     password:"",
     userName:""
   });
+  // Forgot password
+ /*  const handleForgotPassword=async()=>{
+    console.log("***********",loginForm);
+    if (!loginForm.userName.trim()) 
+      {
+      
+        setError("Please enter your username");
+        return;}
+        setError("");
+   const result= await forgotPassword(loginForm.userName);
+   console.log("returned from forgot password",result.password);
+   if(result.success){
+    console.log("result message:",result.message);
+   setLoginForm({...LoginForm,password:result.password});
+     handleSubmit();
+   }
+   else{
+    console.log("not k",result);
+    setMessage(result.message);
+    resetForm();
+   }
+  
+
+  }  */
 
   // 🔹 Verfy  User
     const handleSubmit = async () => {
@@ -73,6 +97,7 @@ function Login() {
           loginForm={loginForm}
           setLoginForm={setLoginForm}
           handleSubmit={handleSubmit}
+        
           error={error}
           setError={setError}
         />
