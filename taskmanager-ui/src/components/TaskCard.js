@@ -13,7 +13,7 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
   const isLoading = !!loadingState; // boolean derived from status
   const [title,setTitle]=useState("");
   const [editedTask, setEditedTask] = useState(task);
-  
+  const [aiPlan,setAiPlan] =useState(null);
   const isSaving = loadingState === "saving";
   //const [generatedSteps, setGeneratedSteps] = useState([]);
   const [savedSubTasks, setSavedSubTasks] = useState([]);   
@@ -95,12 +95,12 @@ const totalSubtasks = savedSubTasks.length;
 
       setIsGenerating(true);
       console.log("Handle AI called!");
-      const plan
-      = await generatePlan(task);
-
+      const plan= await generatePlan(task);
+     
       for (const step of plan.steps) {
           await addSubTask(task.id, step);
       }
+      setAiPlan(plan);
           await loadSubTasks();
       //setGeneratedSteps(plan.steps);
       
@@ -167,10 +167,21 @@ const totalSubtasks = savedSubTasks.length;
       {task.completed && <div >COMPLETED</div>}       
 
         {!taskLocked && <div className="description">{task.description}</div>}
+        {totalSubtasks > 0 && (
+  <p className="subtask-summary">
+    {completedSubtasks} / {totalSubtasks} subtasks completed
+  </p>
+)}
       </div>
 
       {/* Third Row */}
       <div className="thirdrow">
+      
+        {aiPlan?.matchedKeywords?.length > 0 && (
+  <p className="plan-context">
+    Plan based on: {aiPlan.matchedKeywords.join(", ")}
+  </p>
+)}
 
         {/* Left side */}
         <div className="meta">
@@ -199,11 +210,7 @@ const totalSubtasks = savedSubTasks.length;
       ) 
       
       }
-            {totalSubtasks > 0 && (
-  <p className="subtask-summary">
-    {completedSubtasks} / {totalSubtasks} subtasks completed
-  </p>
-)}
+    
 
       {savedSubTasks.length === 0 && (
       <button
@@ -223,8 +230,7 @@ const totalSubtasks = savedSubTasks.length;
         </div>
         {isSaving && <span className="spinner">Saving...</span>}
         {isDeleting && <span className="spinner">Deleting...</span>}
-        
-
+   
       </div>
       <div className="subtask-container">
         
