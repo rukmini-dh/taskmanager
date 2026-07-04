@@ -39,7 +39,7 @@ function SubTaskCard ({subtask,save_SubTask,subtask_id,loadSubTasks})  {
           reviewedSubTask.id,
           updatedSubTask
       );
-    //  await loadSubTasks();
+   await loadSubTasks();
   };
     return (
         <div className="subtask-container">
@@ -73,6 +73,7 @@ function SubTaskCard ({subtask,save_SubTask,subtask_id,loadSubTasks})  {
         </div>
       
           )}
+          
    
    {!reviewedSubTask.reviewed  && (
         <>

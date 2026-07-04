@@ -10,5 +10,12 @@ public class AIController {
     public AIPlanResponseDTO generatePlan( @RequestBody AIPlanRequestDTO dto){
             return aiService.generatePlan(dto);
     }
+   
+    @PostMapping("/analyseTitle")
+public AIAnalysisResponseDTO analyseTitle(
+        @RequestBody String title) {
+
+    return aiService.analyseTitle(title);
+}
 
 }

@@ -6,29 +6,33 @@ import java.util.Set;
 
 public class PlanningContext {
 
-    private Set<String> intents = new HashSet<>();
-    private Set<String> matchedKeywords = new HashSet<>();
-    private Set<String> selectedSteps = new LinkedHashSet<>();
-
-    // later
-    // private LocalDate extractedDate;
-    // private Priority extractedPriority;
+    private Set<String> matchedIntents =  new LinkedHashSet<>();
+    private Set<String> matchedKeywords = new LinkedHashSet<>();
+   
+     private LocalDate extractedDate;
+     private Priority extractedPriority;
     // private String role;
 
     // getters and setters
     //no arguments constructor
     public PlanningContext(){}
-    public PlanningContext( Set<String> intents ,Set<String> matchedKeywords ,Set<String> selectedSteps ){
+    public PlanningContext( Set<String> matchedIntents ,Set<String> matchedKeywords ,LocalDate extractdDate,Priority extractedPriority ){
 
-        this.intents=intents;
+        this.matchedIntents=matchedIntents;
         this.matchedKeywords=matchedKeywords;
-        this.selectedSteps=selectedSteps;
-
+        this.extractedDate=extractdDate;
+        this.extractedPriority=extractedPriority;
 }
-public void setIntents(Set<String> intents){this.intents=intents;}
-public Set<String> getIntents(){return intents;}
+public void setMatchedIntents(Set<String> matchedIntents){this.matchedIntents=matchedIntents;}
+public Set<String> getMatchedIntents(){return matchedIntents;}
 public void setMatchedKeywords(Set<String> matchedKeywords){this.matchedKeywords=matchedKeywords;}
 public Set<String> getMatchedKeywords(){return matchedKeywords;}
-public void setSelectedSteps(Set<String> selectedSteps){this.selectedSteps=selectedSteps;}
-public Set<String> getSelectedSteps(){return selectedSteps;}
+
+public LocalDate getExtractedDate(){return extractedDate; }
+public Priority getExtractedPriority() {
+    return extractedPriority;
+}
+public void setExtractedDate(LocalDate extractedDate){this.extractedDate=extractedDate;}
+public void  setExtractedPriority(Priority extractedPriority){this.extractedPriority=extractedPriority; }
+
 }

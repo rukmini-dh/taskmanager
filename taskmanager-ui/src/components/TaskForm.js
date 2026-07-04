@@ -1,7 +1,8 @@
-import React from "react";
+import React ,{useState} from "react";
 
-function TaskForm({ taskForm, setTaskForm, handleSubmit, editingId,error,setError }) {
+function TaskForm({ taskForm, setTaskForm, handleSubmit, editingId,error,setError,handleAnalyse }) {
   const role = localStorage.getItem("role");
+  
  
   return (
     <div>
@@ -17,7 +18,7 @@ function TaskForm({ taskForm, setTaskForm, handleSubmit, editingId,error,setErro
           // ✅ clear error while typing
           if (error)setError("");
         }}
-        
+        onBlur={handleAnalyse}
         className={`input ${error ? "input-error" : ""}`}
       />
       {/* 🔹 Inline error message */}

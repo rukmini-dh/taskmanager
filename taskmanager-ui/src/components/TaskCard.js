@@ -96,15 +96,17 @@ const totalSubtasks = savedSubTasks.length;
       setIsGenerating(true);
       console.log("Handle AI called!");
       const plan= await generatePlan(task);
-     
+      console.log("PLAN =", plan);
+      console.log("TYPE =", typeof plan);
       for (const step of plan.steps) {
           await addSubTask(task.id, step);
       }
       setAiPlan(plan);
           await loadSubTasks();
+          
       //setGeneratedSteps(plan.steps);
       
-  
+     
      // setIsGenerating(false);
   };
     
@@ -177,11 +179,7 @@ const totalSubtasks = savedSubTasks.length;
       {/* Third Row */}
       <div className="thirdrow">
       
-        {aiPlan?.matchedKeywords?.length > 0 && (
-  <p className="plan-context">
-    Plan based on: {aiPlan.matchedKeywords.join(", ")}
-  </p>
-)}
+    
 
         {/* Left side */}
         <div className="meta">

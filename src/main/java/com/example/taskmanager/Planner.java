@@ -49,29 +49,72 @@ public class Planner {
     );
 
     
-    public PlanningContext analyse(String title) {
+    public AIAnalysisResponseDTO analyse(String title) {
+       AIAnalysisResponseDTO dto= new AIAnalysisResponseDTO();
 
-        PlanningContext context = new PlanningContext();
-          
+        title=title.toLowerCase();
+      
+        if (title.contains("urgent")
+            ||
+        title.contains("high priority")) {
+
+        dto.setExtractedPriority(
+            Priority.HIGH
+        );}
         for (Intent intent : intents) {
 
-                for (String keyword : intent.getKeywords()) {
-            
-                    if (title.contains(keyword)) {
-            
-                        context.getMatchedKeywords().add(keyword);
-                        
-                        context.getSelectedSteps().addAll(
-                            intent.getSubtasks()
-                        );   
-                       
-            
-                        break;
-                    }
+            for (String keyword : intent.getKeywords()) {
+        
+                if (title.contains(keyword)) {
+        
+                    dto.getMatchedKeywords()
+                           .add(keyword);
+        
+                    dto.getMatchedIntents()
+                           .add(intent.getName());
+        
+                    break;
                 }
             }
-         
-          
-        return context;
+        }
+        return dto;
     }
+        
+    public AIPlanResponseDTO generateSteps(
+      String title) {
+        title=title.toLowerCase();
+    Set<String> selectedSteps =
+            new LinkedHashSet<>();
+
+    for (Intent intent : intents) {
+
+        if (title.contains(intent.getName())) {
+
+            selectedSteps.addAll(
+                    intent.getSubtasks());
+        }
+    }
+
+    List<SubTaskDTO> dtoList =
+            selectedSteps.stream()
+            .map(step -> {
+                SubTaskDTO dto =
+                        new SubTaskDTO();
+
+                dto.setTitle(step);
+                dto.setCompleted(false);
+                dto.setReviewed(false);
+                dto.setSource(Source.AI);
+
+                return dto;
+            })
+            .toList();
+
+    AIPlanResponseDTO response =
+            new AIPlanResponseDTO();
+
+    response.setSteps(dtoList);
+
+    return response;
+}
 }

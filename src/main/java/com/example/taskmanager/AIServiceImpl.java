@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class AIServiceImpl implements AIService {
     private final Planner planner;
-
+   /*  private Set<String> matchedKeywords = new LinkedHashSet<>(); */
 public AIServiceImpl(Planner planner) {
     this.planner = planner;
 }
@@ -30,27 +30,20 @@ private String apiKey;
           // Planner planner = new Planner();
            
            
-            PlanningContext context =planner.analyse(request.getTitle()) ;
-           
-          
-             
-            List<SubTaskDTO> subtaskDTOs = context.getSelectedSteps().stream()
-            .map(step -> {
-                SubTaskDTO dto = new SubTaskDTO();
-                dto.setTitle(step);
-                dto.setCompleted(false);
-                dto.setReviewed(false);
-                dto.setSource(Source.AI);
-                return dto;
-            })
-            .toList();
-    
-        AIPlanResponseDTO response = new AIPlanResponseDTO();
-        response.setSteps(subtaskDTOs);
-     
-            return response;
+            AIPlanResponseDTO response = new AIPlanResponseDTO();
+            response= planner.generateSteps(request.getTitle());
+                     
+         
+        return response;
             
         }
+        public AIAnalysisResponseDTO analyseTitle(String title ){
+            AIAnalysisResponseDTO dto = new AIAnalysisResponseDTO();
+            dto = planner.analyse(title);
+            return dto;
+        } 
+
+       
     }
     /*    Map<String, List<String>> taskTemplates = new HashMap<>();
     Map<String, String> aliases = new HashMap<>();

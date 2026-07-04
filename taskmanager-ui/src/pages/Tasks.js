@@ -4,7 +4,7 @@ import TaskCard from "../components/TaskCard";
 import TaskForm from "../components/TaskForm";
 import { updateTask } from "../services/taskService";
 import { useAuthContext } from "../context/AuthContext";
-
+import {analyseTitle} from "../services/alService";
 function Tasks() {
   //initialising variables
   const [error, setError] = useState("");
@@ -16,6 +16,7 @@ function Tasks() {
   const role = localStorage.getItem("role");
   const userName = localStorage.getItem("userName");
   const { currentUser } = useAuthContext();
+ 
  
   const [taskForm, setTaskForm] = useState({
     title: "",
@@ -35,7 +36,7 @@ function Tasks() {
   }, [loadingMap]);
  
   const [editingId, setEditingId] = useState(null);
-  
+  const [analysis, setAnalysis] = useState(null);
 
     const handleUndo = async () => {
       if (!lastDeleted) return;
@@ -60,7 +61,16 @@ function Tasks() {
    }, 5000);
   };
   
+//analyse the entered title
+const handleAnalyse = async () => {
+console.log("in analyse title",taskForm.title);
+  if (!taskForm.title.trim()) return;
 
+  const result =
+      await analyseTitle(taskForm.title);
+console.log("Result in HandleAnalyse",result);
+  setAnalysis(result);
+};
    // 🔹 Add or Update Task
     const handleSubmit = async () => {
       console.log("submitted");
@@ -147,6 +157,16 @@ function Tasks() {
 } */
   return (
     <div className="container">
+          {analysis?.matchedKeywords?.length > 0 && (
+  <p className="plan-context">
+    Plan based on: {analysis.matchedKeywords.join(", ")}
+  </p>
+)}
+  {analysis?.extractedPriority && (
+  <p className="plan-priority">
+    Priority detected: {analysis.extractedPriority}
+  </p>
+)}
       
     {/*   !currentUser && return (  <div>
             Please sign in to view tasks.
@@ -157,6 +177,7 @@ function Tasks() {
           taskForm={taskForm}
           setTaskForm={setTaskForm}
           handleSubmit={handleSubmit}
+          handleAnalyse={handleAnalyse}
           editingId={editingId}
           error={error}
           setError={setError}
