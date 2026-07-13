@@ -11,7 +11,7 @@ function Tasks() {
   const [filter, setFilter] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
   const [toast, setToast] = useState("");
-  const { tasks, editTask,loading, deleteTask, addTask, loadingMap,undoDelete } = useTasks();
+  const { tasks, editTask,loading, deleteTask, addTask, loadingMap,undoDelete,saveContext } = useTasks();
   const [lastDeleted, setLastDeleted] = useState(null);
   const role = localStorage.getItem("role");
   const userName = localStorage.getItem("userName");
@@ -28,7 +28,7 @@ function Tasks() {
     userName:localStorage.getItem("userName")   
   
   });
-  
+ 
  
 // console.log("in tasskform",taskForm);
    useEffect(() => {
@@ -36,7 +36,15 @@ function Tasks() {
   }, [loadingMap]);
  
   const [editingId, setEditingId] = useState(null);
-  const [analysis, setAnalysis] = useState(null);
+ /*  const [context,setContext]=useState(
+  {
+   analysis:null,
+    taskid:null
+  }); */
+  const [analysis, setAnalysis] = useState({matchedIntents:[],
+    matchedKeywords:[],
+    extractedPriority:null,
+    extractedDate:null});
 
     const handleUndo = async () => {
       if (!lastDeleted) return;
@@ -68,9 +76,13 @@ console.log("in analyse title",taskForm.title);
 
   const result =
       await analyseTitle(taskForm.title);
-console.log("Result in HandleAnalyse",result);
-  setAnalysis(result);
+      setAnalysis({...analysis,matchedIntents:result.matchedIntents,matchedKeywords:result.matchedKeywords,extractedDate:result.extractedDate,extractedPriority:result.extractedPriority})
+
+console.log("Result in HandleAnalyse",analysis);
+ 
+  setTaskForm({...taskForm,dueDate:result.extractedDate,priority:result.extractedPriority})
 };
+
    // 🔹 Add or Update Task
     const handleSubmit = async () => {
       console.log("submitted");
@@ -82,16 +94,28 @@ console.log("Result in HandleAnalyse",result);
       console.log(editingId);
     if (editingId) {
       await editTask(editingId, taskForm);
+     // await editContext(task.id,analysis)
 
     } else {
       console.log("in adding",taskForm);
-      await addTask({
+      const result =await addTask({
         ...taskForm,
         completed: false
       });
+      console.log("Result:", result);
+console.log("Keys:", Object.keys(result));
+console.log("Result JSON:", JSON.stringify(result, null, 2));
+console.log(JSON.stringify(result, null, 2));
+   await saveContext({
+    taskId: result.id,
+    analysis: analysis
+});
+    
+    // resetContext();
     
   }
   
+  //  resetAnalysis();
     resetForm();
   };
  
@@ -118,7 +142,18 @@ console.log("Result in HandleAnalyse",result);
     return () => clearTimeout(timer);
   }, [toast]);
   // 🔹 Toggle Status
-  
+  // reset analysis
+  const resetAnalysis = () => {
+    setAnalysis({
+      matchedKeywords:[],
+      extractedPriority:null,
+      extractedDate:null});
+   
+  };
+ /*  const resetContext = () => {
+    setContext({Analysis:null,
+   taskid:null
+  })}; */
   
 
   // 🔹 Reset form
@@ -157,16 +192,21 @@ console.log("Result in HandleAnalyse",result);
 } */
   return (
     <div className="container">
-          {analysis?.matchedKeywords?.length > 0 && (
+ {/*          {analysis?.matchedKeywords?.length > 0 && (
   <p className="plan-context">
     Plan based on: {analysis.matchedKeywords.join(", ")}
   </p>
-)}
-  {analysis?.extractedPriority && (
+)} */}
+ {/*  {analysis?.extractedPriority && (
   <p className="plan-priority">
     Priority detected: {analysis.extractedPriority}
   </p>
 )}
+ {analysis?.extractedDate && (
+  <p className="plan-priority">
+    Due by : {analysis.extractedDate}
+  </p>
+)} */}
       
     {/*   !currentUser && return (  <div>
             Please sign in to view tasks.
@@ -181,6 +221,7 @@ console.log("Result in HandleAnalyse",result);
           editingId={editingId}
           error={error}
           setError={setError}
+         
         />
       </div>
     
@@ -215,6 +256,8 @@ console.log("Result in HandleAnalyse",result);
     onToggle={toggleStatus}
     onSave={onSave}
     loadingState={loadingMap[task.id]} 
+    analysis={analysis}
+    setAnalysis={setAnalysis}
     
        
   />

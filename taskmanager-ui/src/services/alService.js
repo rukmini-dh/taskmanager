@@ -1,5 +1,7 @@
-export async function generatePlan(dto) {
+export async function generatePlan(dto,analysis) {
 
+    console.log("in generate plan aiService",analysis);
+    console.log("in generate plan aiService",dto)
     const response =
         
         await fetch( "http://localhost:8080/ai/generate-plan",
@@ -8,9 +10,9 @@ export async function generatePlan(dto) {
                 headers: {
                     "Content-Type":"application/json"
                 },
-                body: JSON.stringify(dto)
+                body: JSON.stringify({dto,analysis})
             });
-            console.log("in aiService",dto);
+           
     return response.json();
 }
 export async function analyseTitle(title) {

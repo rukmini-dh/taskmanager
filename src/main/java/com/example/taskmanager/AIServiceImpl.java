@@ -16,25 +16,28 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class AIServiceImpl implements AIService {
     private final Planner planner;
-   /*  private Set<String> matchedKeywords = new LinkedHashSet<>(); */
-public AIServiceImpl(Planner planner) {
-    this.planner = planner;
-}
-      // private final RestTemplate restTemplate;*/
-   @Value("${openai.api.key}")
-private String apiKey;
-
-   
+    private final ReasoningEngine reasoningEngine;
+    
+    public AIServiceImpl(
+            Planner planner,
+            ReasoningEngine reasoningEngine) {
+    
+        this.planner = planner;
+        this.reasoningEngine = reasoningEngine;
+    }
+      
            @Override
-           public AIPlanResponseDTO generatePlan(AIPlanRequestDTO request) {
-          // Planner planner = new Planner();
-           
-           
-            AIPlanResponseDTO response = new AIPlanResponseDTO();
-            response= planner.generateSteps(request.getTitle());
-                     
-         
-        return response;
+           public AIPlanResponseDTO generatePlan(GeneratePlanRequest request) {
+      
+           PlanningContext context= new PlanningContext();
+           PlanningDecision decision = new PlanningDecision();
+     
+          
+            context = planner.buildPlanningContext(request.getAnalysis());  
+            decision=reasoningEngine.reason(context)  ;
+            return planner.generateSteps(
+                context,
+                decision);
             
         }
         public AIAnalysisResponseDTO analyseTitle(String title ){
@@ -45,68 +48,6 @@ private String apiKey;
 
        
     }
-    /*    Map<String, List<String>> taskTemplates = new HashMap<>();
-    Map<String, String> aliases = new HashMap<>();
-   List<String> matchedKeywords = new ArrayList<>(); 
-   Set<String> selectedSteps = new LinkedHashSet<>();
-*/
-/* aliases.put("sign in", "login");
-aliases.put("signin", "login");
-aliases.put("authentication", "login");
-aliases.put("questionnaire", "survey");
- */
-   /*  taskTemplates.put("login", List.of(
-        "Create login UI",
-        "Validate user input",
-        "Verify credentials",
-        "Show login error messages",
-        "Test login flow"
-    )); */
+    
 
-     
-          /*  for (String keyword : taskTemplates.keySet()) {
-                if (title.contains(keyword)) {
-                    matchedKeywords.add(keyword);
-                    selectedSteps.addAll(taskTemplates.get(keyword));
-                }    
-            }
-            
-                for (String alias : aliases.keySet()) {
-                    if (title.contains(alias)) {
-                        matchedKeywords.add(alias);
-                        String templateKey = aliases.get(alias);
-                        selectedSteps.addAll(taskTemplates.get(templateKey));                     
-                       
-                    }
-                }
-            if (selectedSteps.isEmpty()) {
-                selectedSteps.addAll(List.of(
-                    "Review requirements",
-                    "Gather information",
-                    "Create deliverables",
-                    "Validate output",
-                    "Finalize task"
-                ));
-            }
-       
-          
-            List<SubTaskDTO> subtaskDTOs = selectedSteps.stream()
-                .map(step -> {
-                    SubTaskDTO dto = new SubTaskDTO();
-                    dto.setTitle(step);
-                    dto.setCompleted(false);
-                    dto.setReviewed(false);
-                    dto.setSource(Source.AI);
-                    return dto;
-                })
-                .toList();
-        
-            AIPlanResponseDTO response = new AIPlanResponseDTO();
-            response.setSteps(subtaskDTOs);
-            response.setMatchedKeywords(
-                new ArrayList<>(matchedKeywords)
-            );
-        
-            return response; */
-          
       

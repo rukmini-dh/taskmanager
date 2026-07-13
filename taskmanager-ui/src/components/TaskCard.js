@@ -7,7 +7,7 @@ import {useEffect,useRef} from "react";
 import { getCurrentUser } from "../services/authService";
 import {generatePlan} from "../services/alService";
 import { fetchSubTasks } from "../services/taskService";
-const TaskCard=({ task, onSave, onDelete, onToggle, loadingState }) => {
+const TaskCard=({ task, onSave, onDelete, onToggle, loadingState ,analysis,setAnalysis}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const isLoading = !!loadingState; // boolean derived from status
@@ -95,9 +95,10 @@ const totalSubtasks = savedSubTasks.length;
 
       setIsGenerating(true);
       console.log("Handle AI called!");
-      const plan= await generatePlan(task);
-      console.log("PLAN =", plan);
-      console.log("TYPE =", typeof plan);
+      console.log("analysis",analysis);
+      const plan= await generatePlan(task,analysis);
+      console.log("Plan received:", plan);
+      console.log("plan.steps =", plan.steps);
       for (const step of plan.steps) {
           await addSubTask(task.id, step);
       }

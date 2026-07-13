@@ -91,6 +91,22 @@ export const addTask = async (task) => {
 
   return response.json();
 };
+// add Context
+export const saveContext = async (request) => {
+  console.log("in save context iN TSKSERVICE",request);
+  const response = await fetch (`${BASE_URL}/task-context`,{
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(request)
+  });
+  console.log("JSON sent:");
+  console.log(JSON.stringify(request, null, 2));
+  if (!response.ok) {
+    throw new Error("Failed to save context");
+  }
+
+ 
+};
 //fetch(`${BASE_URL}/${id}`
 // 🔹 ADD subtask
 export const addSubTask = async(id, subtask) => {

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   getTasks,fetchTasks,fetchSubTasks,
   addTask as apiAddTask,
-  updateTask as apiUpdateTask,addSubTask as apiaddSubTask,editSubTask as apieditSubTask,
+  updateTask as apiUpdateTask,addSubTask as apiaddSubTask,editSubTask as apieditSubTask,saveContext as apisaveContext,
   getTasksByUser
 } from "../services/taskService";
 import {
@@ -51,17 +51,30 @@ useEffect(() => {
   };
 
  
-  
+  // Save context
+  const saveContext = async(context)=> {
+    try{
+      console.log("in save context",context);
+            await apisaveContext(context)
+     }  
+      catch(err){
+      console.error("save  context failed")   } 
+      
+    };
+ 
+
  
   // 🔹 Add Task
   const addTask = async (task) => {
     console.log("in usetasks",task);
     try {
-      await apiAddTask(task);
+      const res=await apiAddTask(task);
       loadTasks();
+      return res;
     } catch (err) {
       console.error("Add failed", err);
     }
+   
   };
   // Edit SubTask
   const editSubTask=async(id,reviewedSubTask)=>{
@@ -70,7 +83,7 @@ useEffect(() => {
   }
 
   // 🔹 Edit Task
-  const editTask = async (updatedTask) => {
+  const editTask = async (id,updatedTask) => {
     try {
       setLoadingMap(prev => ({ ...prev, [id]: "saving" }));
 
@@ -150,7 +163,8 @@ useEffect(() => {
     addSubTask,
     fetchSubTasks,
     reload: loadTasks,
-    editSubTask
+    editSubTask,
+    saveContext
    
   };
 };

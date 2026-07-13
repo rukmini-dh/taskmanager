@@ -15,12 +15,14 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final SubTaskRepository subtaskRepository;
     private final UserRepository userRepository;
+    private final TaskContextRepository taskContextRepository;
 
-    public TaskServiceImpl(TaskRepository taskRepository,UserRepository userRepository,SubTaskRepository subtaskRepository) {
+    public TaskServiceImpl(TaskRepository taskRepository,UserRepository userRepository,SubTaskRepository subtaskRepository,TaskContextRepository taskContextRepository) {
 
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
     this.subtaskRepository=subtaskRepository;
+    this.taskContextRepository=taskContextRepository;
 }
 
 
@@ -160,8 +162,32 @@ public class TaskServiceImpl implements TaskService {
         task.setDeleted(false);
         return convertToDTO(taskRepository.save(task));
     }
+    public void saveTaskContext(CreateTaskContextRequest dto) {
+
+        Task task = taskRepository
+        .findById(dto.getTaskId())
+        .orElseThrow(() -> new  TaskNotFoundException("Task not found with id: " + dto.getTaskId()));
+        TaskContext context = new TaskContext();
+        context.setMatchedIntents(
+            dto.getAnalysis().getMatchedIntents());
+    
+    context.setMatchedKeywords(
+            dto.getAnalysis().getMatchedKeywords());
+    
+    context.setExtractedPriority(
+            dto.getAnalysis().getExtractedPriority());
+    
+            context.setExtractedDate(
+                dto.getAnalysis().getExtractedDate());
+        
+        context.setCreatedAt(
+                LocalDateTime.now());
+    context.setTask(task);     
+       taskContextRepository.save(context);
+    }
           
     // 🔹 Helper method
+   
     private TaskDTO convertToDTO(Task task) {
         TaskDTO dto = new TaskDTO();
         dto.setId(task.getId());

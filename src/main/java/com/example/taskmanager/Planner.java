@@ -1,11 +1,19 @@
 package com.example.taskmanager;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
+
+import ch.qos.logback.core.boolex.Matcher;
 
 @Service
 public class Planner {
@@ -26,6 +34,13 @@ public class Planner {
             "Validate credentials",
             "Show login error",
             "Test authentication"
+        ),
+        List.of(
+            "Test authentication"
+           
+        ),List.of(
+            "Review authentication"
+           
         )
     );
 
@@ -40,6 +55,13 @@ public class Planner {
             "Create dashboard layout",
             "Display metrics",
             "Test dashboard"
+        ),
+        List.of(
+            
+            "Test dashboard"
+        ),
+        List.of(
+          "Review  dashboard layout"
         )
     );
     List<Intent> intents = List.of(
@@ -51,8 +73,90 @@ public class Planner {
     
     public AIAnalysisResponseDTO analyse(String title) {
        AIAnalysisResponseDTO dto= new AIAnalysisResponseDTO();
-
+      
         title=title.toLowerCase();
+        java.util.regex.Matcher matcher =
+        Pattern.compile("\\b\\d{2}-\\d{2}-\\d{4}\\b")
+               .matcher(title);
+    
+    if (matcher.find()) {
+    
+        String dateText = matcher.group();
+   
+        LocalDate date =
+            LocalDate.parse(
+                dateText,
+                DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+    
+        dto.setExtractedDate(date);
+      
+    } 
+    if (dto.getExtractedDate() == null) {
+        String dayWord=""; 
+        if(title.contains("today") || title.contains("Today")){dayWord="today";}
+        if(title.contains("tomorrow") || title.contains("Tomorrow")){dayWord="tomorrow";}
+        if(title.contains("monday") || title.contains("Monday")){dayWord="monday";}
+        if(title.contains("tuesday") || title.contains("Tuesday")){dayWord="tuesday";}
+        if(title.contains("wednesday") || title.contains("Wednesday")){dayWord="wednesday";}
+        if(title.contains("thursday") || title.contains("Thursday")){dayWord="thursday";}
+        if(title.contains("friday") || title.contains("Friday")){dayWord="friday";}
+        if(title.contains("saturday") || title.contains("Saturday")){dayWord="saturday";}
+        switch(dayWord) {
+
+    case "today":
+        dto.setExtractedDate(LocalDate.now());
+     
+        break;
+
+    case "tomorrow":
+        dto.setExtractedDate(LocalDate.now().plusDays(1));
+       
+        break;
+
+    case "monday":
+        dto.setExtractedDate(
+            LocalDate.now().with(
+                TemporalAdjusters.nextOrSame(
+                    DayOfWeek.MONDAY)));
+       
+        break;
+        case "tuesday":
+            dto.setExtractedDate(
+                LocalDate.now().with(
+                    TemporalAdjusters.nextOrSame(
+                        DayOfWeek.TUESDAY)));
+            
+            break;
+            case "wednesday":
+        dto.setExtractedDate(
+            LocalDate.now().with(
+                TemporalAdjusters.nextOrSame(
+                    DayOfWeek.WEDNESDAY)));
+       
+        break;
+        case "thursday":
+        dto.setExtractedDate(
+            LocalDate.now().with(
+                TemporalAdjusters.nextOrSame(
+                    DayOfWeek.THURSDAY)));
+       
+        break;
+    case "friday":
+        dto.setExtractedDate(
+            LocalDate.now().with(
+                TemporalAdjusters.nextOrSame(
+                    DayOfWeek.FRIDAY)));
+                
+        break;
+        case "saturday":
+        dto.setExtractedDate(
+            LocalDate.now().with(
+                TemporalAdjusters.nextOrSame(
+                    DayOfWeek.SATURDAY)));
+        
+        break;
+}
+}
       
         if (title.contains("urgent")
             ||
@@ -60,7 +164,27 @@ public class Planner {
 
         dto.setExtractedPriority(
             Priority.HIGH
-        );}
+        );
+       }
+        
+        if (title.contains("medium")
+            ||
+        title.contains("medium priority")) {
+
+        dto.setExtractedPriority(
+            Priority.MEDIUM
+        );
+        }
+        if (title.contains("low")
+            ||
+        title.contains("low priority")) {
+
+        dto.setExtractedPriority(
+            Priority.LOW
+        );
+      }
+      if (dto.getExtractedPriority() == null) {dto.setExtractedPriority(Priority.MEDIUM);}
+
         for (Intent intent : intents) {
 
             for (String keyword : intent.getKeywords()) {
@@ -69,31 +193,69 @@ public class Planner {
         
                     dto.getMatchedKeywords()
                            .add(keyword);
-        
+
+                   
+                               
                     dto.getMatchedIntents()
                            .add(intent.getName());
-        
+                         
+                    
+
+
+                  
                     break;
                 }
             }
         }
         return dto;
     }
+    public PlanningContext buildPlanningContext(AIAnalysisResponseDTO dto){
+        PlanningContext context =
+        new PlanningContext();
+
+context.setMatchedIntents(
+        dto.getMatchedIntents());
+
+context.setMatchedKeywords(
+        dto.getMatchedKeywords());
+
+context.setExtractedPriority(
+        dto.getExtractedPriority());
+
+        return context;
+    }
         
-    public AIPlanResponseDTO generateSteps(
-      String title) {
-        title=title.toLowerCase();
+    public AIPlanResponseDTO generateSteps(PlanningContext context,PlanningDecision  decision)
+      {
+        System.out.println(context);
+        System.out.println(decision);
+      
     Set<String> selectedSteps =
             new LinkedHashSet<>();
+           
 
-    for (Intent intent : intents) {
+            for (Intent intent : intents) {
 
-        if (title.contains(intent.getName())) {
+               
 
-            selectedSteps.addAll(
-                    intent.getSubtasks());
-        }
-    }
+                    if (context.getMatchedIntents().contains(intent.getName())) {
+                
+                        System.out.println(intent.getName());
+System.out.println(intent.getBaseSteps());
+System.out.println(intent.getTestingSteps());
+System.out.println(intent.getReviewSteps());
+                        selectedSteps.addAll(intent.getBaseSteps());
+                
+                        if (decision.isNeedsTesting()) {
+                            selectedSteps.addAll(intent.getTestingSteps());
+                        }
+                
+                        if (decision.isNeedsCodeReview()) {
+                            selectedSteps.addAll(intent.getReviewSteps());
+                        }
+                    }
+                    
+            }
 
     List<SubTaskDTO> dtoList =
             selectedSteps.stream()

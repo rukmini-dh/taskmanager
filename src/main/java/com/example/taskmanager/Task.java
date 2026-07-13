@@ -20,7 +20,9 @@ public class Task {
     @OneToMany(mappedBy = "task")
     @JsonIgnore
     private List<SubTask> subtasks;
-    
+    @OneToOne(mappedBy = "task")
+    @JsonIgnore
+    private TaskContext taskcontext;
     private String title;
 
     private String description;

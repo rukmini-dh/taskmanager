@@ -63,6 +63,15 @@ public TaskDTO createTask(@RequestBody TaskDTO dto)
                           {
     return taskServiceImpl.createTask(dto);
 }
+// Create a new taskContext
+
+
+@PostMapping("/task-context")
+public void saveTaskContext(
+        @RequestBody CreateTaskContextRequest request) {
+
+     taskServiceImpl.saveTaskContext(request);
+}
 // Create a new subtask
 @PostMapping("/subtask/{id}")
 

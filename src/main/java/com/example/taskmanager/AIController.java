@@ -7,7 +7,7 @@ public class AIController {
     private final AIService aiService;
     public AIController( AIService aiService){ this.aiService=aiService;    }
     @PostMapping("/generate-plan")
-    public AIPlanResponseDTO generatePlan( @RequestBody AIPlanRequestDTO dto){
+    public AIPlanResponseDTO generatePlan( @RequestBody GeneratePlanRequest dto){
             return aiService.generatePlan(dto);
     }
    
