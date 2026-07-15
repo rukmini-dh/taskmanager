@@ -1,15 +1,13 @@
-const generatePlan = async (task) => {
+import * as aiService from "./aiService";
 
-    const response = await fetch(
-        "/ai/generate-plan",
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(task)
-        }
-    );
+export function useAI() {
 
-    return response.json();
-};
+    const generatePlan =
+        async (id) => {
+
+            return await aiService
+                .generatePlan(id);
+        };
+
+    return { generatePlan };
+}

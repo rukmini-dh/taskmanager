@@ -29,6 +29,12 @@ public ResponseEntity<Map<String, Object>> handleSubTaskNotFound(SubTaskNotFound
    
     return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 }
+@ExceptionHandler(TaskContextNotFoundException.class)
+public  ResponseEntity<String>handleTaskContextNotFound(TaskContextNotFoundException ex){
+    return ResponseEntity
+    .badRequest()
+    .body(ex.getMessage());
+}
 @ExceptionHandler(IncorrectPasswordException.class)
 public ResponseEntity<String>handleIncorrectPassword(IncorrectPasswordException ex) {
 

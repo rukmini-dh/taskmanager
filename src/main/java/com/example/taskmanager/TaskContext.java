@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -35,6 +37,7 @@ public class TaskContext {
     private String estimatedEffort;
    private LocalDateTime createdAt;
    private LocalDate extractedDate;
+   @Enumerated(EnumType.STRING)
      private Priority extractedPriority;
     // private String role;
 

@@ -225,10 +225,9 @@ context.setExtractedPriority(
         return context;
     }
         
-    public AIPlanResponseDTO generateSteps(PlanningContext context,PlanningDecision  decision)
+    public AIPlanResponseDTO generatePlan(TaskContext context,PlanningDecision  decision)
       {
-        System.out.println(context);
-        System.out.println(decision);
+      
       
     Set<String> selectedSteps =
             new LinkedHashSet<>();
@@ -240,10 +239,6 @@ context.setExtractedPriority(
 
                     if (context.getMatchedIntents().contains(intent.getName())) {
                 
-                        System.out.println(intent.getName());
-System.out.println(intent.getBaseSteps());
-System.out.println(intent.getTestingSteps());
-System.out.println(intent.getReviewSteps());
                         selectedSteps.addAll(intent.getBaseSteps());
                 
                         if (decision.isNeedsTesting()) {

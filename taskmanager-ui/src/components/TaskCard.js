@@ -24,6 +24,7 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState ,analysis,setAn
   const taskLocked = savedSubTasks.length > 0;
   const {editSubTask} = useTasks();
   const inputRef = useRef(null);
+  const [error, setError] = useState("");
   const [isReviewing, setIsReviewing] = useState(false);
   const completedSubtasks =
   savedSubTasks.filter(subtask => subtask.completed).length;
@@ -94,16 +95,22 @@ const totalSubtasks = savedSubTasks.length;
     const handleAI = async () => {
 
       setIsGenerating(true);
-      console.log("Handle AI called!");
-      console.log("analysis",analysis);
-      const plan= await generatePlan(task,analysis);
-      console.log("Plan received:", plan);
-      console.log("plan.steps =", plan.steps);
+      /* console.log("Handle AI called!");
+      console.log("Task id",task.id); */
+      try{
+      const plan= await generatePlan(task.id);
+      if(plan.kength==0){console.log("no plan");return}
+      /* console.log("Plan received:", plan);
+      console.log("plan.steps =", plan.steps); */
       for (const step of plan.steps) {
           await addSubTask(task.id, step);
       }
       setAiPlan(plan);
           await loadSubTasks();
+          setError("");
+    }catch(err){
+        setError(err.message);
+    }
           
       //setGeneratedSteps(plan.steps);
       
@@ -118,7 +125,7 @@ const totalSubtasks = savedSubTasks.length;
     
    
     <div ref={cardRef}  className="Card"  >
-      {/* First Row */}
+
       <div className="firstrow">
       {taskLocked ? (
     <div className="title">
@@ -263,7 +270,15 @@ const totalSubtasks = savedSubTasks.length;
   </>)}
   
 </div>
-
+{/* First Row */}
+<div>
+      {
+error &&
+<p className="error">
+    {error}
+</p>
+}
+</div>
       
      </div>
      

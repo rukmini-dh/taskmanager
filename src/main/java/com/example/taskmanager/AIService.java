@@ -2,7 +2,7 @@ package com.example.taskmanager;
 
 public interface AIService {
 
-    AIPlanResponseDTO generatePlan(GeneratePlanRequest request);
+    AIPlanResponseDTO generatePlan(Long id);
     AIAnalysisResponseDTO analyseTitle(String title);
 
 }

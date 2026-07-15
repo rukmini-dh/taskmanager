@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ReasoningEngine {
 
-    public PlanningDecision reason(PlanningContext context) {
+    public PlanningDecision reason(TaskContext context) {
 
         PlanningDecision decision = new PlanningDecision();
       if(context.getExtractedPriority()==Priority.HIGH){

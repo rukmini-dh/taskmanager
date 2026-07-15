@@ -6,9 +6,12 @@ import org.springframework.web.bind.annotation.*;
 public class AIController {
     private final AIService aiService;
     public AIController( AIService aiService){ this.aiService=aiService;    }
-    @PostMapping("/generate-plan")
-    public AIPlanResponseDTO generatePlan( @RequestBody GeneratePlanRequest dto){
-            return aiService.generatePlan(dto);
+   
+    @PostMapping("/generate-plan/{taskId}")
+    public AIPlanResponseDTO generatePlan(
+            @PathVariable Long taskId) {
+    
+        return aiService.generatePlan(taskId);
     }
    
     @PostMapping("/analyseTitle")
