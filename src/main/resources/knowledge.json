@@ -1,0 +1,49 @@
+{
+    "concepts": [
+      {
+        "name": "LOGIN",
+        "description": "User authentication using username and password",
+  
+        "concerns": [
+          {
+            "name": "Validation",
+            "timesSuggested": 20,
+            "timesAccepted": 18,
+            "timesRejected": 2
+          },
+          {
+            "name": "JWT",
+            "timesSuggested": 15,
+            "timesAccepted": 14,
+            "timesRejected": 1
+          },
+          {
+            "name": "Testing",
+            "timesSuggested": 18,
+            "timesAccepted": 16,
+            "timesRejected": 2
+          }
+        ]
+      },
+  
+      {
+        "name": "DASHBOARD",
+        "description": "Displays consolidated information to users",
+  
+        "concerns": [
+          {
+            "name": "Logging",
+            "timesSuggested": 8,
+            "timesAccepted": 8,
+            "timesRejected": 0
+          },
+          {
+            "name": "Testing",
+            "timesSuggested": 10,
+            "timesAccepted": 9,
+            "timesRejected": 1
+          }
+        ]
+      }
+    ]
+  }

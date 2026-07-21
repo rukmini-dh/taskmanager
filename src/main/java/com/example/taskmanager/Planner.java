@@ -241,13 +241,6 @@ context.setExtractedPriority(
                 
                         selectedSteps.addAll(intent.getBaseSteps());
                 
-                        if (decision.isNeedsTesting()) {
-                            selectedSteps.addAll(intent.getTestingSteps());
-                        }
-                
-                        if (decision.isNeedsCodeReview()) {
-                            selectedSteps.addAll(intent.getReviewSteps());
-                        }
                     }
                     
             }

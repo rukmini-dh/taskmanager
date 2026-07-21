@@ -1,19 +1,24 @@
 package com.example.taskmanager;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 @Service
 public class ReasoningEngine {
-
+    private final PlanningRuleService planningRuleService;
+    public ReasoningEngine(PlanningRuleService planningRuleService) {
+        this.planningRuleService=planningRuleService;
+    }
     public PlanningDecision reason(TaskContext context) {
 
         PlanningDecision decision = new PlanningDecision();
-      if(context.getExtractedPriority()==Priority.HIGH){
-        decision.setNeedsTesting(true);
+        List<PlanningRule> rules = planningRuleService.getRules(context);
 
-        decision.setNeedsCodeReview(true);}
-     
+        for(PlanningRule rule:rules){
 
-        // reasoning goes here
+            decision.getActions().add(rule.getAction());
+
+}
        
         return decision;
     }

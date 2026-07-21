@@ -1,36 +1,14 @@
 package com.example.taskmanager;
 
- public class PlanningDecision {
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-    private boolean needsTesting;
+    public class PlanningDecision {
 
-    private boolean needsCodeReview;
+    private Set<PlanningAction> actions =
+            new LinkedHashSet<>();
+            public void setActions(Set<PlanningAction> actions){this.actions=actions;}
+            public Set<PlanningAction> getActions(){return actions;}
 
-    private boolean needsRegressionTesting;
-
-    private boolean needsIntegrationTesting;
-
-    private boolean needsDocumentation;
-
-    private boolean parallelExecutionAllowed;
-// setters and getters
-public void setNeedsTesting(boolean needsTesting){this.needsTesting=needsTesting;}
-public boolean isNeedsTesting(){return needsTesting;}
-public void setNeedsRegressionTesting(boolean needsRegressionTesting){this.needsRegressionTesting=needsRegressionTesting;}
-public boolean isNeedsRegressionTesting(){return needsRegressionTesting;}
-public void setNeedsDocumentation(boolean needsDocumntation){this.needsDocumentation=needsDocumntation;}
-public boolean isNeedsDocumentaion(){return needsDocumentation;}
-public void setNeedsCodeReview(boolean needsCodeReview){this.needsCodeReview=needsCodeReview;}
-public boolean isNeedsCodeReview(){return needsCodeReview;}
-public void setNeedsIntegrationTesting(boolean needsIntegrationTesting){this.needsIntegrationTesting=needsIntegrationTesting;}
-public boolean isNeedsIntegrationTesting(){return needsIntegrationTesting;}
-public void setParallelExecutionAllowed(boolean parallelExecutionAllowed){this.parallelExecutionAllowed=parallelExecutionAllowed;}
-public boolean isParallelExecutionAllowed(){return parallelExecutionAllowed;}
-
-
-
-
-
-
-    
 }
+
