@@ -6,12 +6,30 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import com.example.taskmanager.Concept;
+import com.example.taskmanager.ConceptConcernAssociation;
+import com.example.taskmanager.ConceptConcernAssociationRepository;
+import com.example.taskmanager.ConceptRepository;
+import com.example.taskmanager.Concern;
+import com.example.taskmanager.ConcernRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 @Component
 public class KnowledgeSeeder
         implements CommandLineRunner {
+private final ConceptRepository conceptRepository;
+private final ConcernRepository concernRepository;
+private final ConceptConcernAssociationRepository  conceptConcernAssociationRepository ;
+String conceptName="";
+String concerName="";
 
-               
+
+public KnowledgeSeeder(ConceptRepository conceptRepository,ConcernRepository concernRepository,ConceptConcernAssociationRepository  conceptConcernAssociationRepository){
+        this.concernRepository= concernRepository;
+        this.conceptRepository=conceptRepository;
+        this.conceptConcernAssociationRepository=conceptConcernAssociationRepository; 
+      
+       }
+
     @Override
     public void run(String... args) throws Exception {
         System.out.println("KnowledgeSeeder started...");
@@ -29,33 +47,62 @@ KnowledgeDTO knowledge =
                 resource.getInputStream(),
                 KnowledgeDTO.class);
              
+ 
 
      
-
-        // Save Concepts
-
-        // Save Concerns
-
-        // Save Associations
         for (ConceptDTO concept : knowledge.getConcepts()) {
 
-                System.out.println("--------------------------------");
-            
-                System.out.println("Concept : " + concept.getName());
-            
-                System.out.println("Description : " + concept.getDescription());
-            
+               conceptName= concept.getName();
+
+               Concept conceptEntity =
+               conceptRepository
+               .findByName(concept.getName())
+               .orElseGet(() -> {
+                   Concept c = toEntity(concept);
+                   return conceptRepository.save(c);
+               });
                 for (ConcernDTO concern : concept.getConcerns()) {
-            
-                    System.out.println("    Concern : " + concern.getName());
-            
-                    System.out.println("        Suggested : " + concern.getTimesSuggested());
-            
-                    System.out.println("        Accepted : " + concern.getTimesAccepted());
-            
-                    System.out.println("        Rejected : " + concern.getTimesRejected());
-            
+                     concerName=concern.getName();
+                     Concern concernEntity =concernRepository.findByName(concern.getName()).orElseGet(() -> {
+                        Concern c = toEntity(concern);
+                        return concernRepository.save(c);
+                    });
+                    if (conceptConcernAssociationRepository
+                        .findByConceptAndConcern(conceptEntity, concernEntity)
+                        .isEmpty()) {
+                
+                    ConceptConcernAssociation association =
+                        new ConceptConcernAssociation(
+                            conceptEntity,
+                            concernEntity,
+                            concern.getTimesSuggested(),
+                            concern.getTimesAccepted(),
+                            concern.getTimesRejected()
+                        );
+                
+                    conceptConcernAssociationRepository.save(association);
                 }
+                          }
+                     
+
+                }
+                
+                
+            
+             
             }
-    }
+// helper methods
+private Concept toEntity(ConceptDTO dto){
+        Concept concept = new Concept();
+        concept.setName(dto.getName());
+        return concept;
+
 }
+private Concern toEntity(ConcernDTO dto){
+        Concern concern = new Concern();
+        concern.setName(dto.getName());
+        return concern;
+
+}
+
+        }
