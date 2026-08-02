@@ -1,6 +1,8 @@
 package com.example.taskmanager;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import jakarta.persistence.*;
@@ -14,7 +16,9 @@ public class Concern {
      @OneToMany(mappedBy="concern")
  
      Set<ConceptConcernAssociation> conceptConcernAssociations= new HashSet<>();
-     
+     @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> templates = new ArrayList<>();
+    
   
      public Concern(){}
 
@@ -23,10 +27,13 @@ public class Concern {
      }
      public void setId(Long id){this.id=id;}
      public void setName(String name){this.name=name;}
-     public void setConceptConcernAssociation(Set<ConceptConcernAssociation> conceptConcernAssociations){this.conceptConcernAssociations=conceptConcernAssociations;}
+     public void setConceptConcernAssociations(Set<ConceptConcernAssociation> conceptConcernAssociations){this.conceptConcernAssociations=conceptConcernAssociations;}
      public Long getId(){return id;}
      public String getName(){return name;}
-     public Set<ConceptConcernAssociation> getConceptConcernAssociation(){return conceptConcernAssociations;} 
+     public Set<ConceptConcernAssociation> getConceptConcernAssociations(){return conceptConcernAssociations;} 
+     public void setTemplates(List<String> templates){this.templates=templates;}
+     public List<String> getTemplates(){return templates;}
+     
         
      
      

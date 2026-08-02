@@ -27,7 +27,13 @@ public class AIServiceImpl implements AIService {
         this.reasoningEngine = reasoningEngine;
         this.taskContextRepository= taskContextRepository;
     }
-      
+      @Override
+      public AIPlanResponseDTO  generateSubTasks(String title)
+      {
+        AIPlanResponseDTO response = new  AIPlanResponseDTO();
+        response=planner.generateSubTasks(title);  
+        return response; 
+      }
            @Override
            public AIPlanResponseDTO generatePlan(Long taskid) {
       

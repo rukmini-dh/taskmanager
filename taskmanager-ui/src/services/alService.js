@@ -17,6 +17,27 @@ export async function generatePlan(taskId) {
     
     return response.json();
 }
+export async function generateSubTasks(title) {
+    console.log("Title:",title);
+
+    const response = await fetch(
+        `http://localhost:8080/ai/generate-SubTasks/${title}`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({title})
+        }
+    );
+
+    if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message);
+    }
+    
+    return response.json();
+}
 
 export async function analyseTitle(title) {
 console.log("in aiservice",title);

@@ -22,10 +22,10 @@ public class Concept {
     }
     public void setId(Long id){this.id=id;}
     public void setName(String name){this.name=name;}
-    public void setConceptConcernAssociation(Set<ConceptConcernAssociation> conceptConcernAssociations){this.conceptConcernAssociations=conceptConcernAssociations;}
+    public void setConceptConcernAssociations(Set<ConceptConcernAssociation> conceptConcernAssociations){this.conceptConcernAssociations=conceptConcernAssociations;}
     public Long getId(){return id;}
     public String getName(){return name;}
-    public Set<ConceptConcernAssociation> getConceptConcernAssociation(){return conceptConcernAssociations;} 
+    public Set<ConceptConcernAssociation> getConceptConcernAssociations(){return conceptConcernAssociations;} 
        
     
 }

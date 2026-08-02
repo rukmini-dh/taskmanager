@@ -4,5 +4,6 @@ public interface AIService {
 
     AIPlanResponseDTO generatePlan(Long id);
     AIAnalysisResponseDTO analyseTitle(String title);
+    AIPlanResponseDTO  generateSubTasks(String title);
 
 }

@@ -1,6 +1,9 @@
 
 package com.example.taskmanager.knowledgebase;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -41,18 +44,34 @@ public KnowledgeSeeder(ConceptRepository conceptRepository,ConcernRepository con
 
 ObjectMapper mapper =
         new ObjectMapper();
+        String test = """
+{
+  "text":"Hello",
+  "weight":10
+}
+""";
+System.out.println("PATH****"+resource.getURL());
+TemplateDTO dto =
+        mapper.readValue(test, TemplateDTO.class);
+
+System.out.println(dto.getText());
+System.out.println(dto.getWeight());
 
 KnowledgeDTO knowledge =
         mapper.readValue(
                 resource.getInputStream(),
                 KnowledgeDTO.class);
              
- 
+                System.out.println(
+                        mapper.writerWithDefaultPrettyPrinter()
+                              .writeValueAsString(knowledge)
+                    );
 
      
         for (ConceptDTO concept : knowledge.getConcepts()) {
 
                conceptName= concept.getName();
+               
 
                Concept conceptEntity =
                conceptRepository
@@ -63,8 +82,13 @@ KnowledgeDTO knowledge =
                });
                 for (ConcernDTO concern : concept.getConcerns()) {
                      concerName=concern.getName();
+                     System.out.println("Concern name in seeder"+concern.getName());
+                        System.out.println("Template in seeder"+concern.getTemplates());
+                        System.out.println("Looking for concern: " + concern.getName());
                      Concern concernEntity =concernRepository.findByName(concern.getName()).orElseGet(() -> {
+                        System.out.println("Creating concern: " + concern.getName());
                         Concern c = toEntity(concern);
+                        System.out.println("About to save: " + c.getTemplates());
                         return concernRepository.save(c);
                     });
                     if (conceptConcernAssociationRepository
@@ -82,7 +106,7 @@ KnowledgeDTO knowledge =
                 
                     conceptConcernAssociationRepository.save(association);
                 }
-                          }
+        }
                      
 
                 }
@@ -101,6 +125,15 @@ private Concept toEntity(ConceptDTO dto){
 private Concern toEntity(ConcernDTO dto){
         Concern concern = new Concern();
         concern.setName(dto.getName());
+       List<String> templateTexts = new ArrayList<>();
+
+for (TemplateDTO template : dto.getTemplates()) {
+        System.out.println("DTO Templates******"+dto.getTemplates());
+    templateTexts.add(template.getText());
+}
+
+concern.setTemplates(templateTexts);
+        System.out.println("Templates******"+concern.getTemplates());
         return concern;
 
 }

@@ -9,5 +9,17 @@ export function useAI() {
                 .generatePlan(id);
         };
 
+  
+
+
+    const generateSubTasks =
+        async (title) => {
+
+            return await aiService
+                .generatePlan(title);
+        };
+
     return { generatePlan };
+    return { generateSubTasks};
+
 }

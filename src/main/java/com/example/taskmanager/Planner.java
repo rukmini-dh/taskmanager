@@ -8,15 +8,28 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 
+import com.example.taskmanager.knowledgebase.ConceptDTO;
+import com.example.taskmanager.knowledgebase.ConcernDTO;
+
 import ch.qos.logback.core.boolex.Matcher;
 
 @Service
 public class Planner {
+    private final ConceptRepository conceptRepository;
+private final ConcernRepository concernRepository;
+private final ConceptConcernAssociationRepository  conceptConcernAssociationRepository ;
+public Planner (ConceptRepository conceptRepository,ConcernRepository concernRepository,ConceptConcernAssociationRepository  conceptConcernAssociationRepository){
+    this.concernRepository= concernRepository;
+    this.conceptRepository=conceptRepository;
+    this.conceptConcernAssociationRepository=conceptConcernAssociationRepository; 
+  
+   }
     
    /*  List<String> matchedKeywords = new ArrayList<>(); 
     Set<String> selectedSteps = new LinkedHashSet<>();  */
@@ -224,6 +237,80 @@ context.setExtractedPriority(
 
         return context;
     }
+        public AIPlanResponseDTO generateSubTasks(String title)
+        {
+            List<SubTaskDTO> dtoList = new ArrayList<>();
+            String[] tokens = title.split("\\s+");
+            ConceptDTO concept=new ConceptDTO();
+
+            for(String token:tokens)
+            {
+               
+               Concept conceptEntity =
+               conceptRepository
+               .findByName(token)
+               .orElse(null);
+
+               if (conceptEntity == null) {
+                   continue;
+               }
+               
+               Random random = new Random();
+
+for (ConceptConcernAssociation assoc :
+        conceptEntity.getConceptConcernAssociations()) {
+
+    Concern concern = assoc.getConcern();
+
+    SubTaskDTO dto = new SubTaskDTO();
+
+    dto.setTitle(concern.getName());
+
+    List<String> templates =
+            concern.getTemplates();
+            System.out.println("Templates in Planner ******"+concern.getTemplates());
+
+    if (templates == null || templates.isEmpty()) {
+
+        dto.setDescription("");
+
+    } else {
+
+        int index =
+                random.nextInt(templates.size());
+
+        dto.setDescription(
+                templates.get(index));
+    }
+
+    dtoList.add(dto);
+
+}
+            }
+            
+    AIPlanResponseDTO response =
+            new AIPlanResponseDTO();
+
+    response.setSteps(dtoList);
+
+    return response;
+}
+   
+        /* 
+                    if (conceptConcernAssociationRepository
+                        .findByConceptAndConcern(conceptEntity, concernEntity)
+                        .isEmpty()) {
+                
+                    ConceptConcernAssociation association =
+                        new ConceptConcernAssociation(
+                            conceptEntity,
+                            concernEntity,
+                            concern.getTimesSuggested(),
+                            concern.getTimesAccepted(),
+                            concern.getTimesRejected()
+                        );
+            }
+ */
         
     public AIPlanResponseDTO generatePlan(TaskContext context,PlanningDecision  decision)
       {

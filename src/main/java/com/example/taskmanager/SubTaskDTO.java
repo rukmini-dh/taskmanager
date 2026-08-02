@@ -6,14 +6,16 @@ public class SubTaskDTO {
 private boolean completed;
 private boolean reviewed;
 private Source source;
+private String description;
 // default contructor
 public  SubTaskDTO(){}
 //arguments constructor
-public SubTaskDTO(String title,boolean completed,Source source,boolean reviewed)  {
+public SubTaskDTO(String title,boolean completed,Source source,boolean reviewed,String description)  {
     this.title=title;
     this.completed=completed;
     this.source=source; 
     this.reviewed=reviewed;
+    this.description=description;
 }
 public String getTitle() {
     return title;
@@ -35,4 +37,7 @@ public void setReviewed(boolean reviewed){this.reviewed=reviewed;}
 
 public Source getSource(){return source;}
 public void setSource(Source source){this.source=source;}
+
+public void setDescription(String  description){this.description=description;}
+public String  getDescription(){return description;}
 }

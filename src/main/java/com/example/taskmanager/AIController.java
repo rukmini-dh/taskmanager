@@ -13,7 +13,13 @@ public class AIController {
     
         return aiService.generatePlan(taskId);
     }
-   
+    
+    @PostMapping("/generate-SubTasks/{title}")
+    public AIPlanResponseDTO generateSubTasks(
+            @PathVariable String title) {
+    
+        return aiService.generateSubTasks(title);
+    }
     @PostMapping("/analyseTitle")
 public AIAnalysisResponseDTO analyseTitle(
         @RequestBody String title) {

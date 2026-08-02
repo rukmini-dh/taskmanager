@@ -7,6 +7,20 @@
         "concerns": [
           {
             "name": "Validation",
+            "templates": [
+              {
+                "text": "Add input validation",
+                "weight": 10
+              },
+              {
+                "text": "Validate all required fields",
+                "weight": 8
+              },
+              {
+                "text": "Handle invalid input gracefully",
+                "weight": 5
+              }
+            ],
             "timesSuggested": 20,
             "timesAccepted": 18,
             "timesRejected": 2

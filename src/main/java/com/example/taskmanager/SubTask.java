@@ -21,7 +21,7 @@ public class SubTask {
 
     private LocalDateTime createdAt;
     private boolean reviewed;
-
+    private String  description;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "task_id", nullable = false)
@@ -50,4 +50,6 @@ public void setCreatedAt(LocalDateTime createdAt){this.createdAt=createdAt;}
 
 public Task getTask(){return task;}
 public void setTask(Task task){this.task=task;}
+public void setDescription(String  description){this.description=description;}
+public String  getDescription(){return description;}
 }

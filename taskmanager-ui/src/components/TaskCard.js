@@ -6,6 +6,7 @@ import { FaTrash, FaEdit,FaSave,FaTimes } from "react-icons/fa";
 import {useEffect,useRef} from "react";
 import { getCurrentUser } from "../services/authService";
 import {generatePlan} from "../services/alService";
+import {generateSubTasks } from "../services/alService";
 import { fetchSubTasks } from "../services/taskService";
 const TaskCard=({ task, onSave, onDelete, onToggle, loadingState ,analysis,setAnalysis}) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -13,7 +14,7 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState ,analysis,setAn
   const isLoading = !!loadingState; // boolean derived from status
   const [title,setTitle]=useState("");
   const [editedTask, setEditedTask] = useState(task);
-  const [aiPlan,setAiPlan] =useState(null);
+  const [aiPlan,setAiPlan] =useState([]);
   const isSaving = loadingState === "saving";
   //const [generatedSteps, setGeneratedSteps] = useState([]);
   const [savedSubTasks, setSavedSubTasks] = useState([]);   
@@ -72,7 +73,13 @@ const totalSubtasks = savedSubTasks.length;
     setEditedTask(task);
     setIsEditing(false);
   };
-  
+ 
+ 
+ 
+    
+     
+ 
+
   const handleSubTaskSave=async(reviewedSubTask,id)=>{
         console.log("save subtask",id);
         await editSubTask(id,reviewedSubTask);
@@ -98,15 +105,18 @@ const totalSubtasks = savedSubTasks.length;
       /* console.log("Handle AI called!");
       console.log("Task id",task.id); */
       try{
-      const plan= await generatePlan(task.id);
+     // const plan= await generatePlan(task.id);
+     const plan = await generateSubTasks(task.title);
       if(plan.kength==0){console.log("no plan");return}
-      /* console.log("Plan received:", plan);
-      console.log("plan.steps =", plan.steps); */
-      for (const step of plan.steps) {
+      console.log("Plan received:", plan);
+      console.log("plan.steps =", plan.steps);
+     /*  for (const step of plan.steps) {
           await addSubTask(task.id, step);
-      }
-      setAiPlan(plan);
-          await loadSubTasks();
+      } */
+      setAiPlan(plan.steps);
+      
+      
+         // await loadSubTasks();
           setError("");
     }catch(err){
         setError(err.message);
@@ -118,9 +128,6 @@ const totalSubtasks = savedSubTasks.length;
      // setIsGenerating(false);
   };
     
-  
-    
-  
   return (
     
    
@@ -218,7 +225,7 @@ const totalSubtasks = savedSubTasks.length;
       }
     
 
-      {savedSubTasks.length === 0 && (
+      {(savedSubTasks.length == 0 || aiPlan.length > 0) && (
       <button
       className="Generate Plan"
       onClick={() => handleAI()}
@@ -242,7 +249,7 @@ const totalSubtasks = savedSubTasks.length;
         
    
 
-  {savedSubTasks.length > 0 && (
+      {(savedSubTasks.length > 0 || aiPlan.length > 0) && (
   <>
     <button
       type="button"
@@ -252,8 +259,18 @@ const totalSubtasks = savedSubTasks.length;
 
   {showSubtasks && (
       <div className="subtask-list"> 
+ {aiPlan.map((step, index) => (
 
-{savedSubTasks.map(step => (
+<div key={index}>
+
+    <h3>{step.title}</h3>
+
+    <p>{step.description}</p>
+
+</div>
+
+))}
+{/* {savedSubTasks.map(step => (
 
     <SubTaskCard
         key={step.id}
@@ -264,7 +281,7 @@ const totalSubtasks = savedSubTasks.length;
         loadSubTasks={loadSubTasks}
     />
 
-))}
+))} */}
 </div>
   )}
   </>)}
@@ -283,5 +300,8 @@ error &&
      </div>
      
     
-    )}
+    )   
+  
+ 
+  }
 export default TaskCard;
