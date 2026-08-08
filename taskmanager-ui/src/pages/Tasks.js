@@ -8,6 +8,8 @@ import {analyseTitle} from "../services/alService";
 function Tasks() {
   //initialising variables
   const [error, setError] = useState("");
+  const [generatedPlans, setGeneratedPlans] = useState({});
+  const [isEditing, setIsEditing] = useState(false);
   const [filter, setFilter] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
   const [toast, setToast] = useState("");
@@ -106,10 +108,10 @@ console.log("Result in HandleAnalyse",analysis);
 console.log("Keys:", Object.keys(result));
 console.log("Result JSON:", JSON.stringify(result, null, 2));
 console.log(JSON.stringify(result, null, 2));
-   await saveContext({
+   /* await saveContext({
     taskId: result.id,
     analysis: analysis
-});
+}); */
     
     // resetContext();
     
@@ -192,26 +194,7 @@ console.log(JSON.stringify(result, null, 2));
 } */
   return (
     <div className="container">
- {/*          {analysis?.matchedKeywords?.length > 0 && (
-  <p className="plan-context">
-    Plan based on: {analysis.matchedKeywords.join(", ")}
-  </p>
-)} */}
- {/*  {analysis?.extractedPriority && (
-  <p className="plan-priority">
-    Priority detected: {analysis.extractedPriority}
-  </p>
-)}
- {analysis?.extractedDate && (
-  <p className="plan-priority">
-    Due by : {analysis.extractedDate}
-  </p>
-)} */}
-      
-    {/*   !currentUser && return (  <div>
-            Please sign in to view tasks.
-        </div>) ;
-       */}
+
       <div className="card">
         <TaskForm
           taskForm={taskForm}
@@ -258,7 +241,10 @@ console.log(JSON.stringify(result, null, 2));
     loadingState={loadingMap[task.id]} 
     analysis={analysis}
     setAnalysis={setAnalysis}
-    
+    generatedPlans={generatedPlans}
+    setGeneratedPlans={setGeneratedPlans}
+    isEditing={isEditing}
+    setIsEditing={setIsEditing}
        
   />
 ))}

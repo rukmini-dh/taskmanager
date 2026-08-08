@@ -14,6 +14,9 @@ public class Concern {
  
      private String name;
      @OneToMany(mappedBy="concern")
+
+   /*   @OneToMany(mappedBy = "concern", cascade = CascadeType.ALL)
+    private List<Template> templates = new ArrayList<>(); */
  
      Set<ConceptConcernAssociation> conceptConcernAssociations= new HashSet<>();
      @ElementCollection(fetch = FetchType.EAGER)

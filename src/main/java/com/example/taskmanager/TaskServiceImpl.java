@@ -127,9 +127,10 @@ public class TaskServiceImpl implements TaskService {
     public SubTaskDTO createSubTask(SubTaskDTO dto,long id)   {
         SubTask subtask =new SubTask();
         subtask.setTitle(dto.getTitle());
+        subtask.setDescription(dto.getDescription());
         subtask.setSource(dto.getSource());
-        subtask.setCompleted(false);    
-        subtask.setReviewed(false);
+        subtask.setCompleted(dto.isCompleted());    
+        subtask.setReviewed(dto.isReviewed());
         //subtask.setCreatedAt(LocalDateTime.now());
         Task task = taskRepository
                 .findById(id)
@@ -151,7 +152,7 @@ public class TaskServiceImpl implements TaskService {
         
         User user = userRepository.findByUserName(username)
             .orElseThrow(() -> new UserNotFoundException("User not found"));
-    
+        System.out.println("in Task Service imp*******"+dto);
         Task task = new Task();
         task.setTitle(dto.getTitle());
         task.setDescription(dto.getDescription());
@@ -207,6 +208,7 @@ public class TaskServiceImpl implements TaskService {
     private SubTaskDTO convertToSubTaskDTO(SubTask subtask) {
         SubTaskDTO dto = new SubTaskDTO();
          dto.setSource(subtask.getSource());
+         dto.setDescription(subtask.getDescription());
         dto.setTitle(subtask.getTitle());
         dto.setCompleted(subtask.isCompleted());
         dto.setReviewed(subtask.isReviewed());

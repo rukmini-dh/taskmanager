@@ -265,7 +265,7 @@ for (ConceptConcernAssociation assoc :
     SubTaskDTO dto = new SubTaskDTO();
 
     dto.setTitle(concern.getName());
-
+    dto.setSource(Source.AI);        
     List<String> templates =
             concern.getTemplates();
             System.out.println("Templates in Planner ******"+concern.getTemplates());

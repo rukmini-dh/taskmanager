@@ -8,28 +8,32 @@ import { getCurrentUser } from "../services/authService";
 import {generatePlan} from "../services/alService";
 import {generateSubTasks } from "../services/alService";
 import { fetchSubTasks } from "../services/taskService";
-const TaskCard=({ task, onSave, onDelete, onToggle, loadingState ,analysis,setAnalysis}) => {
+import { ServerRouter } from "react-router-dom";
+
+const TaskCard=({ task, onSave, onDelete, onToggle, loadingState ,analysis,setAnalysis,generatedPlans,setGeneratedPlans}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const isLoading = !!loadingState; // boolean derived from status
   const [title,setTitle]=useState("");
   const [editedTask, setEditedTask] = useState(task);
+  const [displayedSubTasks, setDisplayedSubTasks] = useState([]);
   const [aiPlan,setAiPlan] =useState([]);
   const isSaving = loadingState === "saving";
-  //const [generatedSteps, setGeneratedSteps] = useState([]);
   const [savedSubTasks, setSavedSubTasks] = useState([]);   
   const isDeleting = loadingState === "deleting";
   const [currentUser, setCurrentUser] =    useState(null);
   const [showSubtasks, setShowSubtasks] = useState(false);
   const {addSubTask} = useTasks();
-  const taskLocked = savedSubTasks.length > 0;
+  const taskLocked = task.completed;
   const {editSubTask} = useTasks();
   const inputRef = useRef(null);
   const [error, setError] = useState("");
   const [isReviewing, setIsReviewing] = useState(false);
+  const [userSubTasks, setUserSubTasks] = useState(false);
   const completedSubtasks =
   savedSubTasks.filter(subtask => subtask.completed).length;
-
+  console.log("Completed subtasks",completedSubtasks);
+  const [userSubTasksList, setUserSubTasksList] = useState([]);
 const totalSubtasks = savedSubTasks.length;
   useEffect(() => {
     if (isEditing) {
@@ -42,10 +46,11 @@ const totalSubtasks = savedSubTasks.length;
     },[task.id]);
   const loadSubTasks = async () => {
     setSavedSubTasks([]);
+   
     const data = await fetchSubTasks(task.id);
     setSavedSubTasks(data);
+      };
     
-    };
   const isSavingRef = useRef(false);
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -73,21 +78,19 @@ const totalSubtasks = savedSubTasks.length;
     setEditedTask(task);
     setIsEditing(false);
   };
- 
- 
- 
-    
-     
- 
+  const handleSubTaskSave = async () => {
+    console.log("Saving user subtasks:", userSubTasksList);
 
-  const handleSubTaskSave=async(reviewedSubTask,id)=>{
-        console.log("save subtask",id);
-        await editSubTask(id,reviewedSubTask);
-        await loadSubTasks();
-          
-         setIsReviewing(false);
+    for (const subtask of userSubTasksList) {
+        await addSubTask(task.id, subtask);
+    }
 
-  };
+    await loadSubTasks();
+
+    setUserSubTasksList([]);
+    setUserSubTasks(false);
+    setShowSubtasks(true);
+};
   
   const handleSave = (e) => {
 
@@ -97,37 +100,83 @@ const totalSubtasks = savedSubTasks.length;
 
     isSavingRef.current = true;
     onSave(task.id, editedTask);
-    setIsEditing(false);};
-
-    const handleAI = async () => {
-
-      setIsGenerating(true);
-      /* console.log("Handle AI called!");
-      console.log("Task id",task.id); */
-      try{
-     // const plan= await generatePlan(task.id);
-     const plan = await generateSubTasks(task.title);
-      if(plan.kength==0){console.log("no plan");return}
-      console.log("Plan received:", plan);
-      console.log("plan.steps =", plan.steps);
-     /*  for (const step of plan.steps) {
-          await addSubTask(task.id, step);
-      } */
-      setAiPlan(plan.steps);
-      
-      
-         // await loadSubTasks();
-          setError("");
-    }catch(err){
-        setError(err.message);
-    }
-          
-      //setGeneratedSteps(plan.steps);
-      
-     
-     // setIsGenerating(false);
-  };
+      setIsEditing(false);
+      setGeneratedPlans(prev => ({
+        ...prev,
+        [task.id]: false
+    }));
+    };
     
+    const handleUserGeneratedSubtasks = async()=>
+    {
+      setUserSubTasksList( [...userSubTasksList,
+        
+        {
+            title: "",
+            description: "",
+            completed: false,
+            reviewed: true,
+            source: "USER",
+            
+        }
+    ]);
+   
+      setUserSubTasks(true);
+      setShowSubtasks(false);
+      
+      console.log (" in adding subtasks");
+     
+      } ; 
+      const handleAddToList = () => {
+        setUserSubTasksList(prev => [
+            ...prev,
+            {
+                title: "",
+                description: "",
+                completed: false,
+                reviewed: true,
+                source: "USER"
+            }
+        ]);
+    };
+    const handleAI = async () => {
+      setIsGenerating(true);
+  
+      console.log("Handle AI called!");
+      console.log("Task id", task.id);
+  
+      try {
+          const plan = await generateSubTasks(task.title);
+  
+          if (plan.steps.length === 0) {
+              console.log("no plan");
+              return;
+          }
+  
+          console.log("Plan received:", plan);
+          console.log("plan.steps =", plan.steps);
+  
+          for (const step of plan.steps) {
+              await addSubTask(task.id, step);
+          }
+  
+          // The plan has now really been generated and saved
+          setGeneratedPlans(prev => ({
+              ...prev,
+              [task.id]: true
+          }));
+  
+          await loadSubTasks();
+          setError("");
+          setShowSubtasks(true);
+  
+      } catch (err) {
+          setError(err.message);
+      } finally {
+          setIsGenerating(false);
+      }
+  };
+  
   return (
     
    
@@ -169,12 +218,7 @@ const totalSubtasks = savedSubTasks.length;
 )}
   <div>     
      
-       {/*  <input
-          type="checkbox"
-          className="status"
-          checked={task.completed}
-          onChange={() => onToggle(task)}
-        /> */}
+     
       </div>
     </div> 
 
@@ -223,17 +267,33 @@ const totalSubtasks = savedSubTasks.length;
       ) 
       
       }
-    
+   {/*  {(
+    savedSubTasks.length === 0 ||
+    !savedSubTasks.some(subtask => subtask.source === "AI")
+) && ( */}
+{!generatedPlans[task.id] && (
+    <button
+        className="Generate Plan"
+        onClick={handleAI}
+        disabled={isGenerating}
+    >
+        {isGenerating ? "Generating..." : "Generate Plan"}
+    </button>
+)}
 
-      {(savedSubTasks.length == 0 || aiPlan.length > 0) && (
+
+<button onClick={()=> handleUserGeneratedSubtasks()}>Add SubTask</button>
+  {savedSubTasks.length > 0  && (
+   
       <button
-      className="Generate Plan"
-      onClick={() => handleAI()}
-      disabled={isSaving}
-      
-  >
-      Generate Plan
-  </button>)}
+        type="button"
+        onClick={() => setShowSubtasks(!showSubtasks)}>
+        {showSubtasks ? "Hide subtasks" : "Show subtasks"}
+      </button>
+  
+   )}   
+   </div>    
+   
       
           {!taskLocked && (< button  disabled={currentUser?.role==="GUEST"|| currentUser?.role==="SUPERVISOR"}onClick={() => setIsEditing(true)}> Edit</button> )}
           
@@ -244,47 +304,34 @@ const totalSubtasks = savedSubTasks.length;
         {isSaving && <span className="spinner">Saving...</span>}
         {isDeleting && <span className="spinner">Deleting...</span>}
    
-      </div>
+      
       <div className="subtask-container">
         
    
 
-      {(savedSubTasks.length > 0 || aiPlan.length > 0) && (
-  <>
-    <button
-      type="button"
-      onClick={() => setShowSubtasks(!showSubtasks)}>
-      {showSubtasks ? "Hide subtasks" : "Show subtasks"}
-    </button>
+    
 
-  {showSubtasks && (
-      <div className="subtask-list"> 
- {aiPlan.map((step, index) => (
-
-<div key={index}>
-
-    <h3>{step.title}</h3>
-
-    <p>{step.description}</p>
-
-</div>
-
-))}
-{/* {savedSubTasks.map(step => (
+ {showSubtasks && (
+  <div className="subtask-list"> 
+{savedSubTasks.map((step, index) => (
 
     <SubTaskCard
-        key={step.id}
-        subtask_id={step.id}
+        key={index}
+        subtask_id={step.id} 
         subtask={step}
         save_SubTask={handleSubTaskSave}
+        user_SubTasks={handleUserGeneratedSubtasks}
         id={task.id}
         loadSubTasks={loadSubTasks}
+        savedSubTasks={savedSubTasks}
+      
+       
     />
 
-))} */}
+))} 
 </div>
   )}
-  </>)}
+ 
   
 </div>
 {/* First Row */}
@@ -296,6 +343,49 @@ error &&
 </p>
 }
 </div>
+
+{(userSubTasks && showSubtasks==false) && userSubTasksList.map((subtask, index) => (
+
+              <div className="subtask-card" key={index}>
+              
+              <input
+                  type="text"
+                  disabled={showSubtasks}
+                  placeholder="Subtask Title"
+                  value={subtask.title}
+                  onChange={(e) => {
+              
+                    const updated=[...userSubTasksList];
+                    updated[index].title=e.target.value;
+            
+                    setUserSubTasksList(updated);
+                   
+            
+              
+                  }}
+              />
+              
+              <input
+                  type="text"
+                  placeholder="Describe the subtask"
+                  value={subtask.description}
+                  onChange={(e) => {
+              
+                      const updated = [...userSubTasksList];
+              
+                      updated[index].description = e.target.value;
+                      setUserSubTasksList(updated);
+                     
+              
+                  }}
+              />
+              <button onClick={handleAddToList}>Add</button>
+              <button onClick={handleSubTaskSave }>Done</button>
+              </div>
+              
+              )
+              )}
+          
       
      </div>
      

@@ -102,7 +102,8 @@ useEffect(() => {
   };
  //Add subtask
   const addSubTask = async (id,newSubTask) => {
-    console.log("in use task for subtask");
+    console.log("in use task for add subtask",newSubTask);
+    console.log("in use task for subtask task id",id);
     try {
       await apiaddSubTask(id,newSubTask);
     

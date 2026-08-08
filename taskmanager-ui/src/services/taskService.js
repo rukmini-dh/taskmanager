@@ -127,7 +127,8 @@ export const addSubTask = async(id, subtask) => {
   return await response.json();
 };
 export const editSubTask = async (id,subtask) => {
-
+console.log("In task service:",id);
+console.log("Also",subtask);
   const response = await fetch(
     `${BASE_URL}/editsubtask/${id}`,
     {

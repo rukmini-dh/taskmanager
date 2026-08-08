@@ -59,8 +59,9 @@ public class TaskController {
     // Create a new task
     @PostMapping
    
-public TaskDTO createTask(@RequestBody TaskDTO dto)
-                          {
+public TaskDTO createTask(@RequestBody TaskDTO dto){
+System.out.println("POST /tasks reached");
+System.out.println(dto);                      
     return taskServiceImpl.createTask(dto);
 }
 // Create a new taskContext
