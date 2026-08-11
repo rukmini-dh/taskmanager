@@ -30,11 +30,10 @@ const TaskCard=({ task, onSave, onDelete, onToggle, loadingState ,analysis,setAn
   const [error, setError] = useState("");
   const [isReviewing, setIsReviewing] = useState(false);
   const [userSubTasks, setUserSubTasks] = useState(false);
-  const completedSubtasks =
-  savedSubTasks.filter(subtask => subtask.completed).length;
+  const completedSubtasks=savedSubTasks.filter(subtask => subtask.completed).length;
   console.log("Completed subtasks",completedSubtasks);
   const [userSubTasksList, setUserSubTasksList] = useState([]);
-const totalSubtasks = savedSubTasks.length;
+const totalSubtasks = savedSubTasks.filter(subtask=>!subtask.deleted).length;
   useEffect(() => {
     if (isEditing) {
       inputRef.current.focus();
@@ -115,8 +114,9 @@ const totalSubtasks = savedSubTasks.length;
             title: "",
             description: "",
             completed: false,
-            reviewed: true,
+            edited: false,
             source: "USER",
+            feedback:null
             
         }
     ]);
@@ -134,8 +134,10 @@ const totalSubtasks = savedSubTasks.length;
                 title: "",
                 description: "",
                 completed: false,
-                reviewed: true,
+                edited:false,
+                feedback:null,
                 source: "USER"
+                
             }
         ]);
     };
@@ -178,7 +180,7 @@ const totalSubtasks = savedSubTasks.length;
   };
   
   return (
-    
+   
    
     <div ref={cardRef}  className="Card"  >
 
@@ -271,7 +273,7 @@ const totalSubtasks = savedSubTasks.length;
     savedSubTasks.length === 0 ||
     !savedSubTasks.some(subtask => subtask.source === "AI")
 ) && ( */}
-{!generatedPlans[task.id] && (
+{savedSubTasks.templateId != null || savedSubTasks.length==0 && (
     <button
         className="Generate Plan"
         onClick={handleAI}
@@ -313,7 +315,8 @@ const totalSubtasks = savedSubTasks.length;
 
  {showSubtasks && (
   <div className="subtask-list"> 
-{savedSubTasks.map((step, index) => (
+  
+{savedSubTasks.filter(subtask=>!subtask.deleted).map((step, index) => (
 
     <SubTaskCard
         key={index}

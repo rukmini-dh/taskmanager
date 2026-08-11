@@ -6,42 +6,58 @@ import { useTasks } from "../hooks/useTasks";
 function SubTaskCard ({subtask,save_SubTask,id,loadSubTasks,savedSubTasks})  {
     const [reviewedSubTask, setReviewedSubTask] = useState(subtask);
    // const [userSubTasks, setUserSubTasks] = useState(false);
-    const [isReviewing, setIsReviewing] = useState(false);
+    const [isAccepted, setIsAccepted] = useState(false);
     const [isCompleted, setIsCompleted] = useState(false);
+    const [isEditing,setIsEditing]=useState(false);
+    const [isRejected,setIsRejected]=useState(false);
     const inputRef = useRef(null);
     const {editSubTask}=useTasks();const [userSubTasksList, setUserSubTasksList] = useState([]);
-   
-   
     useEffect(() => {
-    if (isReviewing && inputRef.current) {
+    if (isEditing && inputRef.current) {
         inputRef.current.focus();
     }
-}, [isReviewing]);
-     const review_SubTask = () =>{
-        setIsReviewing(true);
-      
+}, [isEditing]);
+     const handleEdit = async (e) => {
+        setIsEditing(true);
+        if(reviewedSubTask.templateId==null)
+        {
+        const updatedSubTask = {
+          ...reviewedSubTask,edited:true
+         
+      };
+      await editSubTask(
+        reviewedSubTask.id,
+       updatedSubTask
+    );
+    await loadSubTasks();
+        
+         setReviewedSubTask(updatedSubTask);
+    }else{
+      const updatedSubTask = {
+        ...reviewedSubTask,edited:true,feedback:"ACCEPTED"
        
+    };
+    await editSubTask(
+      reviewedSubTask.id,
+     updatedSubTask
+  );
+  await loadSubTasks();
+        
+         setReviewedSubTask(updatedSubTask);
+    }
+        
+      
+    
     }
     
-    const handleSubTaskSave = () =>{
-      const updatedSubTask = {
-        ...reviewedSubTask,reviewed:true,
-       
-    };
-             console.log("Saving SubTask in subtaskcad",updatedSubTask);
-         save_SubTask(updatedSubTask,id);
-         
-
-   // setIsSaved(true);
-        
-    }
-    const handleReview = async (e) => {
+   
+    const handleAccept = async (e) => {
         const updatedSubTask = {
-        ...reviewedSubTask,reviewed:true,
+        ...reviewedSubTask,feedback:"ACCEPTED",
        
     };
 
-    console.log("SubTask in review",updatedSubTask);
+    console.log("SubTask Accepted",updatedSubTask);
     
     await editSubTask(
       reviewedSubTask.id,
@@ -49,10 +65,47 @@ function SubTaskCard ({subtask,save_SubTask,id,loadSubTasks,savedSubTasks})  {
   );
   console.log("***********");
 await loadSubTasks();
-      setIsReviewing(false);
+      setIsAccepted(true);
       setReviewedSubTask(updatedSubTask);
       console.log("***********");
 
+    }
+    const handleDelete  = async (e)=>{
+      const updatedSubTask = {
+        ...userSubTasksList,deleted:true
+       
+    };
+    console.log("in deletie",updatedSubTask);
+    await editSubTask(
+      reviewedSubTask.id,
+      updatedSubTask
+  );
+  await loadSubTasks();
+   // setIsRejected(true);
+    setReviewedSubTask(updatedSubTask);
+    }
+    const handleReject = async (e) => {
+      const updatedSubTask = {
+      ...reviewedSubTask,feedback:"REJECTED",deleted:true
+     
+  };
+
+  console.log("SubTask Rejected",updatedSubTask);
+  
+  await editSubTask(
+    reviewedSubTask.id,
+    updatedSubTask
+);
+console.log("***********");
+await loadSubTasks();
+    setIsRejected(true);
+    setReviewedSubTask(updatedSubTask);
+    console.log("***********");
+
+  }
+
+    const handleEditFlag = ()=>{
+      setIsEditing(true);
     }
 
     const handleCompleted = async (e) => {
@@ -84,9 +137,9 @@ await loadSubTasks();
         <div className="subtask-container">
             <div className="subtask-card">
            
-            {!reviewedSubTask.reviewed && <p>{reviewedSubTask.title}</p>  }
+             <p>{reviewedSubTask.title}</p> 
            
-            {!reviewedSubTask.reviewed  ? (
+            {!reviewedSubTask.edited && reviewedSubTask.feedback!="ACCEPTED" ? (
               
             <input
             type="text"
@@ -101,41 +154,55 @@ await loadSubTasks();
            
            <div className="Title" >
            
-             <div  className={reviewedSubTask.completed? "completed-subtask": "Not completed"}> {reviewedSubTask.title}
+             <div  className={reviewedSubTask.completed? "completed-subtask": "Not completed"}> {reviewedSubTask.description}
 </div>
         </div>
       
           )}
-          {isReviewing && (
+        
+        {reviewedSubTask.templateId != null &&
+ reviewedSubTask.feedback == null && (
+    <>
+        <button onClick={handleAccept}>
+            Accept
+        </button>
+
+        <button onClick={handleReject}>
+            Reject
+        </button>
+    </>
+)}
+
+
+
+ {!reviewedSubTask.edited && reviewedSubTask.feedback != "ACCEPTED"   &&(
+ 
+            <button onClick={handleEditFlag}>Edit</button>)}
+            {reviewedSubTask.templateId==null &&  !reviewedSubTask.completed && (
+           
+            <button onClick={handleDelete}>Delete</button>)}
+
+                 { isEditing && (
             <label>
            <input
            type="checkbox"
-           checked={reviewedSubTask.reviewed}
+           checked={reviewedSubTask.edited}
            
-           onChange ={handleReview}
-         />  Reviewed
+           onChange ={handleEdit}
+         />  Edited
          </label>)}
    
-  {!reviewedSubTask.reviewed   && (
+  
+{!reviewedSubTask.completed && (reviewedSubTask.edited || reviewedSubTask.feedback=="ACCEPTED") && (
     
-        <>
-          
-          
-           <button onClick= { review_SubTask} >Review</button>
-          
-          
-         
-</>)}
-{!reviewedSubTask.completed  && (
-    
-    <>
+   
       
       
       <button onClick={handleCompleted}>Completed </button>
       
       
      
-</>)}
+)}
 
 
 

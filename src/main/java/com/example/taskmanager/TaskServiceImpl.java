@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
+import com.example.taskmanager.knowledgebase.Template;
+import com.example.taskmanager.knowledgebase.TemplateRepository;
 import com.example.taskmanager.security.SecurityUtil;
 import com.example.taskmanager.user.User;
 import com.example.taskmanager.user.UserNotFoundException;
@@ -16,13 +18,15 @@ public class TaskServiceImpl implements TaskService {
     private final SubTaskRepository subtaskRepository;
     private final UserRepository userRepository;
     private final TaskContextRepository taskContextRepository;
+    private final TemplateRepository templateRepository;
 
-    public TaskServiceImpl(TaskRepository taskRepository,UserRepository userRepository,SubTaskRepository subtaskRepository,TaskContextRepository taskContextRepository) {
+    public TaskServiceImpl(TaskRepository taskRepository,TemplateRepository templateRepository,UserRepository userRepository,SubTaskRepository subtaskRepository,TaskContextRepository taskContextRepository) {
 
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
     this.subtaskRepository=subtaskRepository;
     this.taskContextRepository=taskContextRepository;
+    this.templateRepository=templateRepository;
 }
 
 
@@ -119,7 +123,11 @@ public class TaskServiceImpl implements TaskService {
         taskRepository.save(task);
 }
         subtask.setSource(subtaskDTO.getSource());
-        subtask.setReviewed(true);
+        subtask.setDeleted(subtaskDTO.isDeleted());
+        subtask.setEdited(subtaskDTO.isEdited());
+        subtask.setFeedback(subtaskDTO.getFeedback());
+        subtask.setDescription(subtaskDTO.getDescription());
+       
         
         return convertToSubTaskDTO(subtaskRepository.save(subtask));
     }
@@ -129,8 +137,22 @@ public class TaskServiceImpl implements TaskService {
         subtask.setTitle(dto.getTitle());
         subtask.setDescription(dto.getDescription());
         subtask.setSource(dto.getSource());
-        subtask.setCompleted(dto.isCompleted());    
-        subtask.setReviewed(dto.isReviewed());
+        subtask.setCompleted(dto.isCompleted());   
+        subtask.setDeleted(dto.isDeleted());   
+        subtask.setEdited(dto.isEdited());
+        subtask.setFeedback(dto.getFeedback());
+        if (dto.getTemplateId() != null) {
+            Template template = templateRepository
+                    .findById(dto.getTemplateId())
+                    .orElseThrow(() ->
+                        new RuntimeException(
+                            "Template not found: " + dto.getTemplateId()
+                        )
+                    );
+        
+            subtask.setTemplate(template); 
+                }
+        
         //subtask.setCreatedAt(LocalDateTime.now());
         Task task = taskRepository
                 .findById(id)
@@ -210,8 +232,18 @@ public class TaskServiceImpl implements TaskService {
          dto.setSource(subtask.getSource());
          dto.setDescription(subtask.getDescription());
         dto.setTitle(subtask.getTitle());
+        dto.setEdited(subtask.isEdited());
         dto.setCompleted(subtask.isCompleted());
-        dto.setReviewed(subtask.isReviewed());
+        dto.setDeleted(subtask.isDeleted());
+        dto.setFeedback(subtask.getFeedback());
+        dto.setTemplateId(
+            subtask.getTemplate() != null
+                ? subtask.getTemplate().getId()
+                : null
+        );
+     
+
+       
         dto.setId(subtask.getId());
         return dto;
     }

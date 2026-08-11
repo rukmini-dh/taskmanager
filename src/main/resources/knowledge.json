@@ -1,63 +1,139 @@
 {
-    "concepts": [
-      {
-        "name": "LOGIN",
-        "description": "User authentication using username and password",
-  
-        "concerns": [
-          {
-            "name": "Validation",
-            "templates": [
-              {
-                "text": "Add input validation",
-                "weight": 10
-              },
-              {
-                "text": "Validate all required fields",
-                "weight": 8
-              },
-              {
-                "text": "Handle invalid input gracefully",
-                "weight": 5
-              }
-            ],
-            "timesSuggested": 20,
-            "timesAccepted": 18,
-            "timesRejected": 2
-          },
-          {
-            "name": "JWT",
-            "timesSuggested": 15,
-            "timesAccepted": 14,
-            "timesRejected": 1
-          },
-          {
-            "name": "Testing",
-            "timesSuggested": 18,
-            "timesAccepted": 16,
-            "timesRejected": 2
-          }
-        ]
-      },
-  
-      {
-        "name": "DASHBOARD",
-        "description": "Displays consolidated information to users",
-  
-        "concerns": [
-          {
-            "name": "Logging",
-            "timesSuggested": 8,
-            "timesAccepted": 8,
-            "timesRejected": 0
-          },
-          {
-            "name": "Testing",
-            "timesSuggested": 10,
-            "timesAccepted": 9,
-            "timesRejected": 1
-          }
-        ]
-      }
-    ]
-  }
+  "concepts": [
+    {
+      "name": "LOGIN",
+      "description": "User authentication using username and password",
+      "concerns": [
+        {
+          "name": "Validation",
+          "templates": [
+            {
+              "text": "Handle invalid input gracefully",
+              "weight": 5
+            },
+            {
+              "text": "Validate required login fields",
+              "weight": 5
+            },
+            {
+              "text": "Display clear validation messages",
+              "weight": 4
+            },
+            {
+              "text": "Prevent submission of incomplete credentials",
+              "weight": 4
+            }
+          ]
+        },
+        {
+          "name": "JWT",
+          "templates": [
+            {
+              "text": "Implement JWT authentication",
+              "weight": 5
+            },
+            {
+              "text": "Generate JWT tokens after successful authentication",
+              "weight": 5
+            },
+            {
+              "text": "Validate JWT tokens on protected requests",
+              "weight": 5
+            },
+            {
+              "text": "Handle expired JWT tokens",
+              "weight": 4
+            }
+          ]
+        },
+        {
+          "name": "Testing",
+          "templates": [
+            {
+              "text": "Test valid login credentials",
+              "weight": 5
+            },
+            {
+              "text": "Test invalid username and password",
+              "weight": 5
+            },
+            {
+              "text": "Test authentication failure responses",
+              "weight": 4
+            },
+            {
+              "text": "Test protected endpoints with valid and invalid tokens",
+              "weight": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DASHBOARD",
+      "description": "Displays consolidated information to users",
+      "concerns": [
+        {
+          "name": "Logging",
+          "templates": [
+            {
+              "text": "Implement logging for dashboard operations",
+              "weight": 4
+            },
+            {
+              "text": "Log dashboard errors with useful diagnostic information",
+              "weight": 4
+            },
+            {
+              "text": "Record important dashboard user actions",
+              "weight": 3
+            }
+          ]
+        },
+        {
+          "name": "Testing",
+          "templates": [
+            {
+              "text": "Test dashboard data loading",
+              "weight": 5
+            },
+            {
+              "text": "Test dashboard behaviour with missing data",
+              "weight": 4
+            },
+            {
+              "text": "Test dashboard error handling",
+              "weight": 4
+            }
+          ]
+        },
+        {
+          "name": "Authorization",
+          "templates": [
+            {
+              "text": "Restrict dashboard information according to user permissions",
+              "weight": 5
+            },
+            {
+              "text": "Test dashboard access for unauthorized users",
+              "weight": 4
+            }
+          ]
+        },
+        {
+          "name": "Performance",
+          "templates": [
+            {
+              "text": "Optimize dashboard data retrieval",
+              "weight": 4
+            },
+            {
+              "text": "Avoid unnecessary dashboard API requests",
+              "weight": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

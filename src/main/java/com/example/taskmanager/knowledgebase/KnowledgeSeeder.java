@@ -91,6 +91,10 @@ KnowledgeDTO knowledge =
                         System.out.println("About to save: " + c.getTemplates());
                         return concernRepository.save(c);
                     });
+                    System.out.println(
+                        "ASSOCIATING CONCEPT = " + concept.getName()
+                        + " WITH CONCERN = " + concern.getName()
+                    );
                     if (conceptConcernAssociationRepository
                         .findByConceptAndConcern(conceptEntity, concernEntity)
                         .isEmpty()) {
@@ -105,6 +109,12 @@ KnowledgeDTO knowledge =
                         );
                 
                     conceptConcernAssociationRepository.save(association);
+                    System.out.println(
+                        "ASSOCIATION CREATED = "
+                        + conceptEntity.getName()
+                        + " -> "
+                        + concernEntity.getName()
+                    );
                 }
         }
                      
@@ -125,14 +135,31 @@ private Concept toEntity(ConceptDTO dto){
 private Concern toEntity(ConcernDTO dto){
         Concern concern = new Concern();
         concern.setName(dto.getName());
-       List<String> templateTexts = new ArrayList<>();
+        List<Template> templateEntities = new ArrayList<>();
+
+for (TemplateDTO dtoTemplate : dto.getTemplates()) {
+
+    Template template = new Template();
+
+    template.setText(dtoTemplate.getText());
+    template.setWeight(dtoTemplate.getWeight());
+    template.setConcern(concern);
+
+    templateEntities.add(template);
+}
+
+concern.setTemplates(templateEntities);
+
+
+      /*  List<Template> templateTexts = new ArrayList<>();
 
 for (TemplateDTO template : dto.getTemplates()) {
         System.out.println("DTO Templates******"+dto.getTemplates());
     templateTexts.add(template.getText());
+    
 }
 
-concern.setTemplates(templateTexts);
+concern.setTemplates(templateTexts); */
         System.out.println("Templates******"+concern.getTemplates());
         return concern;
 

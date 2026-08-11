@@ -12,6 +12,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.example.taskmanager.knowledgebase.Template;
 import org.springframework.stereotype.Service;
 
 import com.example.taskmanager.knowledgebase.ConceptDTO;
@@ -265,25 +266,42 @@ for (ConceptConcernAssociation assoc :
     SubTaskDTO dto = new SubTaskDTO();
 
     dto.setTitle(concern.getName());
-    dto.setSource(Source.AI);        
-    List<String> templates =
+    dto.setSource(Source.AI); 
+         
+    List<Template> templates =
             concern.getTemplates();
+        
             System.out.println("Templates in Planner ******"+concern.getTemplates());
 
-    if (templates == null || templates.isEmpty()) {
+            if (templates == null || templates.isEmpty()) {
 
-        dto.setDescription("");
-
-    } else {
-
-        int index =
-                random.nextInt(templates.size());
-
-        dto.setDescription(
-                templates.get(index));
-    }
-
+                dto.setDescription("");
+                
+            
+            } else {
+            
+                int index = random.nextInt(templates.size());
+            
+                Template template = templates.get(index);
+            
+                dto.setDescription(template.getText());
+                dto.setTemplateId(template.getId());
+                
+            }
+            System.out.println(
+                "DTO BEFORE ADD: title=" + dto.getTitle()
+                + ", description=" + dto.getDescription()
+                + ", templateId=" + dto.getTemplateId()
+                + ", source=" + dto.getSource()
+            );
+            
     dtoList.add(dto);
+    
+    System.out.println(
+        "SUBTASK DTO: title=" + dto.getTitle()
+        + ", templateId=" + dto.getTemplateId()
+        + ", source=" + dto.getSource()
+    );
 
 }
             }
@@ -340,7 +358,7 @@ for (ConceptConcernAssociation assoc :
 
                 dto.setTitle(step);
                 dto.setCompleted(false);
-                dto.setReviewed(false);
+                
                 dto.setSource(Source.AI);
 
                 return dto;

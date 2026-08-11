@@ -5,23 +5,30 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.example.taskmanager.knowledgebase.Template;
+
 import jakarta.persistence.*;
 @Entity
 public class Concern {
-     @Id
-     @GeneratedValue(strategy = GenerationType.IDENTITY)
-     private Long id;
- 
-     private String name;
-     @OneToMany(mappedBy="concern")
 
-   /*   @OneToMany(mappedBy = "concern", cascade = CascadeType.ALL)
-    private List<Template> templates = new ArrayList<>(); */
- 
-     Set<ConceptConcernAssociation> conceptConcernAssociations= new HashSet<>();
-     @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> templates = new ArrayList<>();
-    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    @OneToMany(
+        mappedBy = "concern",
+        cascade = CascadeType.ALL,
+        fetch = FetchType.EAGER
+    )
+    private List<Template> templates = new ArrayList<>();
+
+    @OneToMany(mappedBy = "concern")
+    private Set<ConceptConcernAssociation> conceptConcernAssociations = new HashSet<>();
+
+    // constructors, getters, setters...
+  
   
      public Concern(){}
 
@@ -34,8 +41,13 @@ public class Concern {
      public Long getId(){return id;}
      public String getName(){return name;}
      public Set<ConceptConcernAssociation> getConceptConcernAssociations(){return conceptConcernAssociations;} 
-     public void setTemplates(List<String> templates){this.templates=templates;}
-     public List<String> getTemplates(){return templates;}
+     public void setTemplates(List<Template> templates) {
+        this.templates = templates;
+    }
+    
+    public List<Template> getTemplates() {
+        return templates;
+    }
      
         
      
