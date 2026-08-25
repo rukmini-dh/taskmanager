@@ -21,7 +21,10 @@ public class Template {
     private int timesSuggested;
     private int timesAccepted;
     private int timesRejected;
-
+    private int timesAcceptedWithEdit;
+    private int consecutiveAcceptances = 0;
+    private int consecutiveRejections = 0;
+    private int cooldown;
     @ManyToOne
     private Concern concern;
     public String getText() {
@@ -38,14 +41,34 @@ public class Template {
 
     public void setWeight(int weight) {
         this.weight = weight;
-    }public void setTimesSuggested(int timesSuggested){this.timesSuggested=timesSuggested;}
+    }
+    public void setCooldown(int cooldown){this.cooldown= cooldown;}
+    public int getCooldown(){return cooldown;}
     public void setTimesRejected(int timesRejected){this.timesRejected =timesRejected;}
     public void setTimesAccepted(int timesAccepted){this.timesAccepted=timesAccepted;}
+    public void setTimesAcceptedWithEdit(int timesAcceptedWithEdit){this.timesAcceptedWithEdit=timesAcceptedWithEdit;}
     public int getTimesRejected(){return timesRejected;}
+    public int getTimesAcceptedWithEdit(){return timesAcceptedWithEdit;}
     public int getTimesAccepted(){return timesAccepted;}
-    public  int getTimesSuggested(){return timesSuggested;} 
+    public void  setTimesSuggested(int timesSuggested){this.timesSuggested=timesSuggested;}
+    public int getTimesSuggested(){return timesSuggested;}
     public Long getId(){return id;} 
     public void setId(Long id){this.id=id;}
     public void setConcern(Concern concern){this.concern=concern;}
     public Concern getConcern(){return concern;}
+    public int getConsecutiveAcceptances() {
+        return consecutiveAcceptances;
+    }
+    
+    public void setConsecutiveAcceptances(int consecutiveAcceptances) {
+        this.consecutiveAcceptances = consecutiveAcceptances;
+    }
+    
+    public int getConsecutiveRejections() {
+        return consecutiveRejections;
+    }
+    
+    public void setConsecutiveRejections(int consecutiveRejections) {
+        this.consecutiveRejections = consecutiveRejections;
+    }
 }

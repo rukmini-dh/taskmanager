@@ -18,7 +18,7 @@ function SubTaskCard ({subtask,save_SubTask,id,loadSubTasks,savedSubTasks})  {
     }
 }, [isEditing]);
      const handleEdit = async (e) => {
-        setIsEditing(true);
+       // setIsEditing(false);
         if(reviewedSubTask.templateId==null)
         {
         const updatedSubTask = {
@@ -72,10 +72,10 @@ await loadSubTasks();
     }
     const handleDelete  = async (e)=>{
       const updatedSubTask = {
-        ...userSubTasksList,deleted:true
+        ...reviewedSubTask,deleted:true
        
     };
-    console.log("in deletie",updatedSubTask);
+    console.log("in delete",updatedSubTask);
     await editSubTask(
       reviewedSubTask.id,
       updatedSubTask
@@ -126,9 +126,10 @@ await loadSubTasks();
           updatedSubTask
       );
    await loadSubTasks();
-   setReviewedSubTask({...updatedSubTask}); 
+   
    console.log("after completed",updatedSubTask);
    setIsCompleted(true);
+   setReviewedSubTask(updatedSubTask); 
   };
   
     return (
@@ -163,7 +164,7 @@ await loadSubTasks();
         {reviewedSubTask.templateId != null &&
  reviewedSubTask.feedback == null && (
     <>
-        <button onClick={handleAccept}>
+        <button onClick={handleAccept} disabled={isAccepted}>
             Accept
         </button>
 
@@ -176,11 +177,21 @@ await loadSubTasks();
 
 
  {!reviewedSubTask.edited && reviewedSubTask.feedback != "ACCEPTED"   &&(
- 
-            <button onClick={handleEditFlag}>Edit</button>)}
-            {reviewedSubTask.templateId==null &&  !reviewedSubTask.completed && (
+
+          
+            <button onClick={handleEditFlag} >Edit</button>)}
+           {reviewedSubTask.templateId==null && !reviewedSubTask.completed && (
+            <button onClick={handleDelete} >Delete</button>)}
            
-            <button onClick={handleDelete}>Delete</button>)}
+           
+            
+            {reviewedSubTask.templateId==null && reviewedSubTask.isCompleted && (
+            <div  className="completed-subtask"> {reviewedSubTask.description}
+            </div>
+           )}
+           {reviewedSubTask.templateId==null && !reviewedSubTask.completed && (
+            <button onClick={handleCompleted}>Completed</button>
+           )}
 
                  { isEditing && (
             <label>
@@ -190,10 +201,11 @@ await loadSubTasks();
            
            onChange ={handleEdit}
          />  Edited
+         
          </label>)}
    
   
-{!reviewedSubTask.completed && (reviewedSubTask.edited || reviewedSubTask.feedback=="ACCEPTED") && (
+{!reviewedSubTask.completed && reviewedSubTask.templateId!=null && (reviewedSubTask.edited || reviewedSubTask.feedback=="ACCEPTED") && (
     
    
       

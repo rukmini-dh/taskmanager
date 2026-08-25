@@ -3,8 +3,14 @@ package com.example.taskmanager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.springframework.stereotype.Service;
+import java.util.Optional;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.example.taskmanager.knowledgebase.Experience;
+import com.example.taskmanager.knowledgebase.ExperienceRepository;
+import com.example.taskmanager.knowledgebase.FeedbackType;
 import com.example.taskmanager.knowledgebase.Template;
 import com.example.taskmanager.knowledgebase.TemplateRepository;
 import com.example.taskmanager.security.SecurityUtil;
@@ -19,14 +25,15 @@ public class TaskServiceImpl implements TaskService {
     private final UserRepository userRepository;
     private final TaskContextRepository taskContextRepository;
     private final TemplateRepository templateRepository;
-
-    public TaskServiceImpl(TaskRepository taskRepository,TemplateRepository templateRepository,UserRepository userRepository,SubTaskRepository subtaskRepository,TaskContextRepository taskContextRepository) {
+    private final ExperienceRepository experienceRepository;
+    public TaskServiceImpl(TaskRepository taskRepository,TemplateRepository templateRepository,UserRepository userRepository,SubTaskRepository subtaskRepository,TaskContextRepository taskContextRepository,ExperienceRepository experienceRepository) {
 
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
     this.subtaskRepository=subtaskRepository;
     this.taskContextRepository=taskContextRepository;
     this.templateRepository=templateRepository;
+    this.experienceRepository=experienceRepository;
 }
 
 
@@ -109,6 +116,7 @@ public class TaskServiceImpl implements TaskService {
         return convertToDTO(taskRepository.save(task));
     }
     // Update subtask
+    @Transactional
     public SubTaskDTO updateSubTask(SubTaskDTO subtaskDTO,Long id) {
         SubTask subtask = subtaskRepository.findById(id).orElseThrow(() -> new  SubTaskNotFoundException("SubTask not found with id: " + id));
         if (subtask.getTitle() != null) subtask.setTitle(subtaskDTO.getTitle());
@@ -127,10 +135,165 @@ public class TaskServiceImpl implements TaskService {
         subtask.setEdited(subtaskDTO.isEdited());
         subtask.setFeedback(subtaskDTO.getFeedback());
         subtask.setDescription(subtaskDTO.getDescription());
+      
+// NOW save the current subtask
+        SubTask saved = subtaskRepository.save(subtask);
+
+// NOW create/update experience and counters
+if (isTerminalAIOutcome(saved)) {
+    createExperienceIfNeeded(saved);
+}
+
        
         
-        return convertToSubTaskDTO(subtaskRepository.save(subtask));
+       
+      
+    return convertToSubTaskDTO(saved);
     }
+    private boolean isTerminalAIOutcome(SubTask subTask) {
+
+        if (subTask.getTemplate() == null) {
+            return false;
+        }
+    
+        if (subTask.getFeedback() == FeedbackType.REJECTED) {
+            return true;
+        }
+    
+        return subTask.getFeedback() == FeedbackType.ACCEPTED
+                && subTask.isCompleted();
+    }
+    private void createExperienceIfNeeded(SubTask subTask) {
+
+    if (experienceRepository.existsBySubTaskId(subTask.getId())) {
+        return;
+    }
+
+    // --------------------------------------------------
+    // 1. Find the PREVIOUS experience
+    // --------------------------------------------------
+
+    Optional<Experience> previousExperience =
+            experienceRepository.findTopByOrderByIdDesc();
+
+   Long previousTemplateId = null;
+
+    if (previousExperience.isPresent()) {
+        SubTask previousSubTask =
+        previousExperience.get().getSubTask();
+
+       /*   previousTemplateId =
+        previousSubTask.getTemplate().getId();
+ */
+        if (previousSubTask != null &&
+            previousSubTask.getTemplate() != null) {
+
+            previousTemplateId =
+                    previousSubTask.getTemplate().getId();
+        }
+    }
+
+    // --------------------------------------------------
+    // 2. Compare previous template with CURRENT template
+    // --------------------------------------------------
+
+    Long currentTemplateId =
+            subTask.getTemplate().getId();
+
+    boolean sameTemplate =
+            previousTemplateId != null &&
+            previousTemplateId.equals(currentTemplateId);
+
+    System.out.println(
+        "PREVIOUS EXPERIENCE TEMPLATE = "
+        + previousTemplateId
+    );
+
+    System.out.println(
+        "CURRENT TEMPLATE = "
+        + currentTemplateId
+    );
+
+    System.out.println(
+        "SAME TEMPLATE = "
+        + sameTemplate
+    );
+
+    // --------------------------------------------------
+    // 3. Create the CURRENT experience
+    // --------------------------------------------------
+
+    Experience experience = new Experience();
+
+    experience.setSubTask(subTask);
+    experience.setCreatedAt(LocalDateTime.now());
+
+    // --------------------------------------------------
+    // 4. Update template counters
+    // --------------------------------------------------
+
+    Template template = templateRepository
+            .findById(currentTemplateId)
+            .orElseThrow(() ->
+                new RuntimeException("Template not found"));
+
+    template.setTimesSuggested(
+        template.getTimesSuggested() + 1
+    );
+
+    if (subTask.getFeedback() == FeedbackType.ACCEPTED) {
+
+        template.setTimesAccepted(
+            template.getTimesAccepted() + 1
+        );
+
+        if (sameTemplate) {
+            template.setConsecutiveAcceptances(
+                template.getConsecutiveAcceptances() + 1
+            );
+        } else {
+            template.setConsecutiveAcceptances(1);
+        }
+
+        template.setConsecutiveRejections(0);
+        if (template.getConsecutiveAcceptances() >= 5) {
+            template.setCooldown(3);
+        }
+
+    }
+    else if (subTask.getFeedback() == FeedbackType.REJECTED) {
+
+        template.setTimesRejected(
+            template.getTimesRejected() + 1
+        );
+
+        if (sameTemplate) {
+            template.setConsecutiveRejections(
+                template.getConsecutiveRejections() + 1
+            );
+        } else {
+            template.setConsecutiveRejections(1);
+        }
+
+        template.setConsecutiveAcceptances(0);
+      
+        if (template.getConsecutiveRejections() >= 3) {
+            template.setCooldown(3);
+        }
+    }
+
+    // --------------------------------------------------
+    // 5. NOW save the current Experience
+    // --------------------------------------------------
+
+    experienceRepository.save(experience);
+
+    // --------------------------------------------------
+    // 6. Save updated Template
+    // --------------------------------------------------
+
+    templateRepository.save(template);
+}
     // create a new subtask
     public SubTaskDTO createSubTask(SubTaskDTO dto,long id)   {
         SubTask subtask =new SubTask();

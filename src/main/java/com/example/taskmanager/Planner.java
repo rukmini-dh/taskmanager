@@ -1,11 +1,13 @@
 package com.example.taskmanager;
 
+import com.example.taskmanager.knowledgebase.TemplateRepository;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
@@ -17,18 +19,23 @@ import org.springframework.stereotype.Service;
 
 import com.example.taskmanager.knowledgebase.ConceptDTO;
 import com.example.taskmanager.knowledgebase.ConcernDTO;
+import com.example.taskmanager.knowledgebase.ExperienceRepository;
 
 import ch.qos.logback.core.boolex.Matcher;
 
 @Service
 public class Planner {
+    private final TemplateRepository templateRepository;
     private final ConceptRepository conceptRepository;
 private final ConcernRepository concernRepository;
+private final ExperienceRepository experienceRepository;
 private final ConceptConcernAssociationRepository  conceptConcernAssociationRepository ;
-public Planner (ConceptRepository conceptRepository,ConcernRepository concernRepository,ConceptConcernAssociationRepository  conceptConcernAssociationRepository){
+public Planner (ConceptRepository conceptRepository,ConcernRepository concernRepository,ConceptConcernAssociationRepository  conceptConcernAssociationRepository,ExperienceRepository experienceRepository, TemplateRepository templateRepository){
     this.concernRepository= concernRepository;
     this.conceptRepository=conceptRepository;
     this.conceptConcernAssociationRepository=conceptConcernAssociationRepository; 
+    this.experienceRepository=experienceRepository;
+    this.templateRepository = templateRepository;
   
    }
     
@@ -238,11 +245,74 @@ context.setExtractedPriority(
 
         return context;
     }
+
+    private double calculateScore(Template template, List<Template> templates) {
+
+        double score = template.getWeight();
+    
+        // 1. Acceptance signal
+        double acceptanceRate =
+            template.getTimesSuggested() == 0
+            ? 0
+            : (double) template.getTimesAccepted()
+              / template.getTimesSuggested();
+    
+        score += acceptanceRate * 4.0;
+    
+        // 2. Rejection signal
+        double rejectionRate =
+            template.getTimesSuggested() == 0
+            ? 0
+            : (double) template.getTimesRejected()
+              / template.getTimesSuggested();
+    
+        score -= rejectionRate * 5.0;
+    
+        // 3. Over-exposure penalty
+        double averageSuggestions =
+            templates.stream()
+                     .mapToInt(Template::getTimesSuggested)
+                     .average()
+                     .orElse(0);
+    
+        double overExposurePenalty =
+            Math.max(
+                0,
+                template.getTimesSuggested() - averageSuggestions
+            ) * 0.5;
+    
+        score -= overExposurePenalty;
+    
+        return score;
+    }
+    private Template chooseByScore(List<Template> templates) {
+
+        Template bestTemplate = null;
+        double bestScore = Double.NEGATIVE_INFINITY;
+    
+        for (Template template : templates) {
+    
+            double score = calculateScore(template, templates);
+    
+            System.out.println(
+                "Template " + template.getId()
+                + " | " + template.getText()
+                + " | score = " + score
+            );
+    
+            if (bestTemplate == null || score > bestScore) {
+                bestTemplate = template;
+                bestScore = score;
+            }
+        }
+    
+        return bestTemplate;
+    }
         public AIPlanResponseDTO generateSubTasks(String title)
         {
             List<SubTaskDTO> dtoList = new ArrayList<>();
             String[] tokens = title.split("\\s+");
-            ConceptDTO concept=new ConceptDTO();
+           
 
             for(String token:tokens)
             {
@@ -256,7 +326,7 @@ context.setExtractedPriority(
                    continue;
                }
                
-               Random random = new Random();
+              
 
 for (ConceptConcernAssociation assoc :
         conceptEntity.getConceptConcernAssociations()) {
@@ -267,44 +337,102 @@ for (ConceptConcernAssociation assoc :
 
     dto.setTitle(concern.getName());
     dto.setSource(Source.AI); 
-         
-    List<Template> templates =
-            concern.getTemplates();
-        
-            System.out.println("Templates in Planner ******"+concern.getTemplates());
-
-            if (templates == null || templates.isEmpty()) {
-
-                dto.setDescription("");
-                
-            
-            } else {
-            
-                int index = random.nextInt(templates.size());
-            
-                Template template = templates.get(index);
-            
-                dto.setDescription(template.getText());
-                dto.setTemplateId(template.getId());
-                
-            }
-            System.out.println(
-                "DTO BEFORE ADD: title=" + dto.getTitle()
-                + ", description=" + dto.getDescription()
-                + ", templateId=" + dto.getTemplateId()
-                + ", source=" + dto.getSource()
-            );
-            
-    dtoList.add(dto);
+    List<Template> templates = concern.getTemplates();
+    
+    if (templates == null || templates.isEmpty()) {
+    
+        dto.setDescription("");
+    
+    } else {
     
     System.out.println(
-        "SUBTASK DTO: title=" + dto.getTitle()
-        + ", templateId=" + dto.getTemplateId()
-        + ", source=" + dto.getSource()
+        "===== TEMPLATES FOR CONCERN: " + concern.getName() + " ====="
     );
+    for (Template t : templates) {
+    System.out.println(
+        "Template " + t.getId()
+        + " | timesSuggested = " + t.getTimesSuggested()
+        + " | " + t.getText()
+    );
+}
+final int MIN_SUGGESTIONS = 3;
+final int MAX_CONSECUTIVE_ACCEPTANCES = 5;
+final int MAX_CONSECUTIVE_REJECTIONS = 3;
+
+boolean allTemplatesExplored =
+    templates.stream()
+             .allMatch(t -> t.getTimesSuggested() >= MIN_SUGGESTIONS);
+
+    
+    Template selected;
+    System.out.println("ALL TEMPLATES SHOWN = " + allTemplatesExplored);
+
+    for (Template t : templates) {
+        System.out.println(
+            "BEFORE SELECTION: "
+            + t.getId()
+            + " -> timesSuggested="
+            + t.getTimesSuggested()
+        );
+        
+    }
+
+    if (!allTemplatesExplored) {
+        
+        selected = chooseLeastSuggestedTemplate(templates);
+        System.out.println(
+            "========== SELECTED TEMPLATE not all = "
+            + selected.getId()
+            + " | " + selected.getText()
+            + " =========="
+        );
+    } else {
+        for (Template t : templates) {
+
+            if (t.getCooldown() > 0) {
+                t.setCooldown(t.getCooldown() - 1);
+               
+            }
+   
+        }
+   
+        templateRepository.saveAll(templates);
+        List<Template> eligibleTemplates = templates.stream()
+        .filter(t -> t.getCooldown() == 0)
+        .toList();
+
+        if (eligibleTemplates.isEmpty()) {
+
+            selected = templates.stream()
+                .min(Comparator.comparingInt(Template::getCooldown))
+                .orElse(null);
+        
+        } else {
+        
+          
+        selected = chooseByScore(eligibleTemplates);
+        System.out.println(
+            "========== SELECTED TEMPLATE = "
+            + selected.getId()
+            + " | " + selected.getText()
+            + " =========="
+        );
+    }
+    }
+
+if (selected != null) {
+    dto.setDescription(selected.getText());
+    dto.setTemplateId(selected.getId());
+}
+   
+}
+        
+    dtoList.add(dto);
+}
+   
 
 }
-            }
+         
             
     AIPlanResponseDTO response =
             new AIPlanResponseDTO();
@@ -313,22 +441,24 @@ for (ConceptConcernAssociation assoc :
 
     return response;
 }
+           
+
+Template  chooseLeastSuggestedTemplate(List<Template> templates){
+    
+    int minSuggested = templates.stream()
+        .mapToInt(Template::getTimesSuggested)
+        .min()
+        .orElse(0);
+        List<Template> candidates = templates.stream()
+        .filter(t -> t.getTimesSuggested() == minSuggested)
+        .toList();
+        Random random = new Random();
+Template template =
+    candidates.get(random.nextInt(candidates.size()));
+        return template;
+}
+
    
-        /* 
-                    if (conceptConcernAssociationRepository
-                        .findByConceptAndConcern(conceptEntity, concernEntity)
-                        .isEmpty()) {
-                
-                    ConceptConcernAssociation association =
-                        new ConceptConcernAssociation(
-                            conceptEntity,
-                            concernEntity,
-                            concern.getTimesSuggested(),
-                            concern.getTimesAccepted(),
-                            concern.getTimesRejected()
-                        );
-            }
- */
         
     public AIPlanResponseDTO generatePlan(TaskContext context,PlanningDecision  decision)
       {
