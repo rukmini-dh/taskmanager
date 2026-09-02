@@ -17,17 +17,17 @@ export async function generatePlan(taskId) {
     
     return response.json();
 }
-export async function generateSubTasks(title) {
+export async function generateSubTasks(title,id) {
     console.log("Title:",title);
 
     const response = await fetch(
-        `http://localhost:8080/ai/generate-SubTasks/${title}`,
+        `http://localhost:8080/ai/generate-SubTasks`,
         {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({title})
+            body: JSON.stringify({title,id})
         }
     );
 

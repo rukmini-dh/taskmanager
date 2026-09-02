@@ -25,6 +25,9 @@ public class Template {
     private int consecutiveAcceptances = 0;
     private int consecutiveRejections = 0;
     private int cooldown;
+    private double specificity;
+    private double actionability;
+    private double complexity;  
     @ManyToOne
     private Concern concern;
     public String getText() {
@@ -71,4 +74,10 @@ public class Template {
     public void setConsecutiveRejections(int consecutiveRejections) {
         this.consecutiveRejections = consecutiveRejections;
     }
+    public void setSpecificity(double specificity){this.specificity=specificity;}
+    public void setActionability(double actionability){this.actionability=actionability;}
+    public void setComplexity(double complexity){this.complexity=complexity;}
+    public double getSpecificity(){return specificity;}
+    public double getActionability(){return actionability;}
+    public double getComplexity(){return complexity;} 
 }

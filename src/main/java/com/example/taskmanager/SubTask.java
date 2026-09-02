@@ -29,9 +29,11 @@ public class SubTask {
     private String  description;
     @ManyToOne
     private Template template;
-
+    private boolean recommended;
     @Enumerated(EnumType.STRING)
     private FeedbackType feedback;
+
+    
     
     @ManyToOne(optional = false)
     @JoinColumn(name = "task_id", nullable = false)
@@ -83,4 +85,11 @@ public Template getTemplate() {
 }
 public FeedbackType getFeedback(){return feedback;}
 public void setFeedback(FeedbackType feedback){this.feedback=feedback;}
+public boolean isRecommended() {
+    return recommended;
+}
+
+public void setRecommended(boolean recommended) {
+    this.recommended = recommended;
+}
 }

@@ -1,6 +1,10 @@
 package com.example.taskmanager;
 
 import com.example.taskmanager.knowledgebase.TemplateRepository;
+import com.example.taskmanager.user.User;
+import com.example.taskmanager.user.UserPreferenceModel;
+import com.example.taskmanager.user.UserPreferenceModelRepository;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,12 +34,18 @@ public class Planner {
 private final ConcernRepository concernRepository;
 private final ExperienceRepository experienceRepository;
 private final ConceptConcernAssociationRepository  conceptConcernAssociationRepository ;
-public Planner (ConceptRepository conceptRepository,ConcernRepository concernRepository,ConceptConcernAssociationRepository  conceptConcernAssociationRepository,ExperienceRepository experienceRepository, TemplateRepository templateRepository){
+ private final TaskRepository taskRepository;
+    private final UserPreferenceModelRepository userPreferenceModelRepository ;
+public Planner (ConceptRepository conceptRepository,ConcernRepository concernRepository,ConceptConcernAssociationRepository  conceptConcernAssociationRepository,ExperienceRepository experienceRepository, TemplateRepository templateRepository,UserPreferenceModelRepository userPreferenceModelRepository,
+    TaskRepository taskRepository){
     this.concernRepository= concernRepository;
     this.conceptRepository=conceptRepository;
     this.conceptConcernAssociationRepository=conceptConcernAssociationRepository; 
     this.experienceRepository=experienceRepository;
     this.templateRepository = templateRepository;
+    this.taskRepository=taskRepository;
+    this.userPreferenceModelRepository=userPreferenceModelRepository;
+    
   
    }
     
@@ -230,276 +240,204 @@ public Planner (ConceptRepository conceptRepository,ConcernRepository concernRep
         }
         return dto;
     }
-    public PlanningContext buildPlanningContext(AIAnalysisResponseDTO dto){
-        PlanningContext context =
-        new PlanningContext();
 
-context.setMatchedIntents(
-        dto.getMatchedIntents());
+    
+       
+       public  AIPlanResponseDTO generateSubTasks(String title,Long id)
+       {
+        Task task = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
 
-context.setMatchedKeywords(
-        dto.getMatchedKeywords());
+        User user = task.getUser();
 
-context.setExtractedPriority(
-        dto.getExtractedPriority());
+        UserPreferenceModel preference = userPreferenceModelRepository.findByUser(user).orElse(null);
 
-        return context;
-    }
+        boolean hasLearnedPreferences = preference != null;
+        List<SubTaskDTO> dtoList = new ArrayList<>();
+        
+        String[] tokens = title.split("\\s+");
+        System.out.println("========== generateSubTasks ==========");
+        System.out.println("TITLE RECEIVED = [" + title + "]");
+    
 
-    private double calculateScore(Template template, List<Template> templates) {
-
-        double score = template.getWeight();
-    
-        // 1. Acceptance signal
-        double acceptanceRate =
-            template.getTimesSuggested() == 0
-            ? 0
-            : (double) template.getTimesAccepted()
-              / template.getTimesSuggested();
-    
-        score += acceptanceRate * 4.0;
-    
-        // 2. Rejection signal
-        double rejectionRate =
-            template.getTimesSuggested() == 0
-            ? 0
-            : (double) template.getTimesRejected()
-              / template.getTimesSuggested();
-    
-        score -= rejectionRate * 5.0;
-    
-        // 3. Over-exposure penalty
-        double averageSuggestions =
-            templates.stream()
-                     .mapToInt(Template::getTimesSuggested)
-                     .average()
-                     .orElse(0);
-    
-        double overExposurePenalty =
-            Math.max(
-                0,
-                template.getTimesSuggested() - averageSuggestions
-            ) * 0.5;
-    
-        score -= overExposurePenalty;
-    
-        return score;
-    }
-    private Template chooseByScore(List<Template> templates) {
-
-        Template bestTemplate = null;
-        double bestScore = Double.NEGATIVE_INFINITY;
-    
-        for (Template template : templates) {
-    
-            double score = calculateScore(template, templates);
-    
-            System.out.println(
-                "Template " + template.getId()
-                + " | " + template.getText()
-                + " | score = " + score
-            );
-    
-            if (bestTemplate == null || score > bestScore) {
-                bestTemplate = template;
-                bestScore = score;
-            }
-        }
-    
-        return bestTemplate;
-    }
-        public AIPlanResponseDTO generateSubTasks(String title)
+        for(String token:tokens)
         {
-            List<SubTaskDTO> dtoList = new ArrayList<>();
-            String[] tokens = title.split("\\s+");
+            System.out.println("LOOKING FOR CONCEPT = [" + token + "]");
+           Concept conceptEntity =
+           conceptRepository
+           .findByName(token)
+           .orElse(null);
+
+           if (conceptEntity == null) {
+            System.out.println(
+                "!!! CONCEPT NOT FOUND = [" + token + "]"
+            );
+               continue;
+               
+           }
+           System.out.println(
+            "CONCEPT FOUND = "
+            + conceptEntity.getName()
+        );
            
-
-            for(String token:tokens)
-            {
-               
-               Concept conceptEntity =
-               conceptRepository
-               .findByName(token)
-               .orElse(null);
-
-               if (conceptEntity == null) {
-                   continue;
-               }
-               
-              
+          
 
 for (ConceptConcernAssociation assoc :
-        conceptEntity.getConceptConcernAssociations()) {
+    conceptEntity.getConceptConcernAssociations()) {
 
-    Concern concern = assoc.getConcern();
+Concern concern = assoc.getConcern();
+System.out.println(
+    "===== CONCERN: " + concern.getName()  );
+    System.out.println(
+        "TEMPLATES = " + concern.getTemplates()
+    );
+
+    System.out.println(
+        "TEMPLATE COUNT = " +
+        (concern.getTemplates() == null
+            ? "NULL"
+            : concern.getTemplates().size())
+    );
+
+
+
+
+
+//************
+Template bestTemplate = null;
+
+if (hasLearnedPreferences) {
+
+    double bestSimilarity = -1;
+
+    for (Template template : concern.getTemplates()) {
+
+        double similarity =
+            calculateCosineSimilarity(preference, template);
+
+        System.out.println(
+            "Template " + template.getId()
+            + " similarity = " + similarity
+        );
+
+        if (similarity > bestSimilarity) {
+            bestSimilarity = similarity;
+            bestTemplate = template;
+        }
+    }
+
+    System.out.println(
+        "BEST TEMPLATE = "
+        + bestTemplate.getId()
+        + " | similarity = "
+        + bestSimilarity
+    );
+}
+//***************      
+
+ // now create the subtaskdto
+ //************
+ for (Template template : concern.getTemplates()) {
+
+    System.out.println(
+        "TEMPLATE FOUND = "
+        + template.getId()
+        + " | "
+        + template.getText()
+    );
 
     SubTaskDTO dto = new SubTaskDTO();
 
+    dto.setDescription(template.getText());
+    dto.setTemplateId(template.getId());
     dto.setTitle(concern.getName());
-    dto.setSource(Source.AI); 
-    List<Template> templates = concern.getTemplates();
-    
-    if (templates == null || templates.isEmpty()) {
-    
-        dto.setDescription("");
-    
-    } else {
-    
-    System.out.println(
-        "===== TEMPLATES FOR CONCERN: " + concern.getName() + " ====="
-    );
-    for (Template t : templates) {
-    System.out.println(
-        "Template " + t.getId()
-        + " | timesSuggested = " + t.getTimesSuggested()
-        + " | " + t.getText()
-    );
-}
-final int MIN_SUGGESTIONS = 3;
-final int MAX_CONSECUTIVE_ACCEPTANCES = 5;
-final int MAX_CONSECUTIVE_REJECTIONS = 3;
+    dto.setSource(Source.AI);
 
-boolean allTemplatesExplored =
-    templates.stream()
-             .allMatch(t -> t.getTimesSuggested() >= MIN_SUGGESTIONS);
-
-    
-    Template selected;
-    System.out.println("ALL TEMPLATES SHOWN = " + allTemplatesExplored);
-
-    for (Template t : templates) {
+    boolean recommended =
+        hasLearnedPreferences
+        && bestTemplate != null
+        && template.getId().equals(bestTemplate.getId());
         System.out.println(
-            "BEFORE SELECTION: "
-            + t.getId()
-            + " -> timesSuggested="
-            + t.getTimesSuggested()
+            "RECOMMENDED = "
+            +         hasLearnedPreferences
+
+            + " | "
+            + recommended
         );
-        
-    }
+  
+    dto.setRecommended(recommended);
 
-    if (!allTemplatesExplored) {
-        
-        selected = chooseLeastSuggestedTemplate(templates);
-        System.out.println(
-            "========== SELECTED TEMPLATE not all = "
-            + selected.getId()
-            + " | " + selected.getText()
-            + " =========="
-        );
-    } else {
-        for (Template t : templates) {
-
-            if (t.getCooldown() > 0) {
-                t.setCooldown(t.getCooldown() - 1);
-               
-            }
-   
-        }
-   
-        templateRepository.saveAll(templates);
-        List<Template> eligibleTemplates = templates.stream()
-        .filter(t -> t.getCooldown() == 0)
-        .toList();
-
-        if (eligibleTemplates.isEmpty()) {
-
-            selected = templates.stream()
-                .min(Comparator.comparingInt(Template::getCooldown))
-                .orElse(null);
-        
-        } else {
-        
-          
-        selected = chooseByScore(eligibleTemplates);
-        System.out.println(
-            "========== SELECTED TEMPLATE = "
-            + selected.getId()
-            + " | " + selected.getText()
-            + " =========="
-        );
-    }
-    }
-
-if (selected != null) {
-    dto.setDescription(selected.getText());
-    dto.setTemplateId(selected.getId());
-}
-   
-}
-        
     dtoList.add(dto);
 }
-   
+    }}
+ 
 
-}
-         
-            
+
     AIPlanResponseDTO response =
             new AIPlanResponseDTO();
 
     response.setSteps(dtoList);
+    System.out.println(
+        "TOTAL SUBTASKS GENERATED = "
+        + dtoList.size()
+    );
+    System.out.println(
+        "Exiting generate plan" );
 
     return response;
 }
+private double calculateCosineSimilarity(
+    UserPreferenceModel userPreference,
+    Template template) {
+
+double userSpecificity =
+    userPreference.getSpecificityPreference();
+
+double userActionability =
+    userPreference.getActionabilityPreference();
+
+double userComplexity =
+    userPreference.getComplexityPreference();
+
+double templateSpecificity =
+    template.getSpecificity();
+
+double templateActionability =
+    template.getActionability();
+
+double templateComplexity =
+    template.getComplexity();
+
+double dotProduct =
+    userSpecificity * templateSpecificity
+    + userActionability * templateActionability
+    + userComplexity * templateComplexity;
+
+double userMagnitude =
+    Math.sqrt(
+        userSpecificity * userSpecificity
+        + userActionability * userActionability
+        + userComplexity * userComplexity
+    );
+
+double templateMagnitude =
+    Math.sqrt(
+        templateSpecificity * templateSpecificity
+        + templateActionability * templateActionability
+        + templateComplexity * templateComplexity
+    );
+
+if (userMagnitude == 0 || templateMagnitude == 0) {
+    return 0;
+}
+
+return dotProduct / (userMagnitude * templateMagnitude);
+}
+    
            
 
-Template  chooseLeastSuggestedTemplate(List<Template> templates){
-    
-    int minSuggested = templates.stream()
-        .mapToInt(Template::getTimesSuggested)
-        .min()
-        .orElse(0);
-        List<Template> candidates = templates.stream()
-        .filter(t -> t.getTimesSuggested() == minSuggested)
-        .toList();
-        Random random = new Random();
-Template template =
-    candidates.get(random.nextInt(candidates.size()));
-        return template;
-}
+
 
    
         
-    public AIPlanResponseDTO generatePlan(TaskContext context,PlanningDecision  decision)
-      {
-      
-      
-    Set<String> selectedSteps =
-            new LinkedHashSet<>();
-           
-
-            for (Intent intent : intents) {
-
-               
-
-                    if (context.getMatchedIntents().contains(intent.getName())) {
-                
-                        selectedSteps.addAll(intent.getBaseSteps());
-                
-                    }
-                    
-            }
-
-    List<SubTaskDTO> dtoList =
-            selectedSteps.stream()
-            .map(step -> {
-                SubTaskDTO dto =
-                        new SubTaskDTO();
-
-                dto.setTitle(step);
-                dto.setCompleted(false);
-                
-                dto.setSource(Source.AI);
-
-                return dto;
-            })
-            .toList();
-
-    AIPlanResponseDTO response =
-            new AIPlanResponseDTO();
-
-    response.setSteps(dtoList);
-
-    return response;
-}
+ 
 }

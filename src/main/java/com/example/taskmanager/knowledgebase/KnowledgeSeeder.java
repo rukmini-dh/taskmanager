@@ -144,7 +144,9 @@ for (TemplateDTO dtoTemplate : dto.getTemplates()) {
     template.setText(dtoTemplate.getText());
     template.setWeight(dtoTemplate.getWeight());
     template.setConcern(concern);
-
+    template.setSpecificity(dtoTemplate.getSpecificity());
+    template.setActionability(dtoTemplate.getActionability());
+    template.setComplexity(dtoTemplate.getComplexity());
     templateEntities.add(template);
 }
 

@@ -14,24 +14,27 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.example.taskmanager.user.User;
+import com.example.taskmanager.user.UserPreferenceModel;
+import com.example.taskmanager.user.UserPreferenceModelRepository;
+
 @Service
 public class AIServiceImpl implements AIService {
     private final Planner planner;
-    private final ReasoningEngine reasoningEngine;
-    private final TaskContextRepository taskContextRepository;
+   
     public AIServiceImpl(
-            Planner planner,
-            ReasoningEngine reasoningEngine,TaskContextRepository taskContextRepository ){
+            Planner planner,UserPreferenceModelRepository userPreferenceModelRepository,
+            TaskRepository taskRepository,TaskContextRepository taskContextRepository ){
     
         this.planner = planner;
-        this.reasoningEngine = reasoningEngine;
-        this.taskContextRepository= taskContextRepository;
+       
     }
       @Override
-      public AIPlanResponseDTO  generateSubTasks(String title)
+      public AIPlanResponseDTO  generateSubTasks(String title,Long id)
       {
+        
         AIPlanResponseDTO response = new  AIPlanResponseDTO();
-        response=planner.generateSubTasks(title);  
+        response=planner.generateSubTasks(title,id);  
         return response; 
       }
            @Override
@@ -42,26 +45,7 @@ public class AIServiceImpl implements AIService {
            System.out.println("Entered generatePlan with taskId = " + taskid);
      
            AIPlanResponseDTO response =new AIPlanResponseDTO();
-           Optional<TaskContext> optionalcontext = taskContextRepository.findByTaskId(taskid);
-           
-           TaskContext context = optionalcontext  .orElseThrow(() ->
-           new TaskContextNotFoundException(
-               "TaskContext not found for task " + taskid
-           )
-       );
-       Optional<TaskContext> optionalContext =
-        taskContextRepository.findByTaskId(taskid);
-
-System.out.println("Optionla"+optionalContext.isPresent());
-       
-           
-             
-   
-       
-        //    context = planner.buildPlanningContext(request.getAnalysis());  
-            decision=reasoningEngine.reason(context)  ;
-           response = planner.generatePlan(context, decision);    
-         
+          
 return response;
          
      

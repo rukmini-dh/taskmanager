@@ -13,13 +13,13 @@ export function useAI() {
 
 
     const generateSubTasks =
-        async (title) => {
+        async (title,id) => {
 
             return await aiService
-                .generatePlan(title);
+                .generatePlan(title,id);
         };
 
-    return { generatePlan };
+   // return { generatePlan };
     return { generateSubTasks};
 
 }

@@ -12,6 +12,7 @@ public class SubTaskDTO {
     private FeedbackType feedback;
     private boolean edited ;
     private boolean deleted= false;
+    private boolean recommended;
 
 // default contructor
 public  SubTaskDTO(){}
@@ -69,5 +70,12 @@ public void setSource(Source source){this.source=source;}
 
 public void setDescription(String  description){this.description=description;}
 public String  getDescription(){return description;}
+public boolean isRecommended() {
+    return recommended;
+}
+
+public void setRecommended(boolean recommended) {
+    this.recommended = recommended;
+}
 }
 

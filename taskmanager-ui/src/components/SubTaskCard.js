@@ -3,8 +3,13 @@ import "./taskCard.css";
 import {useState} from "react";
 import {useEffect,useRef} from "react";
 import { useTasks } from "../hooks/useTasks";
+import { generateSubTasks } from "../services/alService";
 function SubTaskCard ({subtask,save_SubTask,id,loadSubTasks,savedSubTasks})  {
     const [reviewedSubTask, setReviewedSubTask] = useState(subtask);
+    useEffect(() => {
+      setReviewedSubTask(subtask);
+  }, [subtask]);
+
    // const [userSubTasks, setUserSubTasks] = useState(false);
     const [isAccepted, setIsAccepted] = useState(false);
     const [isCompleted, setIsCompleted] = useState(false);
@@ -131,14 +136,29 @@ await loadSubTasks();
    setIsCompleted(true);
    setReviewedSubTask(updatedSubTask); 
   };
+  console.log(
+    "RENDER:",
+    reviewedSubTask,
+    "recommended =",
+    reviewedSubTask?.recommended,
+    "type =",
+    typeof reviewedSubTask?.recommended
+);
   
     return (
       <div>
 
         <div className="subtask-container">
             <div className="subtask-card">
+            {reviewedSubTask?.recommended && (
+    <p>
+        <strong>RECOMMENDED</strong>
+    </p>
+)}
+             
+              <p>  {reviewedSubTask.title} </p>
            
-             <p>{reviewedSubTask.title}</p> 
+           
            
             {!reviewedSubTask.edited && reviewedSubTask.feedback!="ACCEPTED" ? (
               

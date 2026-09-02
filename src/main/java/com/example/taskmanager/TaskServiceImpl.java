@@ -16,6 +16,8 @@ import com.example.taskmanager.knowledgebase.TemplateRepository;
 import com.example.taskmanager.security.SecurityUtil;
 import com.example.taskmanager.user.User;
 import com.example.taskmanager.user.UserNotFoundException;
+import com.example.taskmanager.user.UserPreferenceModel;
+import com.example.taskmanager.user.UserPreferenceModelRepository;
 import com.example.taskmanager.user.UserRepository;
 
 @Service
@@ -26,7 +28,8 @@ public class TaskServiceImpl implements TaskService {
     private final TaskContextRepository taskContextRepository;
     private final TemplateRepository templateRepository;
     private final ExperienceRepository experienceRepository;
-    public TaskServiceImpl(TaskRepository taskRepository,TemplateRepository templateRepository,UserRepository userRepository,SubTaskRepository subtaskRepository,TaskContextRepository taskContextRepository,ExperienceRepository experienceRepository) {
+    private final UserPreferenceModelRepository userPreferenceModelRepository;
+    public TaskServiceImpl(TaskRepository taskRepository,TemplateRepository templateRepository,UserRepository userRepository,SubTaskRepository subtaskRepository,TaskContextRepository taskContextRepository,ExperienceRepository experienceRepository,UserPreferenceModelRepository userPreferenceModelRepository) {
 
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
@@ -34,6 +37,7 @@ public class TaskServiceImpl implements TaskService {
     this.taskContextRepository=taskContextRepository;
     this.templateRepository=templateRepository;
     this.experienceRepository=experienceRepository;
+    this.userPreferenceModelRepository=userPreferenceModelRepository;
 }
 
 
@@ -135,7 +139,27 @@ public class TaskServiceImpl implements TaskService {
         subtask.setEdited(subtaskDTO.isEdited());
         subtask.setFeedback(subtaskDTO.getFeedback());
         subtask.setDescription(subtaskDTO.getDescription());
-      
+              
+        if(subtaskDTO.getFeedback()==FeedbackType.ACCEPTED){
+        User user = subtask.getTask().getUser();
+
+UserPreferenceModel preference = userPreferenceModelRepository
+        .findByUser(user)
+        .orElse(null);
+        if(preference==null){preference = new UserPreferenceModel();}
+            preference.setUser(user);
+            preference.setSpecificityPreference(
+                subtask.getTemplate().getSpecificity()
+            );
+            
+            preference.setActionabilityPreference(
+                subtask.getTemplate().getActionability()
+            );
+            
+            preference.setComplexityPreference(
+                subtask.getTemplate().getComplexity()
+            );
+            userPreferenceModelRepository.save(preference);}
 // NOW save the current subtask
         SubTask saved = subtaskRepository.save(subtask);
 
@@ -304,6 +328,8 @@ if (isTerminalAIOutcome(saved)) {
         subtask.setDeleted(dto.isDeleted());   
         subtask.setEdited(dto.isEdited());
         subtask.setFeedback(dto.getFeedback());
+        // Every newly generated template starts as NOT recommended
+       subtask.setRecommended(dto.isRecommended());
         if (dto.getTemplateId() != null) {
             Template template = templateRepository
                     .findById(dto.getTemplateId())
@@ -399,6 +425,7 @@ if (isTerminalAIOutcome(saved)) {
         dto.setCompleted(subtask.isCompleted());
         dto.setDeleted(subtask.isDeleted());
         dto.setFeedback(subtask.getFeedback());
+        dto.setRecommended(subtask.isRecommended());
         dto.setTemplateId(
             subtask.getTemplate() != null
                 ? subtask.getTemplate().getId()
@@ -410,6 +437,7 @@ if (isTerminalAIOutcome(saved)) {
         dto.setId(subtask.getId());
         return dto;
     }
+
     @Override
     public void deleteTaskById(Long id) {
         // TODO Auto-generated method stub

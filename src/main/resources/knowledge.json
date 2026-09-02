@@ -8,20 +8,32 @@
           "name": "Validation",
           "templates": [
             {
-              "text": "Handle invalid input gracefully",
-              "weight": 5
+              "text": "Validate required login fields",
+              "weight": 5,
+              "specificity": 0.8,
+              "actionability": 0.9,
+              "complexity": 0.3
             },
             {
-              "text": "Validate required login fields",
-              "weight": 5
+              "text": "Handle invalid input gracefully",
+              "weight": 5,
+              "specificity": 0.6,
+              "actionability": 0.8,
+              "complexity": 0.3
             },
             {
               "text": "Display clear validation messages",
-              "weight": 4
+              "weight": 4,
+              "specificity": 0.7,
+              "actionability": 0.8,
+              "complexity": 0.2
             },
             {
               "text": "Prevent submission of incomplete credentials",
-              "weight": 4
+              "weight": 4,
+              "specificity": 0.8,
+              "actionability": 0.9,
+              "complexity": 0.4
             }
           ]
         },
@@ -30,19 +42,31 @@
           "templates": [
             {
               "text": "Implement JWT authentication",
-              "weight": 5
+              "weight": 5,
+              "specificity": 0.7,
+              "actionability": 0.9,
+              "complexity": 0.7
             },
             {
               "text": "Generate JWT tokens after successful authentication",
-              "weight": 5
+              "weight": 5,
+              "specificity": 0.9,
+              "actionability": 0.9,
+              "complexity": 0.6
             },
             {
               "text": "Validate JWT tokens on protected requests",
-              "weight": 5
+              "weight": 5,
+              "specificity": 0.9,
+              "actionability": 0.9,
+              "complexity": 0.7
             },
             {
               "text": "Handle expired JWT tokens",
-              "weight": 4
+              "weight": 4,
+              "specificity": 0.9,
+              "actionability": 0.8,
+              "complexity": 0.6
             }
           ]
         },
@@ -51,24 +75,37 @@
           "templates": [
             {
               "text": "Test valid login credentials",
-              "weight": 5
+              "weight": 5,
+              "specificity": 0.9,
+              "actionability": 0.9,
+              "complexity": 0.4
             },
             {
               "text": "Test invalid username and password",
-              "weight": 5
+              "weight": 5,
+              "specificity": 0.9,
+              "actionability": 0.9,
+              "complexity": 0.4
             },
             {
               "text": "Test authentication failure responses",
-              "weight": 4
+              "weight": 4,
+              "specificity": 0.8,
+              "actionability": 0.8,
+              "complexity": 0.5
             },
             {
               "text": "Test protected endpoints with valid and invalid tokens",
-              "weight": 4
+              "weight": 4,
+              "specificity": 1.0,
+              "actionability": 0.9,
+              "complexity": 0.7
             }
           ]
         }
       ]
     },
+
     {
       "name": "DASHBOARD",
       "description": "Displays consolidated information to users",
@@ -78,15 +115,24 @@
           "templates": [
             {
               "text": "Implement logging for dashboard operations",
-              "weight": 4
+              "weight": 4,
+              "specificity": 0.7,
+              "actionability": 0.8,
+              "complexity": 0.5
             },
             {
               "text": "Log dashboard errors with useful diagnostic information",
-              "weight": 4
+              "weight": 4,
+              "specificity": 0.9,
+              "actionability": 0.9,
+              "complexity": 0.5
             },
             {
               "text": "Record important dashboard user actions",
-              "weight": 3
+              "weight": 3,
+              "specificity": 0.8,
+              "actionability": 0.8,
+              "complexity": 0.4
             }
           ]
         },
@@ -95,15 +141,24 @@
           "templates": [
             {
               "text": "Test dashboard data loading",
-              "weight": 5
+              "weight": 5,
+              "specificity": 0.9,
+              "actionability": 0.9,
+              "complexity": 0.5
             },
             {
               "text": "Test dashboard behaviour with missing data",
-              "weight": 4
+              "weight": 4,
+              "specificity": 0.9,
+              "actionability": 0.9,
+              "complexity": 0.6
             },
             {
               "text": "Test dashboard error handling",
-              "weight": 4
+              "weight": 4,
+              "specificity": 0.9,
+              "actionability": 0.9,
+              "complexity": 0.5
             }
           ]
         },
@@ -112,11 +167,17 @@
           "templates": [
             {
               "text": "Restrict dashboard information according to user permissions",
-              "weight": 5
+              "weight": 5,
+              "specificity": 1.0,
+              "actionability": 0.9,
+              "complexity": 0.7
             },
             {
               "text": "Test dashboard access for unauthorized users",
-              "weight": 4
+              "weight": 4,
+              "specificity": 1.0,
+              "actionability": 0.9,
+              "complexity": 0.6
             }
           ]
         },
@@ -125,11 +186,251 @@
           "templates": [
             {
               "text": "Optimize dashboard data retrieval",
-              "weight": 4
+              "weight": 4,
+              "specificity": 0.8,
+              "actionability": 0.8,
+              "complexity": 0.7
             },
             {
               "text": "Avoid unnecessary dashboard API requests",
-              "weight": 3
+              "weight": 3,
+              "specificity": 0.8,
+              "actionability": 0.8,
+              "complexity": 0.6
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "DATABASE",
+      "description": "Persistent storage and retrieval of application data",
+      "concerns": [
+        {
+          "name": "Design",
+          "templates": [
+            {
+              "text": "Design database tables for the application's core entities",
+              "weight": 5,
+              "specificity": 0.9,
+              "actionability": 0.9,
+              "complexity": 0.7
+            },
+            {
+              "text": "Define appropriate relationships between database entities",
+              "weight": 5,
+              "specificity": 0.9,
+              "actionability": 0.9,
+              "complexity": 0.7
+            },
+            {
+              "text": "Normalize database tables to reduce unnecessary duplication",
+              "weight": 4,
+              "specificity": 0.8,
+              "actionability": 0.8,
+              "complexity": 0.8
+            }
+          ]
+        },
+        {
+          "name": "Querying",
+          "templates": [
+            {
+              "text": "Implement queries to retrieve required application data",
+              "weight": 5,
+              "specificity": 0.8,
+              "actionability": 0.9,
+              "complexity": 0.6
+            },
+            {
+              "text": "Optimize frequently executed database queries",
+              "weight": 4,
+              "specificity": 0.9,
+              "actionability": 0.9,
+              "complexity": 0.7
+            },
+            {
+              "text": "Handle database query failures gracefully",
+              "weight": 4,
+              "specificity": 0.8,
+              "actionability": 0.9,
+              "complexity": 0.5
+            }
+          ]
+        },
+        {
+          "name": "Transactions",
+          "templates": [
+            {
+              "text": "Ensure related database operations execute within a transaction",
+              "weight": 5,
+              "specificity": 1.0,
+              "actionability": 0.9,
+              "complexity": 0.7
+            },
+            {
+              "text": "Handle transaction failures without leaving inconsistent data",
+              "weight": 5,
+              "specificity": 1.0,
+              "actionability": 0.9,
+              "complexity": 0.8
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "REGISTRATION",
+      "description": "Creating a new user account",
+      "concerns": [
+        {
+          "name": "Validation",
+          "templates": [
+            {
+              "text": "Validate required registration fields",
+              "weight": 5,
+              "specificity": 0.9,
+              "actionability": 0.9,
+              "complexity": 0.3
+            },
+            {
+              "text": "Validate email format before account creation",
+              "weight": 5,
+              "specificity": 1.0,
+              "actionability": 0.9,
+              "complexity": 0.4
+            },
+            {
+              "text": "Prevent registration with an existing email address",
+              "weight": 5,
+              "specificity": 1.0,
+              "actionability": 0.9,
+              "complexity": 0.5
+            }
+          ]
+        },
+        {
+          "name": "Security",
+          "templates": [
+            {
+              "text": "Hash user passwords before storing them",
+              "weight": 5,
+              "specificity": 1.0,
+              "actionability": 1.0,
+              "complexity": 0.6
+            },
+            {
+              "text": "Enforce password strength requirements",
+              "weight": 4,
+              "specificity": 0.9,
+              "actionability": 0.9,
+              "complexity": 0.5
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "PROFILE",
+      "description": "Managing information associated with a user profile",
+      "concerns": [
+        {
+          "name": "Management",
+          "templates": [
+            {
+              "text": "Allow users to update their profile information",
+              "weight": 5,
+              "specificity": 0.8,
+              "actionability": 0.9,
+              "complexity": 0.5
+            },
+            {
+              "text": "Validate profile information before saving changes",
+              "weight": 5,
+              "specificity": 0.9,
+              "actionability": 0.9,
+              "complexity": 0.5
+            },
+            {
+              "text": "Allow users to reset their profile information when required",
+              "weight": 3,
+              "specificity": 0.6,
+              "actionability": 0.7,
+              "complexity": 0.5
+            }
+          ]
+        },
+        {
+          "name": "Security",
+          "templates": [
+            {
+              "text": "Restrict profile updates to the authenticated user",
+              "weight": 5,
+              "specificity": 1.0,
+              "actionability": 0.9,
+              "complexity": 0.6
+            },
+            {
+              "text": "Prevent unauthorized access to profile information",
+              "weight": 5,
+              "specificity": 1.0,
+              "actionability": 0.9,
+              "complexity": 0.7
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "SEARCH",
+      "description": "Finding relevant information within the application",
+      "concerns": [
+        {
+          "name": "Functionality",
+          "templates": [
+            {
+              "text": "Implement search functionality for relevant application data",
+              "weight": 5,
+              "specificity": 0.8,
+              "actionability": 0.9,
+              "complexity": 0.6
+            },
+            {
+              "text": "Support searching using relevant keywords",
+              "weight": 4,
+              "specificity": 0.7,
+              "actionability": 0.9,
+              "complexity": 0.4
+            },
+            {
+              "text": "Display useful results when a search is performed",
+              "weight": 4,
+              "specificity": 0.7,
+              "actionability": 0.8,
+              "complexity": 0.4
+            }
+          ]
+        },
+        {
+          "name": "Performance",
+          "templates": [
+            {
+              "text": "Optimize search queries for frequently accessed data",
+              "weight": 4,
+              "specificity": 0.9,
+              "actionability": 0.9,
+              "complexity": 0.7
+            },
+            {
+              "text": "Avoid unnecessary database queries during search",
+              "weight": 3,
+              "specificity": 0.8,
+              "actionability": 0.8,
+              "complexity": 0.6
             }
           ]
         }

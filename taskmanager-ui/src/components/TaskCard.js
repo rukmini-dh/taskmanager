@@ -148,13 +148,13 @@ const totalSubtasks = savedSubTasks.filter(subtask=>!subtask.deleted).length;
       console.log("Task id", task.id);
   
       try {
-          const plan = await generateSubTasks(task.title);
+          const plan = await generateSubTasks(task.title,task.id);
   
           if (plan.steps.length === 0) {
               console.log("no plan");
               return;
           }
-  
+
           console.log("Plan received:", plan);
           console.log("plan.steps =", plan.steps);
   
@@ -227,6 +227,7 @@ const totalSubtasks = savedSubTasks.filter(subtask=>!subtask.deleted).length;
       {/* Second Row */}
 
       <div className="secondrow">
+      
       {task.completed && <div >COMPLETED</div>}       
 
         {!taskLocked && <div className="description">{task.description}</div>}
