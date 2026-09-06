@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +23,8 @@ import com.example.taskmanager.user.UserPreferenceModel;
 import com.example.taskmanager.user.UserPreferenceModelRepository;
 import com.example.taskmanager.user.UserRepository;
 
+
+
 @Service
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
@@ -28,6 +33,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskContextRepository taskContextRepository;
     private final TemplateRepository templateRepository;
     private final ExperienceRepository experienceRepository;
+    
     private final UserPreferenceModelRepository userPreferenceModelRepository;
     public TaskServiceImpl(TaskRepository taskRepository,TemplateRepository templateRepository,UserRepository userRepository,SubTaskRepository subtaskRepository,TaskContextRepository taskContextRepository,ExperienceRepository experienceRepository,UserPreferenceModelRepository userPreferenceModelRepository) {
 
@@ -39,7 +45,8 @@ public class TaskServiceImpl implements TaskService {
     this.experienceRepository=experienceRepository;
     this.userPreferenceModelRepository=userPreferenceModelRepository;
 }
-
+private static final Logger log =
+        LoggerFactory.getLogger(TaskServiceImpl.class);
 
    
     
@@ -121,60 +128,141 @@ public class TaskServiceImpl implements TaskService {
     }
     // Update subtask
     @Transactional
-    public SubTaskDTO updateSubTask(SubTaskDTO subtaskDTO,Long id) {
-        SubTask subtask = subtaskRepository.findById(id).orElseThrow(() -> new  SubTaskNotFoundException("SubTask not found with id: " + id));
-        if (subtask.getTitle() != null) subtask.setTitle(subtaskDTO.getTitle());
+    public SubTaskDTO updateSubTask(SubTaskDTO subtaskDTO, Long id) {
+
+        SubTask subtask = subtaskRepository.findById(id)
+            .orElseThrow(() ->
+                new SubTaskNotFoundException(
+                    "SubTask not found with id: " + id
+                )
+            );
+    
+        if (subtask.getTitle() != null) {
+            subtask.setTitle(subtaskDTO.getTitle());
+        }
+    
         subtask.setCompleted(subtaskDTO.isCompleted());
+    
         Task task = subtask.getTask();
-
-        List<SubTask> subtasks =subtaskRepository.findByTask_Id(task.getId());
-
-        boolean allCompleted = subtasks.stream().allMatch(SubTask::isCompleted);
-
-        if(allCompleted){task.setCompleted(true);
-        taskRepository.save(task);
-}
+    
+        List<SubTask> subtasks =
+            subtaskRepository.findByTask_Id(task.getId());
+    
+        boolean allCompleted =
+            subtasks.stream().allMatch(SubTask::isCompleted);
+    
+        if (allCompleted) {
+            task.setCompleted(true);
+            taskRepository.save(task);
+        }
+    
         subtask.setSource(subtaskDTO.getSource());
         subtask.setDeleted(subtaskDTO.isDeleted());
         subtask.setEdited(subtaskDTO.isEdited());
         subtask.setFeedback(subtaskDTO.getFeedback());
         subtask.setDescription(subtaskDTO.getDescription());
-              
-        if(subtaskDTO.getFeedback()==FeedbackType.ACCEPTED){
-        User user = subtask.getTask().getUser();
-
-UserPreferenceModel preference = userPreferenceModelRepository
-        .findByUser(user)
-        .orElse(null);
-        if(preference==null){preference = new UserPreferenceModel();}
-            preference.setUser(user);
-            preference.setSpecificityPreference(
-                subtask.getTemplate().getSpecificity()
+    
+    
+        // =========================
+        // MACHINE LEARNING
+        // =========================
+        log.info("Feedback received by updateSubTask = [{}]",
+         subtaskDTO.getFeedback());
+    
+        if (subtaskDTO.getFeedback() != null) {
+    
+            User user = subtask.getTask().getUser();
+    
+            boolean accepted =
+                subtaskDTO.getFeedback() == FeedbackType.ACCEPTED;
+    
+            double actual = accepted ? 1.0 : 0.0;
+    
+            UserPreferenceModel preference =
+                userPreferenceModelRepository
+                    .findByUser(user)
+                    .orElse(null);
+    
+            if (preference == null) {
+                preference = new UserPreferenceModel();
+                preference.setUser(user);
+            }
+    
+            // Prediction using CURRENT weights
+            double prediction =
+                calculatePrediction(
+                    preference,
+                    subtask.getTemplate()
+                );
+    
+            // Error
+            double error = prediction - actual;
+    
+            // Gradients
+            double gradientSpecificity =
+                error * subtask.getTemplate().getSpecificity();
+    
+            double gradientActionability =
+                error * subtask.getTemplate().getActionability();
+    
+            double gradientComplexity =
+                error * subtask.getTemplate().getComplexity();
+    
+            double learningRate = 0.1;
+    
+            // Weight updates
+            preference.setSpecificityWeight(
+                preference.getSpecificityWeight()
+                - learningRate * gradientSpecificity
             );
-            
-            preference.setActionabilityPreference(
-                subtask.getTemplate().getActionability()
+    
+            preference.setActionabilityWeight(
+                preference.getActionabilityWeight()
+                - learningRate * gradientActionability
             );
-            
-            preference.setComplexityPreference(
-                subtask.getTemplate().getComplexity()
+    
+            preference.setComplexityWeight(
+                preference.getComplexityWeight()
+                - learningRate * gradientComplexity
             );
-            userPreferenceModelRepository.save(preference);}
-// NOW save the current subtask
-        SubTask saved = subtaskRepository.save(subtask);
-
-// NOW create/update experience and counters
-if (isTerminalAIOutcome(saved)) {
-    createExperienceIfNeeded(saved);
-}
-
-       
-        
-       
-      
-    return convertToSubTaskDTO(saved);
+    
+            userPreferenceModelRepository.save(preference);
+            System.out.println("TEMPLATE = " + subtask.getTemplate().getId());
+            log.info("PREDICTION = {}", prediction);
+            log.info("========== ML UPDATE ==========");
+            log.info("SubTask ID = {}", subtask.getId());
+            log.info("Template ID = {}", subtask.getTemplate().getId());
+            log.info("Feedback = {}", subtaskDTO.getFeedback());
+            log.info("Actual = {}", actual);
+            log.info("Prediction = {}", prediction);
+            log.info("Error = {}", error);
+            log.info("Specificity gradient = {}", gradientSpecificity);
+            log.info("Actionability gradient = {}", gradientActionability);
+            log.info("Complexity gradient = {}", gradientComplexity);
+            log.info("New specificity weight = {}", preference.getSpecificityWeight());
+            log.info("New actionability weight = {}", preference.getActionabilityWeight());
+            log.info("New complexity weight = {}", preference.getComplexityWeight());
+            log.info("================================");
+        }
+    
+    
+        // =========================
+        // SAVE SUBTASK
+        // =========================
+    
+        SubTask saved =
+            subtaskRepository.save(subtask);
+    
+        return convertToSubTaskDTO(saved);
     }
-    private boolean isTerminalAIOutcome(SubTask subTask) {
+    double calculatePrediction(UserPreferenceModel preference,Template template)
+{    double z = template.getSpecificity()*preference.getSpecificityWeight()+template.getActionability()*preference.getActionabilityWeight()+template.getComplexity()*preference.getComplexityWeight();
+     return sigmoid(z);
+}
+private double sigmoid(double z) {
+    return 1.0 / (1.0 + Math.exp(-z));
+}
+/*     private boolean isTerminalAIOutcome(SubTask subTask) {
 
         if (subTask.getTemplate() == null) {
             return false;
@@ -206,9 +294,9 @@ if (isTerminalAIOutcome(saved)) {
         SubTask previousSubTask =
         previousExperience.get().getSubTask();
 
-       /*   previousTemplateId =
+         previousTemplateId =
         previousSubTask.getTemplate().getId();
- */
+
         if (previousSubTask != null &&
             previousSubTask.getTemplate() != null) {
 
@@ -317,7 +405,7 @@ if (isTerminalAIOutcome(saved)) {
     // --------------------------------------------------
 
     templateRepository.save(template);
-}
+} */
     // create a new subtask
     public SubTaskDTO createSubTask(SubTaskDTO dto,long id)   {
         SubTask subtask =new SubTask();
@@ -328,8 +416,7 @@ if (isTerminalAIOutcome(saved)) {
         subtask.setDeleted(dto.isDeleted());   
         subtask.setEdited(dto.isEdited());
         subtask.setFeedback(dto.getFeedback());
-        // Every newly generated template starts as NOT recommended
-       subtask.setRecommended(dto.isRecommended());
+        subtask.setRecommended(dto.isRecommended());
         if (dto.getTemplateId() != null) {
             Template template = templateRepository
                     .findById(dto.getTemplateId())

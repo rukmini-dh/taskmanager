@@ -307,20 +307,27 @@ Template bestTemplate = null;
 
 if (hasLearnedPreferences) {
 
-    double bestSimilarity = -1;
+  //  double bestSimilarity = -1;
+  double bestPrediction=-1.0;
 
     for (Template template : concern.getTemplates()) {
 
-        double similarity =
-            calculateCosineSimilarity(preference, template);
+       /*  double similarity =
+            calculateCosineSimilarity(preference, template); */
+            double prediction= calculatePrediction(preference,template);
 
-        System.out.println(
+       /*  System.out.println(
             "Template " + template.getId()
             + " similarity = " + similarity
         );
+ */
+        System.out.println(
+            "Template " + template.getId()
+            + " prediction = " + prediction
+        );
 
-        if (similarity > bestSimilarity) {
-            bestSimilarity = similarity;
+        if (prediction > bestPrediction) {
+            bestPrediction = prediction;
             bestTemplate = template;
         }
     }
@@ -328,8 +335,8 @@ if (hasLearnedPreferences) {
     System.out.println(
         "BEST TEMPLATE = "
         + bestTemplate.getId()
-        + " | similarity = "
-        + bestSimilarity
+        + " | prediction = "
+        + bestPrediction
     );
 }
 //***************      
@@ -385,53 +392,14 @@ if (hasLearnedPreferences) {
 
     return response;
 }
-private double calculateCosineSimilarity(
-    UserPreferenceModel userPreference,
-    Template template) {
-
-double userSpecificity =
-    userPreference.getSpecificityPreference();
-
-double userActionability =
-    userPreference.getActionabilityPreference();
-
-double userComplexity =
-    userPreference.getComplexityPreference();
-
-double templateSpecificity =
-    template.getSpecificity();
-
-double templateActionability =
-    template.getActionability();
-
-double templateComplexity =
-    template.getComplexity();
-
-double dotProduct =
-    userSpecificity * templateSpecificity
-    + userActionability * templateActionability
-    + userComplexity * templateComplexity;
-
-double userMagnitude =
-    Math.sqrt(
-        userSpecificity * userSpecificity
-        + userActionability * userActionability
-        + userComplexity * userComplexity
-    );
-
-double templateMagnitude =
-    Math.sqrt(
-        templateSpecificity * templateSpecificity
-        + templateActionability * templateActionability
-        + templateComplexity * templateComplexity
-    );
-
-if (userMagnitude == 0 || templateMagnitude == 0) {
-    return 0;
+double calculatePrediction(UserPreferenceModel preference,Template template)
+{    double z = template.getSpecificity()*preference.getSpecificityWeight()+template.getActionability()*preference.getActionabilityWeight()+template.getComplexity()*preference.getComplexityWeight();
+     return sigmoid(z);
+}
+private double sigmoid(double z) {
+    return 1.0 / (1.0 + Math.exp(-z));
 }
 
-return dotProduct / (userMagnitude * templateMagnitude);
-}
     
            
 

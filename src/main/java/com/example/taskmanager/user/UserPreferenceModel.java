@@ -14,10 +14,11 @@ public class UserPreferenceModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private double specificityWeight   = 0.50;
+    private double actionabilityWeight = 0.50;
+    private double complexityWeight    = 0.50;
 
-    private double specificityPreference;
-    private double actionabilityPreference;
-    private double complexityPreference;
+  
 
     @OneToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
@@ -27,12 +28,12 @@ public class UserPreferenceModel {
     // getters and setters
     public void setId(Long id){this.id=id;}
     public long getId(){return id;}
-    public void setSpecificityPreference(double specificityPreference){this.specificityPreference=specificityPreference;}
-    public double getSpecificityPreference(){return specificityPreference;}
-    public void setActionabilityPreference(double actionabilityPreference){this.actionabilityPreference=actionabilityPreference;}
-    public double getActionabilityPreference(){return  actionabilityPreference;}
-    public void setComplexityPreference(double complexityPreference){this.complexityPreference=complexityPreference;}
-    public double getComplexityPreference(){return complexityPreference;}
+    public void setSpecificityWeight(double specificityWeight){this.specificityWeight=specificityWeight;}
+    public double getSpecificityWeight(){return specificityWeight;}
+    public void setActionabilityWeight(double actionabilityWeight){this.actionabilityWeight=actionabilityWeight;}
+    public double getActionabilityWeight(){return  actionabilityWeight;}
+    public void setComplexityWeight(double complexityWeight){this.complexityWeight=complexityWeight;}
+    public double getComplexityWeight(){return complexityWeight;}
     public void setUser(User user){this.user=user;}
     public User getUser(){return user;}
 
